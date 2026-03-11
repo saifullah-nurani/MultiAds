@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <declare-styleable name="AdmobBannerView">
+        <attr name="adFormats" format="flags">
+            <flag name="small" value="1"/>
+            <flag name="medium" value="2"/>
+            <flag name="large" value="4"/>
+            <flag name="full_size_banner" value="8"/>
+            <flag name="leaderboard" value="16"/>
+        </attr>
+        <attr name="adFailedRetryRule" format="enum">
+            <enum name="none" value="1"/>
+            <enum name="linear" value="2" />
+            <enum name="exponential" value="3" />
+        </attr>
+        <attr name="adFailedLoadDelayMillis" format="integer" />
+        <attr name="adFailedLoadMaxAttempt" format="integer" />
+        <attr name="adFailedLoadMultiplier" format="fraction" />
+        <attr name="adReloadPolicies" format="flags">
+            <flag name="OnClicked" value="1" />
+            <flag name="OnDismissed" value="2" />
+            <flag name="OnFailedToShow" value="4" />
+        </attr>
+        <attr name="adLoadType" format="enum">
+            <enum name="fixed" value="1" />
+            <enum name="random" value="2" />
+        </attr>
+        <attr name="adUnitId" />
+        <attr name="keepAdSlot" format="boolean"/>
+    </declare-styleable>
+</resources>

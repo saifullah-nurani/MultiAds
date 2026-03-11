@@ -1,0 +1,5 @@
+language = Objective-C
+package = GoogleMobileAds
+modules = GoogleMobileAds
+compilerOpts = -framework GoogleMobileAds
+linkerOpts = -framework GoogleMobileAds
