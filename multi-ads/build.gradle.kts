@@ -145,6 +145,17 @@ mavenPublishing {
             developerConnection.set("scm:git:ssh://github.com/saifullah-nurani/MultiAds.git")
             url.set("https://github.com/saifullah-nurani/MultiAds")
         }
+        
+        withXml {
+            val repositories = asNode().appendNode("repositories")
+            val pangleRepo = repositories.appendNode("repository")
+            pangleRepo.appendNode("id", "pangle")
+            pangleRepo.appendNode("url", "https://artifact.bytedance.com/repository/pangle/")
+            
+            val isRepo = repositories.appendNode("repository")
+            isRepo.appendNode("id", "ironsource")
+            isRepo.appendNode("url", "https://android-sdk.is.com/")
+        }
     }
 
     publishToMavenCentral(com.vanniktech.maven.publish.SonatypeHost.CENTRAL_PORTAL)
