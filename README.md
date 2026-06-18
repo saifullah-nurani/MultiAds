@@ -34,6 +34,24 @@ It provides standard wrappers for multiple popular ad networks, alongside a unif
 
 ## 📦 Installation Dependencies
 
+> [!IMPORTANT]
+> **Required Repositories:** Gradle ignores custom repositories defined in library POM files. To resolve transitive SDK dependencies (like Pangle and IronSource), you **MUST** explicitly add their Maven repositories to your consumer project's `settings.gradle.kts` (or root `build.gradle.kts`) file:
+
+```kotlin
+// settings.gradle.kts
+dependencyResolutionManagement {
+    repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
+    repositories {
+        google()
+        mavenCentral()
+        // Required for Pangle SDK
+        maven { url = uri("https://artifact.bytedance.com/repository/pangle/") }
+        // Required for IronSource SDK
+        maven { url = uri("https://android-sdk.is.com/") }
+    }
+}
+```
+
 Choose the dependency format based on your project type.
 
 ### 1. Compose Multiplatform / KMM
