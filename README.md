@@ -1,6 +1,23 @@
-# MultiAds
+<div align="center">
+  
+# 🚀 MultiAds
 
-**MultiAds** is a lightweight, flexible, and professional Kotlin Multiplatform (KMP) Ad Management library designed to simplify ad integration across **Android** and **iOS** applications. 
+**A Professional Kotlin Multiplatform Ad Management Library**
+
+[![Kotlin](https://img.shields.io/badge/Kotlin-2.0.0-blue.svg?logo=kotlin)](http://kotlinlang.org)
+[![KMP](https://img.shields.io/badge/KMP-Supported-purple.svg?logo=kotlin)](https://kotlinlang.org/docs/multiplatform.html)
+[![Version](https://img.shields.io/maven-central/v/io.github.saifullah-nurani.ads/multi-ads)](https://central.sonatype.com/artifact/io.github.saifullah-nurani.ads/multi-ads)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Android Supported](https://img.shields.io/badge/Platform-Android-3DDC84.svg?logo=android)](https://developer.android.com)
+[![iOS Supported](https://img.shields.io/badge/Platform-iOS-000000.svg?logo=apple)](https://developer.apple.com)
+
+**MultiAds** is a lightweight, flexible, and robust ad management solution designed to simplify the complex world of ad integration across **Android** and **iOS** applications. 
+
+[Features](#-key-features) • [Installation](#-installation-dependencies) • [Module Setup](#%EF%B8%8F-module-setup--implementation-guides) • [License](#-license)
+
+</div>
+
+---
 
 It provides standard wrappers for multiple popular ad networks, alongside a unified, priority-based **Waterfall Mediation module (`multi-ads`)** that handles dynamic networks fallback, automatic retry policies, and ad lifecycles out-of-the-box.
 
