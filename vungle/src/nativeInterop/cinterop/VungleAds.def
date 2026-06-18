@@ -1,0 +1,5 @@
+language = Objective-C
+package = VungleAdsSDK
+modules = VungleAdsSDK
+compilerOpts = -framework VungleAdsSDK -fmodules
+linkerOpts = -framework VungleAdsSDK

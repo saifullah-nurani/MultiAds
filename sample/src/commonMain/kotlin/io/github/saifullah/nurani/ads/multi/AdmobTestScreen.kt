@@ -17,10 +17,13 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import io.github.saifullah.nurani.ads.admob.compose.admobAdProperties
+import io.github.saifullah.nurani.ads.admob.compose.rememberAdmobAdsInit
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -42,7 +45,6 @@ import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.filled.Sync
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.animation.core.InfiniteRepeatableSpec
@@ -52,23 +54,64 @@ import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.layout.width
 import androidx.compose.ui.draw.alpha
-import io.github.saifullah.nurani.ads.admob.compose.AdmobAdProperties
 import io.github.saifullah.nurani.ads.admob.compose.AdmobBannerAd
 import io.github.saifullah.nurani.ads.admob.compose.rememberAdmobInterstitialAd
 import io.github.saifullah.nurani.ads.admob.compose.rememberAdmobRewardedAd
 import io.github.saifullah.nurani.ads.admob.compose.rememberAdmobRewardedInterstitialAd
 import io.github.saifullah.nurani.ads.core.AdLogger
 import io.github.saifullah.nurani.ads.core.AdSize
+import io.github.saifullah.nurani.ads.admob.compose.AdmobAdProperties
 import io.github.saifullah.nurani.ads.core.BannerAd
 import io.github.saifullah.nurani.ads.core.AdState
 import io.github.saifullah.nurani.ads.core.compose.LocalPlatformActivity
 import io.github.saifullah.nurani.ads.core.compose.PlatformActivity
 import io.github.saifullah.nurani.ads.core.utils.DefaultAdLogger
 
-val PlaceHolderAdmobProperties = AdmobAdProperties("", "")
+val PlaceHolderAdmobProperties = admobAdProperties("", "")
 
 @Composable
 fun AdmobTestScreen(onBack: () -> Unit) {
+    val isInitialized = rememberAdmobAdsInit()
+
+    if (!isInitialized) {
+        Scaffold(
+            topBar = {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(WindowInsets.statusBars.asPaddingValues())
+                        .padding(horizontal = 16.dp, vertical = 8.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    OutlinedButton(
+                        onClick = onBack,
+                        shape = RoundedCornerShape(12.dp)
+                    ) {
+                        Text("Back")
+                    }
+                    Text(
+                        text = "Admob Showcase",
+                        modifier = Modifier.padding(start = 16.dp),
+                        style = MaterialTheme.typography.headlineSmall.copy(
+                            fontWeight = FontWeight.ExtraBold,
+                            color = MaterialTheme.colorScheme.primary
+                        )
+                    )
+                }
+            }
+        ) { padding ->
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(padding),
+                contentAlignment = Alignment.Center
+            ) {
+                CircularProgressIndicator()
+            }
+        }
+        return
+    }
+
     var bannerType by remember { mutableStateOf("Fixed") }
 
     val scrollState = rememberScrollState()

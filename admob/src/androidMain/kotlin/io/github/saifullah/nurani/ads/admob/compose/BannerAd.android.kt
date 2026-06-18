@@ -3,15 +3,17 @@ package io.github.saifullah.nurani.ads.admob.compose
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.viewinterop.AndroidView
 import io.github.saifullah.nurani.ads.admob.AdmobBannerView
 import io.github.saifullah.nurani.ads.core.AdFailedRetryRule
 import io.github.saifullah.nurani.ads.core.AdLogger
-import io.github.saifullah.nurani.ads.core.AdReloadPolicy
 import io.github.saifullah.nurani.ads.core.AdSize
-import io.github.saifullah.nurani.ads.core.BannerAdListener
 import io.github.saifullah.nurani.ads.core.BannerAd
+import io.github.saifullah.nurani.ads.core.BannerAdListener
 
 @Composable
 actual fun AdmobBannerAd(
@@ -21,23 +23,58 @@ actual fun AdmobBannerAd(
     animateExpansion: Boolean,
     adSize: BannerAd<AdSize>,
     adFailedAdRetryRule: AdFailedRetryRule,
-    adReloadPolicies: Set<AdReloadPolicy>,
     adLogger: AdLogger?,
     adListener: BannerAdListener?
 ) {
-    val heightController = rememberBannerHeightController(
+    AdmobBannerAd(
+        adUnitId = properties.androidAdUnitId,
+        testModeEnabled = testModeEnabled,
+        expandWhenReady = expandWhenReady,
+        animateExpansion = animateExpansion,
+        adSize = adSize,
+        adFailedAdRetryRule = adFailedAdRetryRule,
+        adLogger = adLogger,
+        adListener = adListener
+    )
+}
+
+
+/**
+ * Remembers and manages the lifecycle of a BannerAd.
+ *
+ * This function integrates with Compose lifecycle to automatically:
+ * - start and stop the ad state
+ * - load the ad initially if required
+ * - attach load/content callbacks
+ */
+@Composable
+fun AdmobBannerAd(
+    adUnitId: String,
+    testModeEnabled: Boolean = false,
+    expandWhenReady: Boolean = true,
+    animateExpansion: Boolean = true,
+    adSize: BannerAd<AdSize> = AdmobDefault.DefaultBannerAd,
+    adFailedAdRetryRule: AdFailedRetryRule = AdmobDefault.DefaultAdFailedRetryRule,
+    adLogger: AdLogger? = null,
+    adListener: BannerAdListener? = null
+) {
+    val heightController = io.github.saifullah.nurani.ads.core.rememberBannerHeightController(
         expandWhenReady,
         animateExpansion
     )
+    val adUnitId by rememberSaveable(adUnitId) {
+        mutableStateOf(adUnitId)
+    }
+    val initialLoadRequested = androidx.compose.runtime.remember { booleanArrayOf(false) }
     AndroidView(
         modifier = Modifier
             .fillMaxWidth()
             .height(heightController.animatedHeight()),
 
-        factory = {ctx->
+        factory = { ctx ->
             AdmobBannerView(ctx).apply {
                 setAdLogger(adLogger)
-                setAdUnitId(properties.androidAdUnitId)
+                setAdUnitId(adUnitId)
                 this.retryRule = adFailedAdRetryRule
                 setKeepAdSlot(expandWhenReady)
                 setTestModeEnabled(testModeEnabled)
@@ -58,9 +95,19 @@ actual fun AdmobBannerAd(
                     heightController.onAdDisplayed()
                 }
             )
-            view.loadAd()
+            if (!initialLoadRequested[0]) {
+                initialLoadRequested[0] = true
+                view.loadAd()
+            }
         },
 
         onRelease = { it.destroy() }
     )
+}
+
+/**
+ * Creates AdMob ad properties for Android ad unit IDs.
+ */
+fun admobAdProperties(adUnitId: String): AdmobAdProperties {
+    return AdmobAdProperties(adUnitId, "")
 }

@@ -1,0 +1,5 @@
+language = Objective-C
+package = IronSource
+modules = IronSource
+compilerOpts = -framework IronSource -fmodules
+linkerOpts = -framework IronSource

@@ -33,10 +33,13 @@ class AdStateManager(
     val isAdRefreshing: Boolean get() = _isAdRefreshing
     private var _isAdReloading by mutableStateOf(false)
     val isAdReloading: Boolean get() = _isAdReloading
+    private var _isAdLoadScheduled by mutableStateOf(false)
+    val isAdLoadScheduled: Boolean get() = _isAdLoadScheduled
     private var _attemptCount by mutableIntStateOf(0)
     val attemptCount: Int get() = _attemptCount
 
     private val adLoadRunnable: () -> Unit = {
+        _isAdLoadScheduled = false
         loadAdIfNotLoading()
     }
 
@@ -53,6 +56,16 @@ class AdStateManager(
         _attemptCount = 0
         adLoadType = LoadType.Usual
         cancelSchedule("Manual Load")
+        loadAdIfNotLoading()
+    }
+
+    fun loadAdIfIdle() {
+        if (isAdAvailable || isAdLoading || isAdLoadScheduled) {
+            logDebug("automatic load skipped (available/loading/scheduled)")
+            return
+        }
+        _attemptCount = 0
+        adLoadType = LoadType.Usual
         loadAdIfNotLoading()
     }
 
@@ -182,21 +195,28 @@ class AdStateManager(
     ) {
         cancelSchedule("Reschedule")
         adLoadType = type
+        _isAdLoadScheduled = true
+        if (type == LoadType.FailedAd) {
+            _isRetryingAdFailedLoad = true
+        }
         scheduler.schedule(delayMillis, adLoadRunnable)
         logDebug("scheduled load in $delayMillis reason: $reason type: $type")
     }
 
     private fun cancelSchedule(reason: String) {
         scheduler.cancel(adLoadRunnable)
+        _isAdLoadScheduled = false
         logDebug("cancelled scheduled load reason: $reason")
     }
 
+    private val localLogger: AdLogger = logger ?: io.github.saifullah.nurani.ads.core.utils.DefaultAdLogger(this.tag)
+
     private fun logDebug(msg: String) {
-        logger?.d("$tag $msg")
+        localLogger.d(msg)
     }
 
     private fun logError(msg: String) {
-        logger?.e("$tag $msg")
+        localLogger.e(msg)
     }
 
     private enum class LoadType {

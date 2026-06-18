@@ -1,0 +1,5 @@
+language = Objective-C
+package = PAGAdSDK
+modules = PAGAdSDK
+compilerOpts = -framework PAGAdSDK -fmodules
+linkerOpts = -framework PAGAdSDK

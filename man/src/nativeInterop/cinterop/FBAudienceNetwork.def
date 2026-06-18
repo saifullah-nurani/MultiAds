@@ -1,0 +1,5 @@
+language = Objective-C
+package = FBAudienceNetwork
+modules = FBAudienceNetwork
+compilerOpts = -framework FBAudienceNetwork -fmodules
+linkerOpts = -framework FBAudienceNetwork

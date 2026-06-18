@@ -7,13 +7,28 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		61AE33732F60CD1C00ECBA72 /* GoogleMobileAds in Frameworks */ = {isa = PBXBuildFile; productRef = 61AE33722F60CD1C00ECBA72 /* GoogleMobileAds */; };
 		61AE33752F60CD8F00ECBA72 /* JavaScriptCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 61AE33742F60CD8F00ECBA72 /* JavaScriptCore.framework */; };
+		F39138EBBD4D1E588FC96166 /* Pods_iosApp.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4FB6411751CE65E6A2964345 /* Pods_iosApp.framework */; };
 /* End PBXBuildFile section */
 
+/* Begin PBXCopyFilesBuildPhase section */
+		618919F72FD4C0360075FC31 /* Embed Frameworks */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 10;
+			files = (
+			);
+			name = "Embed Frameworks";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
 /* Begin PBXFileReference section */
-		61AE336C2F60CC3100ECBA72 /* GoogleMobileAds.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; name = GoogleMobileAds.xcframework; path = ../admob/frameworks/GoogleMobileAds.xcframework; sourceTree = "<group>"; };
+		4FB6411751CE65E6A2964345 /* Pods_iosApp.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_iosApp.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		61AE33742F60CD8F00ECBA72 /* JavaScriptCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = JavaScriptCore.framework; path = System/Library/Frameworks/JavaScriptCore.framework; sourceTree = SDKROOT; };
+		B38CD885D6F7424886C1DE6F /* Pods-iosApp.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-iosApp.debug.xcconfig"; path = "Target Support Files/Pods-iosApp/Pods-iosApp.debug.xcconfig"; sourceTree = "<group>"; };
+		EF7B3E0415A8384E92BF74C5 /* Pods-iosApp.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-iosApp.release.xcconfig"; path = "Target Support Files/Pods-iosApp/Pods-iosApp.release.xcconfig"; sourceTree = "<group>"; };
 		F87B2FF69AD9E67408D61108 /* MultiAds.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = MultiAds.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
@@ -30,6 +45,8 @@
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		7E1FF4E504BDAE590E0AB1A1 /* Configuration */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+			);
 			path = Configuration;
 			sourceTree = "<group>";
 		};
@@ -49,7 +66,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				61AE33752F60CD8F00ECBA72 /* JavaScriptCore.framework in Frameworks */,
-				61AE33732F60CD1C00ECBA72 /* GoogleMobileAds in Frameworks */,
+				F39138EBBD4D1E588FC96166 /* Pods_iosApp.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -60,9 +77,19 @@
 			isa = PBXGroup;
 			children = (
 				61AE33742F60CD8F00ECBA72 /* JavaScriptCore.framework */,
-				61AE336C2F60CC3100ECBA72 /* GoogleMobileAds.xcframework */,
+				4FB6411751CE65E6A2964345 /* Pods_iosApp.framework */,
 			);
 			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		6D1C0ACE6154F34CBF6BACD0 /* Pods */ = {
+			isa = PBXGroup;
+			children = (
+				B38CD885D6F7424886C1DE6F /* Pods-iosApp.debug.xcconfig */,
+				EF7B3E0415A8384E92BF74C5 /* Pods-iosApp.release.xcconfig */,
+			);
+			name = Pods;
+			path = Pods;
 			sourceTree = "<group>";
 		};
 		9B1AF4F1A81E0030D2B6237F /* Products */ = {
@@ -80,6 +107,7 @@
 				D57162D6DDE9F42CF10AF686 /* iosApp */,
 				61AE336B2F60CC3100ECBA72 /* Frameworks */,
 				9B1AF4F1A81E0030D2B6237F /* Products */,
+				6D1C0ACE6154F34CBF6BACD0 /* Pods */,
 			);
 			sourceTree = "<group>";
 		};
@@ -90,10 +118,14 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = CC91782ACD891D61BFCB8354 /* Build configuration list for PBXNativeTarget "iosApp" */;
 			buildPhases = (
+				F521DA9A10132952CA801966 /* [CP] Check Pods Manifest.lock */,
 				27CC4AF402BF4610C6E756C3 /* Compile Kotlin Framework */,
 				6601153FD9173DF0E1E14F04 /* Sources */,
 				48AB31A6190578475A03C739 /* Frameworks */,
 				6605E86045B09A23039DDE41 /* Resources */,
+				618919F72FD4C0360075FC31 /* Embed Frameworks */,
+				9CE8D661C452EC75448267D1 /* [CP] Embed Pods Frameworks */,
+				0A8CF1D25C8A49BB41BCAD30 /* [CP] Copy Pods Resources */,
 			);
 			buildRules = (
 			);
@@ -103,9 +135,6 @@
 				D57162D6DDE9F42CF10AF686 /* iosApp */,
 			);
 			name = iosApp;
-			packageProductDependencies = (
-				61AE33722F60CD1C00ECBA72 /* GoogleMobileAds */,
-			);
 			productName = iosApp;
 			productReference = F87B2FF69AD9E67408D61108 /* MultiAds.app */;
 			productType = "com.apple.product-type.application";
@@ -134,9 +163,6 @@
 			);
 			mainGroup = BC8CF04BDED1E882C5867561;
 			minimizedProjectReferenceProxies = 1;
-			packageReferences = (
-				61AE33712F60CD1C00ECBA72 /* XCRemoteSwiftPackageReference "swift-package-manager-google-mobile-ads" */,
-			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 9B1AF4F1A81E0030D2B6237F /* Products */;
 			projectDirPath = "";
@@ -158,6 +184,23 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXShellScriptBuildPhase section */
+		0A8CF1D25C8A49BB41BCAD30 /* [CP] Copy Pods Resources */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-iosApp/Pods-iosApp-resources-${CONFIGURATION}-input-files.xcfilelist",
+			);
+			name = "[CP] Copy Pods Resources";
+			outputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-iosApp/Pods-iosApp-resources-${CONFIGURATION}-output-files.xcfilelist",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-iosApp/Pods-iosApp-resources.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
 		27CC4AF402BF4610C6E756C3 /* Compile Kotlin Framework */ = {
 			isa = PBXShellScriptBuildPhase;
 			alwaysOutOfDate = 1;
@@ -176,6 +219,45 @@
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
 			shellScript = "if [ \"YES\" = \"$OVERRIDE_KOTLIN_BUILD_IDE_SUPPORTED\" ]; then\n  echo \"Skipping Gradle build task invocation due to OVERRIDE_KOTLIN_BUILD_IDE_SUPPORTED environment variable set to \\\"YES\\\"\"\n  exit 0\nfi\ncd \"$SRCROOT/..\"\n./gradlew :sample:embedAndSignAppleFrameworkForXcode\n";
+		};
+		9CE8D661C452EC75448267D1 /* [CP] Embed Pods Frameworks */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-iosApp/Pods-iosApp-frameworks-${CONFIGURATION}-input-files.xcfilelist",
+			);
+			name = "[CP] Embed Pods Frameworks";
+			outputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-iosApp/Pods-iosApp-frameworks-${CONFIGURATION}-output-files.xcfilelist",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-iosApp/Pods-iosApp-frameworks.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+		F521DA9A10132952CA801966 /* [CP] Check Pods Manifest.lock */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
+				"${PODS_ROOT}/Manifest.lock",
+			);
+			name = "[CP] Check Pods Manifest.lock";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+				"$(DERIVED_FILE_DIR)/Pods-iosApp-checkManifestLockResult.txt",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
+			showEnvVarsInLog = 0;
 		};
 /* End PBXShellScriptBuildPhase section */
 
@@ -250,6 +332,7 @@
 		};
 		408D7FA8AF77CCA5DA1996FB /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = B38CD885D6F7424886C1DE6F /* Pods-iosApp.debug.xcconfig */;
 			buildSettings = {
 				ARCHS = arm64;
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
@@ -284,6 +367,7 @@
 		};
 		A27F0C437433C31D0ECC985F /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = EF7B3E0415A8384E92BF74C5 /* Pods-iosApp.release.xcconfig */;
 			buildSettings = {
 				ARCHS = arm64;
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
@@ -404,24 +488,6 @@
 		};
 /* End XCConfigurationList section */
 
-/* Begin XCRemoteSwiftPackageReference section */
-		61AE33712F60CD1C00ECBA72 /* XCRemoteSwiftPackageReference "swift-package-manager-google-mobile-ads" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/googleads/swift-package-manager-google-mobile-ads.git";
-			requirement = {
-				kind = upToNextMajorVersion;
-				minimumVersion = 13.1.0;
-			};
-		};
-/* End XCRemoteSwiftPackageReference section */
-
-/* Begin XCSwiftPackageProductDependency section */
-		61AE33722F60CD1C00ECBA72 /* GoogleMobileAds */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = 61AE33712F60CD1C00ECBA72 /* XCRemoteSwiftPackageReference "swift-package-manager-google-mobile-ads" */;
-			productName = GoogleMobileAds;
-		};
-/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = 17B39E9CE97C926EB4FDF47C /* Project object */;
 }

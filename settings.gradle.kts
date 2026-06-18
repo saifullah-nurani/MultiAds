@@ -1,4 +1,4 @@
-rootProject.name = "MultiAds"
+rootProject.name = "MultiAdsProject"
 enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
 
 pluginManagement {
@@ -25,6 +25,12 @@ dependencyResolutionManagement {
             }
         }
         mavenCentral()
+        maven {
+            url = uri("https://artifact.bytedance.com/repository/pangle/")
+        }
+        maven {
+            url = uri("https://android-sdk.is.com/")
+        }
     }
 }
 
@@ -33,3 +39,9 @@ include(":androidApp")
 include(":core")
 include(":admob")
 include(":man")
+include(":applovin")
+include(":inmobi")
+include(":vungle")
+include(":pangle")
+include(":is")
+include(":multi-ads")

@@ -1,0 +1,5 @@
+language = Objective-C
+package = AppLovinSDK
+modules = AppLovinSDK
+compilerOpts = -framework AppLovinSDK -fmodules
+linkerOpts = -framework AppLovinSDK

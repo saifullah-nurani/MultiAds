@@ -1,0 +1,58 @@
+PODS:
+  - Ads-Global (8.1.0.7):
+    - Ads-Global/BUAdSDK (= 8.1.0.7)
+  - Ads-Global/BUAdSDK (8.1.0.7):
+    - Ads-Global/PangleSDK
+    - Ads-Global/TikTokBusinessSDK
+  - Ads-Global/PangleSDK (8.1.0.7)
+  - Ads-Global/TikTokBusinessSDK (8.1.0.7)
+  - AppLovinSDK (13.6.3)
+  - FBAudienceNetwork (6.21.1)
+  - Google-Mobile-Ads-SDK (13.4.0):
+    - GoogleUserMessagingPlatform (>= 1.1)
+  - GoogleUserMessagingPlatform (3.1.0)
+  - InMobiSDK (11.3.0)
+  - IronSourceAdQualitySDK (9.5.1)
+  - IronSourceSDK (9.4.1.0):
+    - IronSourceSDK/AdQuality (= 9.4.1.0)
+    - IronSourceSDK/Ads (= 9.4.1.0)
+  - IronSourceSDK/AdQuality (9.4.1.0):
+    - IronSourceAdQualitySDK (~> 9.5.0)
+  - IronSourceSDK/Ads (9.4.1.0)
+  - VungleAds (7.7.4)
+
+DEPENDENCIES:
+  - Ads-Global
+  - AppLovinSDK
+  - FBAudienceNetwork
+  - Google-Mobile-Ads-SDK
+  - InMobiSDK
+  - IronSourceSDK
+  - VungleAds
+
+SPEC REPOS:
+  trunk:
+    - Ads-Global
+    - AppLovinSDK
+    - FBAudienceNetwork
+    - Google-Mobile-Ads-SDK
+    - GoogleUserMessagingPlatform
+    - InMobiSDK
+    - IronSourceAdQualitySDK
+    - IronSourceSDK
+    - VungleAds
+
+SPEC CHECKSUMS:
+  Ads-Global: 4ff2183f7dd85fa6ec110c48e1674527a6c57864
+  AppLovinSDK: f3da9503e8193d8c4badc1a9965d73a0779812fa
+  FBAudienceNetwork: 85d18a65c9e35bc426bd4664cf3ae2a1172d7b60
+  Google-Mobile-Ads-SDK: 5aa7af5189af2c75d1c32868062cf3692f1376f9
+  GoogleUserMessagingPlatform: befe603da6501006420c206222acd449bba45a9c
+  InMobiSDK: a25c208dcc6fc6d9b228f34a4643712f37923208
+  IronSourceAdQualitySDK: d3f89c7eb4afc6b6c45fc3d83d64789a9977148f
+  IronSourceSDK: d12f8939bf36dd4e28bb4f6134bcde9a53af15db
+  VungleAds: 77bad219e9e4b34bf43ab2518bf2fac72b86100b
+
+PODFILE CHECKSUM: dd77d12f03838601ee8b0024e82285201a16387e
+
+COCOAPODS: 1.16.2

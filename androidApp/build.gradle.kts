@@ -35,6 +35,13 @@ android {
     buildFeatures {
         compose = true
     }
+    packaging {
+        resources {
+            excludes += setOf(
+                "META-INF/versions/**"
+            )
+        }
+    }
 }
 
 kotlin {

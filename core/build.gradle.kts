@@ -1,3 +1,5 @@
+import org.jetbrains.kotlin.gradle.plugin.mpp.apple.XCFramework
+
 plugins {
     alias(libs.plugins.kotlinMultiplatform)
     alias(libs.plugins.androidKotlinMultiplatformLibrary)
@@ -10,8 +12,6 @@ val isCocoapodsEnabled = project.findProperty("PROJECT_ENABLE_COCOAPODS")?.toStr
 if (isCocoapodsEnabled) {
     apply(plugin = "org.jetbrains.kotlin.native.cocoapods")
 }
-
-
 
 kotlin {
 
@@ -40,10 +40,12 @@ kotlin {
     // A step-by-step guide on how to include this library in an XCode
     // project can be found here:
     // https://developer.android.com/kotlin/multiplatform/migrate
+    val xcf = XCFramework("coreKit")
     listOf(iosX64(), iosArm64(), iosSimulatorArm64()).forEach { target ->
         target.binaries.framework {
             baseName = "coreKit"
             isStatic = true
+            xcf.add(this)
         }
     }
 
@@ -84,9 +86,8 @@ kotlin {
 
         androidMain {
             dependencies {
-                // Add Android-specific dependencies here. Note that this source set depends on
-                // commonMain by default and will correctly pull the Android artifacts of any KMP
-                // dependencies declared in commonMain.
+                implementation(libs.androidx.lifecycle.runtime.ktx)
+                implementation(libs.androidx.fragment.ktx)
             }
         }
 
@@ -103,8 +104,15 @@ kotlin {
 
     compilerOptions {
         freeCompilerArgs.add("-Xexpect-actual-classes")
+        
     }
 
+}
+
+java {
+    toolchain {
+        languageVersion.set(JavaLanguageVersion.of(17))
+    }
 }
 
 tasks.withType<com.android.build.gradle.tasks.BundleAar> {

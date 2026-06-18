@@ -33,4 +33,3 @@ expect fun rememberAdmobRewardedInterstitialAd(
     adLoadCallback: AdLoadCallback? = null,
     adContentCallback: AdContentCallback? = null,
 ): RewardedAdState
-

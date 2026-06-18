@@ -1,0 +1,5 @@
+language = Objective-C
+package = InMobiSDK
+modules = InMobiSDK
+compilerOpts = -framework InMobiSDK -fmodules
+linkerOpts = -framework InMobiSDK

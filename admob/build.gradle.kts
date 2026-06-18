@@ -1,3 +1,5 @@
+import org.jetbrains.kotlin.gradle.plugin.mpp.apple.XCFramework
+
 plugins {
     alias(libs.plugins.kotlinMultiplatform)
     alias(libs.plugins.androidKotlinMultiplatformLibrary)
@@ -10,8 +12,6 @@ val isCocoapodsEnabled = project.findProperty("PROJECT_ENABLE_COCOAPODS")?.toStr
 if (isCocoapodsEnabled) {
     apply(plugin = "org.jetbrains.kotlin.native.cocoapods")
 }
-
-
 
 kotlin {
 
@@ -40,14 +40,15 @@ kotlin {
     // For iOS targets, this is also where you should
     // configure native binary output. For more information, see:
     // https://kotlinlang.org/docs/multiplatform-build-native-binaries.html#build-xcframeworks
-
     // A step-by-step guide on how to include this library in an XCode
     // project can be found here:
     // https://developer.android.com/kotlin/multiplatform/migrate
+    val xcf = XCFramework("admobKit")
     listOf(iosX64(), iosArm64(), iosSimulatorArm64()).forEach { target ->
         target.binaries.framework {
             baseName = "admobKit"
             isStatic = true
+            xcf.add(this)
 
             val xcframeworkPath = projectDir.resolve("frameworks/GoogleMobileAds.xcframework")
             val frameworkArchDir = when (target.name) {
@@ -150,7 +151,14 @@ kotlin {
         }
     }
     compilerOptions {
+        
         freeCompilerArgs.add("-Xexpect-actual-classes")
+    }
+}
+
+java {
+    toolchain {
+        languageVersion.set(JavaLanguageVersion.of(17))
     }
 }
 

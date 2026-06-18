@@ -1,7 +1,15 @@
+import org.jetbrains.kotlin.gradle.plugin.mpp.apple.XCFramework
+
 plugins {
     alias(libs.plugins.kotlinMultiplatform)
     alias(libs.plugins.androidKotlinMultiplatformLibrary)
     alias(libs.plugins.androidLint)
+    alias(libs.plugins.composeCompiler)
+}
+
+val isCocoapodsEnabled = project.findProperty("PROJECT_ENABLE_COCOAPODS")?.toString()?.toBoolean() ?: true
+if (isCocoapodsEnabled) {
+    apply(plugin = "org.jetbrains.kotlin.native.cocoapods")
 }
 
 kotlin {
@@ -22,6 +30,10 @@ kotlin {
         }.configure {
             instrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         }
+
+        androidResources {
+            this.enable = true
+        }
     }
 
     // For iOS targets, this is also where you should
@@ -31,23 +43,59 @@ kotlin {
     // A step-by-step guide on how to include this library in an XCode
     // project can be found here:
     // https://developer.android.com/kotlin/multiplatform/migrate
-    val xcfName = "manKit"
+    val xcf = XCFramework("manKit")
 
-    iosX64 {
-        binaries.framework {
-            baseName = xcfName
+    listOf(iosX64(), iosArm64(), iosSimulatorArm64()).forEach { target ->
+        target.binaries.framework {
+            baseName = "manKit"
+            isStatic = true
+            xcf.add(this)
+
+            val xcframeworkPath = projectDir.resolve("frameworks/FBAudienceNetwork.xcframework")
+            val frameworkArchDir = when (target.name) {
+                "iosArm64" -> "ios-arm64"
+                "iosX64", "iosSimulatorArm64" -> "ios-arm64_x86_64-simulator"
+                else -> error("Unsupported target: ${target.name}")
+            }
+            val frameworkPath = xcframeworkPath.resolve(frameworkArchDir)
+
+            linkerOpts("-framework", "FBAudienceNetwork", "-F$frameworkPath")
+            linkerOpts("-ObjC")
+        }
+
+        target.compilations.getByName("main") {
+            cinterops {
+                val FBAudienceNetwork by creating {
+                    val xcframeworkPath = projectDir.resolve("frameworks/FBAudienceNetwork.xcframework")
+                    val frameworkArchDir = when (target.name) {
+                        "iosArm64" -> "ios-arm64"
+                        "iosX64", "iosSimulatorArm64" -> "ios-arm64_x86_64-simulator"
+                        else -> error("Unsupported target: ${target.name}")
+                    }
+                    val frameworkPath = xcframeworkPath.resolve(frameworkArchDir)
+
+                    defFile(project.file("src/nativeInterop/cinterop/FBAudienceNetwork.def"))
+
+                    compilerOpts("-framework", "FBAudienceNetwork", "-F$frameworkPath")
+                    compilerOpts("-I$frameworkPath/FBAudienceNetwork.framework/Headers")
+                }
+            }
         }
     }
 
-    iosArm64 {
-        binaries.framework {
-            baseName = xcfName
-        }
-    }
-
-    iosSimulatorArm64 {
-        binaries.framework {
-            baseName = xcfName
+    val isCocoapodsEnabled = project.plugins.hasPlugin("org.jetbrains.kotlin.native.cocoapods")
+    if (isCocoapodsEnabled) {
+        extensions.configure<org.jetbrains.kotlin.gradle.plugin.cocoapods.CocoapodsExtension> {
+            summary = "Meta module for MultiAds library"
+            homepage = "https://github.com/saifullah-nurani/MultiAds"
+            license = "MIT"
+            authors = "Saifullah Nurani"
+            extraSpecAttributes["platforms"] = "{ :ios => '14.0' }"
+            pod("FBAudienceNetwork")
+            framework {
+                baseName = "manKit"
+                isStatic = true
+            }
         }
     }
 
@@ -60,7 +108,9 @@ kotlin {
         commonMain {
             dependencies {
                 implementation(libs.kotlin.stdlib)
-                // Add KMP dependencies here
+                implementation(project(":core"))
+                implementation(libs.compose.runtime)
+                implementation(libs.androidx.lifecycle.runtimeCompose)
             }
         }
 
@@ -72,9 +122,7 @@ kotlin {
 
         androidMain {
             dependencies {
-                // Add Android-specific dependencies here. Note that this source set depends on
-                // commonMain by default and will correctly pull the Android artifacts of any KMP
-                // dependencies declared in commonMain.
+                api(libs.audience.network.sdk)
             }
         }
 
@@ -96,5 +144,14 @@ kotlin {
             }
         }
     }
+    compilerOptions {
+        
+        freeCompilerArgs.add("-Xexpect-actual-classes")
+    }
+}
 
+java {
+    toolchain {
+        languageVersion.set(JavaLanguageVersion.of(17))
+    }
 }

@@ -45,6 +45,13 @@ kotlin {
             implementation(libs.androidx.lifecycle.runtimeCompose)
             implementation(projects.core)
             implementation(projects.admob)
+            implementation(projects.man)
+            implementation(projects.applovin)
+            implementation(projects.inmobi)
+            implementation(projects.vungle)
+            implementation(projects.pangle)
+            implementation(project(":is"))
+            implementation(project(":multi-ads"))
             implementation(libs.material.icons.extended)
         }
         commonTest.dependencies {
@@ -52,4 +59,3 @@ kotlin {
         }
     }
 }
-

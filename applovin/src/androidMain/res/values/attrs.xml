@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <declare-styleable name="AppLovinBannerView">
+        <attr name="adFormats"/>
+        <attr name="adFailedRetryRule" />
+        <attr name="adFailedLoadDelayMillis" />
+        <attr name="adFailedLoadMaxAttempt" />
+        <attr name="adFailedLoadMultiplier" />
+        <attr name="adReloadPolicies" />
+        <attr name="adLoadType" />
+        <attr name="placementId" />
+        <attr name="keepAdSlot" />
+        <attr name="adUnitId" />
+    </declare-styleable>
+
+</resources>

@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <attr name="adFailedRetryRule" format="enum">
+        <flag name="small" value="1"/>
+        <flag name="medium" value="2"/>
+        <flag name="large" value="4"/>
+        <flag name="full_size_banner" value="8"/>
+        <flag name="leaderboard" value="16"/>
+    </attr>
+    <attr name="adFormats" format="flags">
+        <flag name="banner" value="1"/>
+        <flag name="mrec" value="2"/>
+        <flag name="leader" value="4"/>
+    </attr>
+
+    <attr name="adFailedLoadDelayMillis" format="integer" />
+    <attr name="adFailedLoadMaxAttempt" format="integer" />
+    <attr name="adFailedLoadMultiplier" format="fraction" />
+    <attr name="adReloadPolicies" format="flags">
+        <flag name="OnClicked" value="1" />
+        <flag name="OnDismissed" value="2" />
+        <flag name="OnFailedToShow" value="4" />
+    </attr>
+    <attr name="adLoadType" format="enum">
+        <enum name="fixed" value="1" />
+        <enum name="random" value="2" />
+    </attr>
+    <attr name="keepAdSlot" format="boolean"/>
+</resources>
