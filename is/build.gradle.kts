@@ -202,6 +202,13 @@ mavenPublishing {
             developerConnection.set("scm:git:ssh://github.com/saifullah-nurani/MultiAds.git")
             url.set("https://github.com/saifullah-nurani/MultiAds")
         }
+        
+        withXml {
+            val repositories = asNode().appendNode("repositories")
+            val repository = repositories.appendNode("repository")
+            repository.appendNode("id", "ironsource")
+            repository.appendNode("url", "https://android-sdk.is.com/")
+        }
     }
 
     publishToMavenCentral(com.vanniktech.maven.publish.SonatypeHost.CENTRAL_PORTAL)

@@ -190,6 +190,13 @@ mavenPublishing {
             developerConnection.set("scm:git:ssh://github.com/saifullah-nurani/MultiAds.git")
             url.set("https://github.com/saifullah-nurani/MultiAds")
         }
+        
+        withXml {
+            val repositories = asNode().appendNode("repositories")
+            val repository = repositories.appendNode("repository")
+            repository.appendNode("id", "pangle")
+            repository.appendNode("url", "https://artifact.bytedance.com/repository/pangle/")
+        }
     }
 
     publishToMavenCentral(com.vanniktech.maven.publish.SonatypeHost.CENTRAL_PORTAL)
