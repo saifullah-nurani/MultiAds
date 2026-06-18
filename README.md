@@ -187,13 +187,31 @@ iOS (`Info.plist`):
 
 ### 3. AppLovin Module (`applovin`)
 **Setup Requirement:**
-Android (`AndroidManifest.xml`):
+You must configure your AppLovin SDK Key. You can do this in your Android app's `build.gradle.kts` or `AndroidManifest.xml`.
+
+**Option 1: Using `build.gradle.kts` (Recommended)**
+Add the AppLovin Quality Service plugin (optional but recommended for MAX) and/or use manifest placeholders:
+```kotlin
+// app/build.gradle.kts
+android {
+    defaultConfig {
+        manifestPlaceholders["applovin.sdk.key"] = "YOUR_SDK_KEY"
+    }
+}
+
+// Optional: AppLovin Quality Service Plugin
+// applovin {
+//     apiKey = "YOUR_SDK_KEY"
+// }
+```
+
+**Option 2: Android (`AndroidManifest.xml`)**
 ```xml
-<meta-data android:name="applovin.sdk.key" android:value="SDK_KEY"/>
+<meta-data android:name="applovin.sdk.key" android:value="YOUR_SDK_KEY"/>
 ```
 iOS (`Info.plist`):
 ```xml
-<key>AppLovinSDKKey</key><string>SDK_KEY</string>
+<key>AppLovinSDKKey</key><string>YOUR_SDK_KEY</string>
 ```
 
 #### Formats Implementation

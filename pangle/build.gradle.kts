@@ -157,6 +157,12 @@ java {
     }
 }
 
+tasks.withType<com.android.build.gradle.tasks.BundleAar> {
+    from("consumer-rules.pro") {
+        rename { "proguard.txt" }
+    }
+}
+
 
 mavenPublishing {
     coordinates(
