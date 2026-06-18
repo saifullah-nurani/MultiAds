@@ -5,6 +5,7 @@ plugins {
     alias(libs.plugins.androidKotlinMultiplatformLibrary)
     alias(libs.plugins.androidLint)
     alias(libs.plugins.composeCompiler)
+    alias(libs.plugins.mavenPublish)
 }
 
 val isCocoapodsEnabled = project.findProperty("PROJECT_ENABLE_COCOAPODS")?.toString()?.toBoolean() ?: true
@@ -154,4 +155,42 @@ java {
     toolchain {
         languageVersion.set(JavaLanguageVersion.of(17))
     }
+}
+
+mavenPublishing {
+    coordinates(
+        groupId = project.group.toString(),
+        artifactId = project.name,
+        version = project.version.toString()
+    )
+
+    pom {
+        name.set(project.findProperty("PROJECT_NAME")?.toString() ?: "")
+        description.set("MultiAds: A professional Multiplatform Ad Management Library MAN module.")
+        url.set("https://github.com/saifullah-nurani/MultiAds")
+        
+        licenses {
+            license {
+                name.set("MIT License")
+                url.set("https://opensource.org/licenses/MIT")
+            }
+        }
+        
+        developers {
+            developer {
+                id.set("saifullah-nurani")
+                name.set("Saifullah Nurani")
+                email.set("donaldperryman04@gmail.com")
+            }
+        }
+        
+        scm {
+            connection.set("scm:git:github.com/saifullah-nurani/MultiAds.git")
+            developerConnection.set("scm:git:ssh://github.com/saifullah-nurani/MultiAds.git")
+            url.set("https://github.com/saifullah-nurani/MultiAds")
+        }
+    }
+
+    publishToMavenCentral(com.vanniktech.maven.publish.SonatypeHost.CENTRAL_PORTAL)
+    signAllPublications()
 }
