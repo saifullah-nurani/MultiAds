@@ -60,16 +60,16 @@ Add dependencies to your `commonMain` source set:
 sourceSets {
     commonMain.dependencies {
         // All-in-One Waterfall Mediation (Recommended)
-        implementation("io.github.saifullah-nurani.ads:multi-ads:1.1.2")
+        implementation("io.github.saifullah-nurani.ads:multi-ads:1.1.3")
         
         // Standalone Modules
-        // implementation("io.github.saifullah-nurani.ads:core:1.1.2")
-        // implementation("io.github.saifullah-nurani.ads:admob:1.1.2")
-        // implementation("io.github.saifullah-nurani.ads:applovin:1.1.2")
-        // implementation("io.github.saifullah-nurani.ads:pangle:1.1.2")
-        // implementation("io.github.saifullah-nurani.ads:vungle:1.1.2")
-        // implementation("io.github.saifullah-nurani.ads:inmobi:1.1.2")
-        // implementation("io.github.saifullah-nurani.ads:is:1.1.2")
+        // implementation("io.github.saifullah-nurani.ads:core:1.1.3")
+        // implementation("io.github.saifullah-nurani.ads:admob:1.1.3")
+        // implementation("io.github.saifullah-nurani.ads:applovin:1.1.3")
+        // implementation("io.github.saifullah-nurani.ads:pangle:1.1.3")
+        // implementation("io.github.saifullah-nurani.ads:vungle:1.1.3")
+        // implementation("io.github.saifullah-nurani.ads:inmobi:1.1.3")
+        // implementation("io.github.saifullah-nurani.ads:is:1.1.3")
     }
 }
 ```
@@ -78,23 +78,23 @@ sourceSets {
 If you are building a standard Android app (non-KMP), append the `-android` suffix to ensure you get the Android-specific AARs:
 ```kotlin
 dependencies {
-    implementation("io.github.saifullah-nurani.ads:multi-ads-android:1.1.2")
+    implementation("io.github.saifullah-nurani.ads:multi-ads-android:1.1.3")
     
     // Standalone Modules
-    // implementation("io.github.saifullah-nurani.ads:core-android:1.1.2")
-    // implementation("io.github.saifullah-nurani.ads:admob-android:1.1.2")
-    // implementation("io.github.saifullah-nurani.ads:applovin-android:1.1.2")
-    // implementation("io.github.saifullah-nurani.ads:pangle-android:1.1.2")
-    // implementation("io.github.saifullah-nurani.ads:vungle-android:1.1.2")
-    // implementation("io.github.saifullah-nurani.ads:inmobi-android:1.1.2")
-    // implementation("io.github.saifullah-nurani.ads:is-android:1.1.2")
+    // implementation("io.github.saifullah-nurani.ads:core-android:1.1.3")
+    // implementation("io.github.saifullah-nurani.ads:admob-android:1.1.3")
+    // implementation("io.github.saifullah-nurani.ads:applovin-android:1.1.3")
+    // implementation("io.github.saifullah-nurani.ads:pangle-android:1.1.3")
+    // implementation("io.github.saifullah-nurani.ads:vungle-android:1.1.3")
+    // implementation("io.github.saifullah-nurani.ads:inmobi-android:1.1.3")
+    // implementation("io.github.saifullah-nurani.ads:is-android:1.1.3")
 }
 ```
 
 ### 3. iOS Setup (CocoaPods)
 ```ruby
-pod 'MultiAdsMulti', '~> 1.1.2'
-# pod 'MultiAdsAdmob', '~> 1.1.2'
+pod 'MultiAdsMulti', '~> 1.1.3'
+# pod 'MultiAdsAdmob', '~> 1.1.3'
 ```
 
 ---
