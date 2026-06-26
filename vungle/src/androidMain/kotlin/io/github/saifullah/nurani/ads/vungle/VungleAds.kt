@@ -5,6 +5,7 @@ import android.app.Activity
 import android.content.Context
 import com.vungle.ads.InitializationListener
 import com.vungle.ads.VungleError
+import io.github.saifullah.nurani.ads.core.AdInitResult
 import io.github.saifullah.nurani.ads.core.AdConfig
 import io.github.saifullah.nurani.ads.core.AdLogger
 import io.github.saifullah.nurani.ads.core.OnUserRewardedListener
@@ -17,6 +18,7 @@ actual object VungleAds {
 
     private var applicationContext: WeakReference<Context>? = null
     private var currentConfig: Config? = null
+    private var isInitialized = false
 
     private val mInterstitialAds = ConcurrentHashMap<String, WeakReference<VungleInterstitialAd>>()
     private val mRewardedAds = ConcurrentHashMap<String, WeakReference<VungleRewardedAd>>()
@@ -88,15 +90,18 @@ actual object VungleAds {
     fun init(appContext: Context, appId: String, config: Config, onComplete: ((Boolean) -> Unit)?) {
         applicationContext = WeakReference(appContext)
         currentConfig = config
+        isInitialized = false
 
         com.vungle.ads.VungleAds.init(appContext, appId, object : InitializationListener {
             override fun onSuccess() {
                 logDebug("Vungle SDK Initialization Complete")
+                isInitialized = true
                 onComplete?.invoke(true)
             }
 
             override fun onError(vungleError: VungleError) {
                 logError("Vungle SDK Init failed: " + vungleError.localizedMessage)
+                isInitialized = false
                 onComplete?.invoke(false)
             }
         })
@@ -108,12 +113,19 @@ actual object VungleAds {
     }
 
     @JvmStatic
-    actual fun init(context: io.github.saifullah.nurani.ads.core.compose.PlatformContext, appId: String, onComplete: ((Boolean) -> Unit)?) {
-        init(context as Context, appId, Config.Builder().build(), onComplete)
+    actual fun init(
+        context: io.github.saifullah.nurani.ads.core.compose.PlatformContext,
+        androidAppId: String,
+        iosAppId: String,
+        onComplete: ((AdInitResult) -> Unit)?
+    ) {
+        init(context as Context, androidAppId, Config.Builder().build()) { success ->
+            onComplete?.invoke(AdInitResult(success))
+        }
     }
 
     @JvmStatic
-    actual fun isInitialized(): Boolean = applicationContext?.get() != null
+    actual fun isInitialized(): Boolean = isInitialized
 
     /**
      * MUST be called in Application class or at start of the app with standard configurations.

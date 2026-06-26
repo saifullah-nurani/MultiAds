@@ -3,6 +3,7 @@
 package io.github.saifullah.nurani.ads.vungle
 
 import VungleAdsSDK.VungleAds
+import io.github.saifullah.nurani.ads.core.AdInitResult
 import platform.Foundation.NSError
 
 actual object VungleAds {
@@ -21,10 +22,13 @@ actual object VungleAds {
 
     actual fun init(
         context: io.github.saifullah.nurani.ads.core.compose.PlatformContext,
-        appId: String,
-        onComplete: ((Boolean) -> Unit)?
+        androidAppId: String,
+        iosAppId: String,
+        onComplete: ((AdInitResult) -> Unit)?
     ) {
-        init(appId, onComplete)
+        init(iosAppId) { success ->
+            onComplete?.invoke(AdInitResult(success))
+        }
     }
 
     actual fun isInitialized(): Boolean = isInitialized

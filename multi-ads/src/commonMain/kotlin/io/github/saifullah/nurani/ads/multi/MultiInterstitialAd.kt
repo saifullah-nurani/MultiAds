@@ -5,12 +5,15 @@ import io.github.saifullah.nurani.ads.core.AdContentCallback
 import io.github.saifullah.nurani.ads.core.AdState
 import io.github.saifullah.nurani.ads.core.compose.PlatformContext
 import io.github.saifullah.nurani.ads.core.compose.PlatformActivity
+import io.github.saifullah.nurani.ads.multi.models.MultiAdContentCallback
+import io.github.saifullah.nurani.ads.multi.models.MultiAdLoadCallback
 import io.github.saifullah.nurani.ads.multi.models.WaterfallConfig
 
 expect class MultiInterstitialAd(context: PlatformContext) : AdState {
     var waterfallConfig: WaterfallConfig?
     var testModeEnabled: Boolean
     var isImmersiveModeEnabled: Boolean
+    var tag: String?
 
     fun showAd(activity: PlatformActivity)
     fun tryShowAd(): Boolean
@@ -27,4 +30,6 @@ expect class MultiInterstitialAd(context: PlatformContext) : AdState {
     override fun reloadAd()
     override fun setAdLoadCallback(callback: AdLoadCallback?)
     override fun setAdContentCallback(callback: AdContentCallback?)
+    fun setMultiAdLoadCallback(callback: MultiAdLoadCallback?)
+    fun setMultiAdContentCallback(callback: MultiAdContentCallback?)
 }

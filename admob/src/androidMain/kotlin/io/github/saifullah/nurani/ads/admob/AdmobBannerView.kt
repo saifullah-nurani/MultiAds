@@ -41,6 +41,7 @@ class AdmobBannerView @JvmOverloads constructor(
     private var keepAdSlot = true
 
     private var testMode = false
+    private var requestTag: String? = null
 
     private var stateManager: AdStateManager? = null
     var adListener: BannerAdListener? = null
@@ -149,7 +150,7 @@ class AdmobBannerView @JvmOverloads constructor(
     fun loadAd(request: AdRequest = AdRequest.Builder().build()) {
         this.adRequest =request
         if (stateManager == null) {
-            stateManager = AdStateManager(reloadPolicies, retryRule, disable(), null, Scheduler(null), TAG) {
+            stateManager = AdStateManager(reloadPolicies, retryRule, disable(), null, Scheduler(null), requestTag ?: TAG) {
                 loadAdInternally(context, adRequest)
             }
         }
@@ -244,6 +245,10 @@ class AdmobBannerView @JvmOverloads constructor(
 
     fun setTestModeEnabled(enabled: Boolean) {
         this.testMode = enabled
+    }
+
+    fun setRequestTag(tag: String?) {
+        this.requestTag = tag
     }
 
     fun setAdUnitId(id: String) {

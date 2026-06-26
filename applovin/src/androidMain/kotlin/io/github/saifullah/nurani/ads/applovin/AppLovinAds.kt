@@ -6,6 +6,7 @@ import android.content.Context
 import com.applovin.sdk.AppLovinMediationProvider
 import com.applovin.sdk.AppLovinSdk
 import com.applovin.sdk.AppLovinSdkInitializationConfiguration
+import io.github.saifullah.nurani.ads.core.AdInitResult
 import io.github.saifullah.nurani.ads.core.AdConfig
 import io.github.saifullah.nurani.ads.core.AdLogger
 import io.github.saifullah.nurani.ads.core.OnUserRewardedListener
@@ -85,8 +86,15 @@ actual object AppLovinAds {
         init(appContext, sdkKey, Config.Builder().build())
     }
 
-    actual fun init(context: PlatformContext, sdkKey: String, onComplete: ((Boolean) -> Unit)?) {
-        init(context, sdkKey, Config.Builder().build(), onComplete)
+    actual fun init(
+        context: PlatformContext,
+        androidSdkKey: String,
+        iosSdkKey: String,
+        onComplete: ((AdInitResult) -> Unit)?
+    ) {
+        init(context, androidSdkKey, Config.Builder().build()) { success ->
+            onComplete?.invoke(AdInitResult(success))
+        }
     }
 
     @JvmStatic

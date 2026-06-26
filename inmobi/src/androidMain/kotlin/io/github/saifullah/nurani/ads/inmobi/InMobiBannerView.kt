@@ -143,7 +143,7 @@ class InMobiBannerView @JvmOverloads constructor(
     fun loadAd() {
         if (stateManager == null) {
             stateManager =
-                AdStateManager(reloadPolicies, retryRule, disable(), null, Scheduler(null), TAG) {
+                AdStateManager(reloadPolicies, retryRule, disable(), null, Scheduler(null), requestTag ?: TAG) {
                     loadAdInternally(context)
                 }
         }
@@ -153,6 +153,15 @@ class InMobiBannerView @JvmOverloads constructor(
 
     @SuppressLint("MissingPermission")
     private fun loadAdInternally(context: Context) {
+        if (!InMobiAds.isInitialized()) {
+            val adError = io.github.saifullah.nurani.ads.core.AdError(
+                code = 0,
+                message = "InMobi SDK is not initialized yet."
+            )
+            stateManager?.onAdFailedToLoad(adError)
+            adListener?.onAdFailedToLoad(adError)
+            return
+        }
         if (!testMode) {
             check(placementId != 0L) { "placementId must be set." }
         }
@@ -276,9 +285,14 @@ class InMobiBannerView @JvmOverloads constructor(
     }
 
     private var testMode = false
+    private var requestTag: String? = null
 
     fun setTestModeEnabled(enabled: Boolean) {
         this.testMode = enabled
+    }
+
+    fun setRequestTag(tag: String?) {
+        this.requestTag = tag
     }
 
     companion object {

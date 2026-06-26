@@ -29,8 +29,9 @@ actual fun PangleBannerAd(
     adListener: BannerAdListener?
 ) {
     val heightController = io.github.saifullah.nurani.ads.core.rememberBannerHeightController(
-        expandWhenReady,
-        animateExpansion
+        initialHeight = adSize.getSize().height,
+        expandWhenReady = expandWhenReady,
+        animateExpansion = animateExpansion
     )
     val adUnit by rememberSaveable(properties.iosAdUnitId) {
         mutableStateOf(properties.iosAdUnitId)
@@ -47,6 +48,7 @@ actual fun PangleBannerAd(
                 this.isTestModeEnabled = testModeEnabled
                 this.retryRule = adFailedAdRetryRule
                 this.keepAdSlot = expandWhenReady
+                setRequestTag(properties.tag)
                 setAdUnitId(adUnit)
             }
         },

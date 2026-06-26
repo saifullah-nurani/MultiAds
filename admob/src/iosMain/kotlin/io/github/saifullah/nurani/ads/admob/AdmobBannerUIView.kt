@@ -47,6 +47,7 @@ class AdmobBannerUIView : UIView(frame = CGRectZero.readValue()) {
     var keepAdSlot = true
     var isTestModeEnabled = false
     var adListener: BannerAdListener? = null
+    private var requestTag: String? = null
 
     fun setAdUnitId(id: String) {
         adUnitId = id
@@ -63,19 +64,23 @@ class AdmobBannerUIView : UIView(frame = CGRectZero.readValue()) {
         }
     }
 
+    fun setRequestTag(tag: String?) {
+        requestTag = tag
+    }
+
     fun loadAd(request: GADRequest = GADRequest()) {
 
         adRequest = request
 
         if (adStateManager == null) {
-            adStateManager = AdStateManager(
-                reloadPolicies,
-                retryRule,
-                AdRefreshStrategy.disable(),
-                null,
-                Scheduler(),
-                bannerTag
-            ) {
+                adStateManager = AdStateManager(
+                    reloadPolicies,
+                    retryRule,
+                    AdRefreshStrategy.disable(),
+                    null,
+                    Scheduler(),
+                    requestTag ?: bannerTag
+                ) {
                 loadAdInternally()
             }
         }

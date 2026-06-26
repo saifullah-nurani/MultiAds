@@ -39,6 +39,7 @@ actual fun rememberPangleInterstitialAd(
     adContentCallback: AdContentCallback?
 ): FullScreenAdState = rememberPangleInterstitialAd(
     adUnitId = properties.androidAdUnitId,
+    tag = properties.tag,
     initialLoad = initialLoad,
     immersiveModeEnabled = immersiveModeEnabled,
     testModeEnabled = testModeEnabled,
@@ -59,6 +60,7 @@ actual fun rememberPangleInterstitialAd(
 @Composable
 fun rememberPangleInterstitialAd(
     adUnitId: String,
+    tag: String? = null,
     initialLoad: Boolean = true,
     immersiveModeEnabled: Boolean = true,
     testModeEnabled: Boolean = false,
@@ -81,6 +83,7 @@ fun rememberPangleInterstitialAd(
                 this.adFailedRetryRule = adFailedAdRetryRule
                 this.adRefreshStrategy = adRefreshStrategy
                 this.adReloadPolicies = adReloadPolicies
+                this.tag = tag
                 this.isTestModeEnabled = testModeEnabled
             },
         )

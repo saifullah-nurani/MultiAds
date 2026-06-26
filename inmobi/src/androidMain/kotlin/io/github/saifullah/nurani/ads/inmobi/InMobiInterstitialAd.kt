@@ -67,6 +67,15 @@ class InMobiInterstitialAd(
     }
 
     override fun onAdLoad() {
+        if (!InMobiAds.isInitialized()) {
+            val adError = io.github.saifullah.nurani.ads.core.AdError(
+                code = 0,
+                message = "InMobi SDK is not initialized yet."
+            )
+            adStateManager.onAdFailedToLoad(adError)
+            adLoadListener?.onAdFailedToLoad(adError)
+            return
+        }
         if (!adConfig.isTestModeEnabled) {
             checkNotNull(placementId) { "placementId must be set." }
             require(placementId.toString().isNotEmpty()) { "placementId must not be empty." }

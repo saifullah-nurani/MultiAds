@@ -10,7 +10,7 @@ import io.github.saifullah.nurani.ads.admob.AdmobAds
 import io.github.saifullah.nurani.ads.core.compose.PlatformContext
 
 @Composable
-actual fun rememberAdmobAdsInit(context: PlatformContext): Boolean {
+actual fun rememberAdmobAdsInit(androidAppId: String, iosAppId: String, context: PlatformContext): Boolean {
     var isInitialized by remember(context) { mutableStateOf(false) }
     LaunchedEffect(context) {
         AdmobAds.init(context)

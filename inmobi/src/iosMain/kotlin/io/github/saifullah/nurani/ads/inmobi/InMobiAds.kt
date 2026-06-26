@@ -3,6 +3,7 @@
 package io.github.saifullah.nurani.ads.inmobi
 
 import InMobiSDK.IMSdk
+import io.github.saifullah.nurani.ads.core.AdInitResult
 
 actual object InMobiAds {
     private var isInitialized = false
@@ -20,10 +21,13 @@ actual object InMobiAds {
 
     actual fun init(
         context: io.github.saifullah.nurani.ads.core.compose.PlatformContext,
-        accountId: String,
-        onComplete: ((Boolean) -> Unit)?
+        androidAccountId: String,
+        iosAccountId: String,
+        onComplete: ((AdInitResult) -> Unit)?
     ) {
-        init(accountId, onComplete)
+        init(iosAccountId) { success ->
+            onComplete?.invoke(AdInitResult(success))
+        }
     }
 
     actual fun isInitialized(): Boolean = isInitialized

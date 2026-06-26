@@ -5,6 +5,7 @@ import PAGAdSDK.PAGLAppOpenAdDelegateProtocol
 import PAGAdSDK.PAGAppOpenRequest
 import PAGAdSDK.PAGAdProtocolProtocol
 import io.github.saifullah.nurani.ads.core.AdConfig
+import io.github.saifullah.nurani.ads.core.AppOpenAd
 import io.github.saifullah.nurani.ads.core.Scheduler
 import io.github.saifullah.nurani.ads.core.AdError
 import kotlinx.cinterop.ExperimentalForeignApi
@@ -17,7 +18,7 @@ class PangleAppOpenAd(
     adUnitId: String,
     uIViewController: UIViewController?,
     adConfig: AdConfig?
-) : FullScreenAdState(uIViewController, Scheduler(), adConfig, TAG) {
+) : FullScreenAdState(uIViewController, Scheduler(), adConfig, TAG), AppOpenAd {
 
     private val adUnitId: String = adUnitId
     private var mAppOpenAd: PAGLAppOpenAd? = null
@@ -31,6 +32,15 @@ class PangleAppOpenAd(
     }
 
     override fun onAdLoad() {
+        if (!PangleAds.isInitialized()) {
+            val adError = io.github.saifullah.nurani.ads.core.AdError(
+                code = 0,
+                message = "Pangle SDK is not initialized yet."
+            )
+            adStateManager.onAdFailedToLoad(adError)
+            adLoadListener?.onAdFailedToLoad(adError)
+            return
+        }
         if (!adConfig.isTestModeEnabled) {
             require(adUnitId.isNotEmpty()) { "$TAG: adUnitId must not be empty." }
         }

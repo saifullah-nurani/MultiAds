@@ -43,6 +43,7 @@ class InMobiBannerUIView : UIView(frame = CGRectZero.readValue()) {
     private var adStateManager: AdStateManager? = null
     private var adDelegate: NSObject? = null
     private val bannerTag = "InMobiBannerUIView"
+    private var requestTag: String? = null
 
     fun setPlacementId(id: Long) {
         placementId = id
@@ -53,6 +54,10 @@ class InMobiBannerUIView : UIView(frame = CGRectZero.readValue()) {
         bannerAd = ad
     }
 
+    fun setRequestTag(tag: String?) {
+        requestTag = tag
+    }
+
     fun loadAd() {
         if (adStateManager == null) {
             adStateManager = AdStateManager(
@@ -61,7 +66,7 @@ class InMobiBannerUIView : UIView(frame = CGRectZero.readValue()) {
                 AdRefreshStrategy.disable(),
                 null,
                 Scheduler(),
-                bannerTag
+                requestTag ?: bannerTag
             ) {
                 loadAdInternally()
             }
@@ -72,6 +77,15 @@ class InMobiBannerUIView : UIView(frame = CGRectZero.readValue()) {
     private val testAdUnitId = 10000718551L
 
     private fun loadAdInternally() {
+        if (!InMobiAds.isInitialized()) {
+            val adError = io.github.saifullah.nurani.ads.core.AdError(
+                code = 0,
+                message = "InMobi SDK is not initialized yet."
+            )
+            adStateManager?.onAdFailedToLoad(adError)
+            adListener?.onAdFailedToLoad(adError)
+            return
+        }
         if (!isTestModeEnabled) {
             checkNotNull(placementId) { "placementId must be set." }
             require(placementId != 0L) { "placementId must not be 0." }

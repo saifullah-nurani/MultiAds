@@ -39,6 +39,7 @@ class AppLovinBannerView @JvmOverloads constructor(
 
     private var keepAdSlot = true
     private var testMode = false
+    private var requestTag: String? = null
 
     private var stateManager: AdStateManager? = null
     var adListener: BannerAdListener? = null
@@ -142,7 +143,7 @@ class AppLovinBannerView @JvmOverloads constructor(
 
     fun loadAd() {
         if (stateManager == null) {
-            stateManager = AdStateManager(reloadPolicies, retryRule, disable(), null, Scheduler(null), TAG) {
+            stateManager = AdStateManager(reloadPolicies, retryRule, disable(), null, Scheduler(null), requestTag ?: TAG) {
                 loadAdInternally(context)
             }
         }
@@ -294,6 +295,10 @@ class AppLovinBannerView @JvmOverloads constructor(
 
     fun setTestModeEnabled(enabled: Boolean) {
         this.testMode = enabled
+    }
+
+    fun setRequestTag(tag: String?) {
+        this.requestTag = tag
     }
 
     companion object {

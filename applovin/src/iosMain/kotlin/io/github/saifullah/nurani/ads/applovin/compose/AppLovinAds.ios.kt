@@ -7,6 +7,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import io.github.saifullah.nurani.ads.applovin.AppLovinAds
+import io.github.saifullah.nurani.ads.core.AdInitResult
 import io.github.saifullah.nurani.ads.core.compose.PlatformContext
 
 @Composable
@@ -17,8 +18,8 @@ actual fun rememberAppLovinAdsInit(
 ): Boolean {
     var isInitialized by remember(iosSdkKey) { mutableStateOf(false) }
     LaunchedEffect(iosSdkKey) {
-        AppLovinAds.init(context, iosSdkKey) { success ->
-            isInitialized = success
+        AppLovinAds.init(context, androidSdkKey, iosSdkKey) { result: AdInitResult ->
+            isInitialized = result.success
         }
     }
     return isInitialized

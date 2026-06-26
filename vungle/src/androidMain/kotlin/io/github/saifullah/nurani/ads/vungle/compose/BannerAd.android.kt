@@ -28,6 +28,7 @@ actual fun VungleBannerAd(
 ) {
     VungleBannerAd(
         placementId = properties.androidPlacementId,
+        tag = properties.tag,
         testModeEnabled = testModeEnabled,
         expandWhenReady = expandWhenReady,
         animateExpansion = animateExpansion,
@@ -44,6 +45,7 @@ actual fun VungleBannerAd(
 @Composable
 fun VungleBannerAd(
     placementId: String,
+    tag: String? = null,
     testModeEnabled: Boolean = false,
     expandWhenReady: Boolean = true,
     animateExpansion: Boolean = true,
@@ -53,8 +55,9 @@ fun VungleBannerAd(
     adListener: BannerAdListener? = null
 ) {
     val heightController = io.github.saifullah.nurani.ads.core.rememberBannerHeightController(
-        expandWhenReady,
-        animateExpansion
+        initialHeight = adSize.getSize().height,
+        expandWhenReady = expandWhenReady,
+        animateExpansion = animateExpansion
     )
     val placementIdState by rememberSaveable(placementId) {
         mutableStateOf(placementId)
@@ -69,6 +72,7 @@ fun VungleBannerAd(
             VungleBannerView(ctx).apply {
                 setAdLogger(adLogger)
                 setPlacementId(placementIdState)
+                setRequestTag(tag)
                 this.retryRule = adFailedAdRetryRule
                 setKeepAdSlot(expandWhenReady)
                 setTestModeEnabled(testModeEnabled)
@@ -102,6 +106,9 @@ fun VungleBannerAd(
 /**
  * Creates Vungle ad properties for Android placement IDs.
  */
-fun vunglePlacementProperties(placementId: String): VungleAdProperties {
-    return VungleAdProperties(placementId, "")
+fun vunglePlacementProperties(
+    placementId: String,
+    tag: String? = null
+): VungleAdProperties {
+    return VungleAdProperties(placementId, "", tag)
 }

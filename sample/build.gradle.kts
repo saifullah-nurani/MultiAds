@@ -11,9 +11,6 @@ kotlin {
         compileSdk = libs.versions.android.compileSdk.get().toInt()
         minSdk = libs.versions.android.minSdk.get().toInt()
 
-        withHostTestBuilder {
-        }
-
         withDeviceTestBuilder {
             sourceSetTreeName = "test"
         }.configure {
@@ -50,7 +47,7 @@ kotlin {
             implementation(projects.inmobi)
             implementation(projects.vungle)
             implementation(projects.pangle)
-            implementation(project(":is"))
+            implementation(projects.ironsource)
             implementation(project(":multi-ads"))
             implementation(libs.material.icons.extended)
         }

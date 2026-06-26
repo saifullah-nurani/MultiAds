@@ -6,11 +6,16 @@ import androidx.compose.runtime.Immutable
 data class VungleAdProperties internal constructor(
     val androidPlacementId: String,
     val iosPlacementId: String,
+    val tag: String? = null,
 )
 
 /**
  * Creates Vungle ad properties for Android and iOS placement IDs.
  */
-fun vunglePlacementProperties(androidPlacementId: String, iosPlacementId: String): VungleAdProperties {
-    return VungleAdProperties(androidPlacementId, iosPlacementId)
+fun vunglePlacementProperties(
+    androidPlacementId: String,
+    iosPlacementId: String,
+    tag: String? = null
+): VungleAdProperties {
+    return VungleAdProperties(androidPlacementId, iosPlacementId, tag)
 }

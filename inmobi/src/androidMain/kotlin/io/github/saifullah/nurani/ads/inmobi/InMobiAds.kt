@@ -5,6 +5,8 @@ import android.app.Activity
 import android.content.Context
 import com.inmobi.sdk.InMobiSdk
 import com.inmobi.sdk.SdkInitializationListener
+import io.github.saifullah.nurani.ads.core.AdError
+import io.github.saifullah.nurani.ads.core.AdInitResult
 import io.github.saifullah.nurani.ads.core.AdConfig
 import io.github.saifullah.nurani.ads.core.AdLogger
 import io.github.saifullah.nurani.ads.core.OnUserRewardedListener
@@ -17,6 +19,7 @@ actual object InMobiAds {
 
     private var applicationContext: WeakReference<Context>? = null
     private var currentConfig: Config? = null
+    private var isInitialized = false
 
     private val mInterstitialAds = ConcurrentHashMap<Long, WeakReference<InMobiInterstitialAd>>()
     private val mRewardedAds = ConcurrentHashMap<Long, WeakReference<InMobiRewardedAd>>()
@@ -88,13 +91,16 @@ actual object InMobiAds {
     fun init(appContext: Context, accountId: String, config: Config, onComplete: ((Error?) -> Unit)?) {
         applicationContext = WeakReference(appContext)
         currentConfig = config
+        isInitialized = false
 
         InMobiSdk.init(appContext, accountId, null, object : SdkInitializationListener {
             override fun onInitializationComplete(error: Error?) {
                 if (error != null) {
                     logError("InMobi SDK Init failed: " + error.message)
+                    isInitialized = false
                 } else {
                     logDebug("InMobi SDK Initialization Complete")
+                    isInitialized = true
                 }
                 onComplete?.invoke(error)
             }
@@ -121,14 +127,25 @@ actual object InMobiAds {
     }
 
     @JvmStatic
-    actual fun init(context: io.github.saifullah.nurani.ads.core.compose.PlatformContext, accountId: String, onComplete: ((Boolean) -> Unit)?) {
-        init(context as Context, accountId, Config.Builder().build()) { error ->
-            onComplete?.invoke(error == null)
+    actual fun init(
+        context: io.github.saifullah.nurani.ads.core.compose.PlatformContext,
+        androidAccountId: String,
+        iosAccountId: String,
+        onComplete: ((AdInitResult) -> Unit)?
+    ) {
+        init(context as Context, androidAccountId, Config.Builder().build()) { error ->
+            onComplete?.invoke(
+                if (error == null) {
+                    AdInitResult(true)
+                } else {
+                    AdInitResult(false, AdError(code = -1, message = error.message, originalError = error))
+                }
+            )
         }
     }
 
     @JvmStatic
-    actual fun isInitialized(): Boolean = applicationContext?.get() != null
+    actual fun isInitialized(): Boolean = isInitialized
 
     private fun checkInitialized() {
         if (applicationContext == null) {

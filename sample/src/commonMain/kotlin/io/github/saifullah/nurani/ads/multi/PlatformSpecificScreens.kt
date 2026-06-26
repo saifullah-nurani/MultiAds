@@ -69,11 +69,11 @@ import io.github.saifullah.nurani.ads.pangle.compose.rememberPangleRewardedAd
 import io.github.saifullah.nurani.ads.pangle.compose.rememberPangleAdsInit
 
 // IronSource Imports
-import io.github.saifullah.nurani.ads.`is`.compose.IronSourceBannerAd
-import io.github.saifullah.nurani.ads.`is`.compose.ironSourceAdProperties
-import io.github.saifullah.nurani.ads.`is`.compose.rememberIronSourceInterstitialAd
-import io.github.saifullah.nurani.ads.`is`.compose.rememberIronSourceRewardedAd
-import io.github.saifullah.nurani.ads.`is`.compose.rememberIronSourceAdsInit
+import io.github.saifullah.nurani.ads.ironsource.compose.IronSourceBannerAd
+import io.github.saifullah.nurani.ads.ironsource.compose.ironSourceAdProperties
+import io.github.saifullah.nurani.ads.ironsource.compose.rememberIronSourceInterstitialAd
+import io.github.saifullah.nurani.ads.ironsource.compose.rememberIronSourceRewardedAd
+import io.github.saifullah.nurani.ads.ironsource.compose.rememberIronSourceAdsInit
 
 @Composable
 fun PlatformSpecificScreens(screen: String, onBack: () -> Unit): Boolean {
@@ -267,29 +267,6 @@ fun AppLovinTestScreen(onBack: () -> Unit) {
 // ==========================================
 @Composable
 fun InMobiTestScreen(onBack: () -> Unit) {
-    val isInitialized = rememberInMobiAdsInit(
-        androidAccountId = "88010002dc5c45d48ba3c5e599d79136",
-        iosAccountId = "88010002dc5c45d48ba3c5e599d79136"
-    )
-
-    if (!isInitialized) {
-        Scaffold(
-            topBar = {
-                TopAppBarRow(title = "InMobi Showcase", onBack = onBack)
-            }
-        ) { padding ->
-            Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(padding),
-                contentAlignment = Alignment.Center
-            ) {
-                CircularProgressIndicator()
-            }
-        }
-        return
-    }
-
     val activity = LocalPlatformActivity.current
     val scrollState = rememberScrollState()
 
@@ -370,29 +347,6 @@ fun InMobiTestScreen(onBack: () -> Unit) {
 // ==========================================
 @Composable
 fun VungleTestScreen(onBack: () -> Unit) {
-    val isInitialized = rememberVungleAdsInit(
-        androidAppId = "69ece8934bef11f475504020",
-        iosAppId = "6a2467f6e25cb91cc0d71511"
-    )
-
-    if (!isInitialized) {
-        Scaffold(
-            topBar = {
-                TopAppBarRow(title = "Vungle Showcase", onBack = onBack)
-            }
-        ) { padding ->
-            Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(padding),
-                contentAlignment = Alignment.Center
-            ) {
-                CircularProgressIndicator()
-            }
-        }
-        return
-    }
-
     val activity = LocalPlatformActivity.current
     val scrollState = rememberScrollState()
 
@@ -473,29 +427,6 @@ fun VungleTestScreen(onBack: () -> Unit) {
 // ==========================================
 @Composable
 fun PangleTestScreen(onBack: () -> Unit) {
-    val isInitialized = rememberPangleAdsInit(
-        androidAppId = "8817707",
-        iosAppId = "8025677"
-    )
-
-    if (!isInitialized) {
-        Scaffold(
-            topBar = {
-                TopAppBarRow(title = "Pangle Showcase", onBack = onBack)
-            }
-        ) { padding ->
-            Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(padding),
-                contentAlignment = Alignment.Center
-            ) {
-                CircularProgressIndicator()
-            }
-        }
-        return
-    }
-
     val activity = LocalPlatformActivity.current
     val scrollState = rememberScrollState()
 
@@ -576,29 +507,6 @@ fun PangleTestScreen(onBack: () -> Unit) {
 // ==========================================
 @Composable
 fun IronSourceTestScreen(onBack: () -> Unit) {
-    val isInitialized = rememberIronSourceAdsInit(
-        androidAppKey = "2636d0095",
-        iosAppKey = "2636d3a1d",
-        testModeEnabled = true
-    )
-    if (!isInitialized) {
-        Scaffold(
-            topBar = {
-                TopAppBarRow(title = "IronSource Showcase", onBack = onBack)
-            }
-        ) { padding ->
-            Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(padding),
-                contentAlignment = Alignment.Center
-            ) {
-                CircularProgressIndicator()
-            }
-        }
-        return
-    }
-
     val activity = LocalPlatformActivity.current
     val scrollState = rememberScrollState()
 

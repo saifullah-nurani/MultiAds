@@ -39,6 +39,7 @@ class VungleBannerUIView : UIView(frame = CGRectZero.readValue()) {
     private var adStateManager: AdStateManager? = null
     private var adDelegate: NSObject? = null
     private val bannerTag = "VungleBannerUIView"
+    private var requestTag: String? = null
 
     fun setPlacementId(id: String) {
         placementId = id
@@ -49,6 +50,10 @@ class VungleBannerUIView : UIView(frame = CGRectZero.readValue()) {
         bannerAd = ad
     }
 
+    fun setRequestTag(tag: String?) {
+        requestTag = tag
+    }
+
     fun loadAd() {
         if (adStateManager == null) {
             adStateManager = AdStateManager(
@@ -57,7 +62,7 @@ class VungleBannerUIView : UIView(frame = CGRectZero.readValue()) {
                 AdRefreshStrategy.disable(),
                 null,
                 Scheduler(),
-                bannerTag
+                requestTag ?: bannerTag
             ) {
                 loadAdInternally()
             }
@@ -68,6 +73,15 @@ class VungleBannerUIView : UIView(frame = CGRectZero.readValue()) {
     private val testAdUnitId = "B1-5106071"
 
     private fun loadAdInternally() {
+        if (!VungleAds.isInitialized()) {
+            val adError = io.github.saifullah.nurani.ads.core.AdError(
+                code = 0,
+                message = "Vungle SDK is not initialized yet."
+            )
+            adStateManager?.onAdFailedToLoad(adError)
+            adListener?.onAdFailedToLoad(adError)
+            return
+        }
         if (!isTestModeEnabled) {
             checkNotNull(placementId) { "placementId must be set." }
             require(placementId!!.isNotEmpty()) { "placementId must not be empty." }

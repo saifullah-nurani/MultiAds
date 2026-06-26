@@ -4,6 +4,7 @@ package io.github.saifullah.nurani.ads.pangle
 
 import PAGAdSDK.PAGConfig
 import PAGAdSDK.PAGSdk
+import io.github.saifullah.nurani.ads.core.AdInitResult
 
 actual object PangleAds {
     private var isInitialized = false
@@ -23,10 +24,13 @@ actual object PangleAds {
 
     actual fun init(
         context: io.github.saifullah.nurani.ads.core.compose.PlatformContext,
-        appId: String,
-        onComplete: ((Boolean) -> Unit)?
+        androidAppId: String,
+        iosAppId: String,
+        onComplete: ((AdInitResult) -> Unit)?
     ) {
-        init(appId, onComplete)
+        init(iosAppId) { success ->
+            onComplete?.invoke(AdInitResult(success))
+        }
     }
 
     actual fun isInitialized(): Boolean = isInitialized

@@ -46,6 +46,7 @@ class PangleBannerUIView : UIView(frame = CGRectZero.readValue()) {
     private var adStateManager: AdStateManager? = null
     private var adDelegate: NSObject? = null
     private val bannerTag = "PangleBannerUIView"
+    private var requestTag: String? = null
 
     fun setAdUnitId(id: String) {
         adUnitId = id
@@ -56,6 +57,10 @@ class PangleBannerUIView : UIView(frame = CGRectZero.readValue()) {
         bannerAdStrategy = ad
     }
 
+    fun setRequestTag(tag: String?) {
+        requestTag = tag
+    }
+
     fun loadAd() {
         if (adStateManager == null) {
             adStateManager = AdStateManager(
@@ -64,7 +69,7 @@ class PangleBannerUIView : UIView(frame = CGRectZero.readValue()) {
                 AdRefreshStrategy.disable(),
                 null,
                 Scheduler(),
-                bannerTag
+                requestTag ?: bannerTag
             ) {
                 loadAdInternally()
             }
@@ -76,6 +81,15 @@ class PangleBannerUIView : UIView(frame = CGRectZero.readValue()) {
     private val testAdUnitId300x250 = "983240210"
 
     private fun loadAdInternally() {
+        if (!PangleAds.isInitialized()) {
+            val adError = io.github.saifullah.nurani.ads.core.AdError(
+                code = 0,
+                message = "Pangle SDK is not initialized yet."
+            )
+            adStateManager?.onAdFailedToLoad(adError)
+            adListener?.onAdFailedToLoad(adError)
+            return
+        }
         if (!isTestModeEnabled) {
             checkNotNull(adUnitId) { "adUnitId must be set." }
             require(adUnitId!!.isNotEmpty()) { "adUnitId must not be empty." }

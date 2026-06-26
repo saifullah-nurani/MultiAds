@@ -39,6 +39,7 @@ class MetaBannerView @JvmOverloads constructor(
 
     private var keepAdSlot = true
     private var testMode = false
+    private var requestTag: String? = null
 
     private var stateManager: AdStateManager? = null
     var adListener: BannerAdListener? = null
@@ -144,7 +145,7 @@ class MetaBannerView @JvmOverloads constructor(
     fun loadAd() {
         if (stateManager == null) {
             stateManager =
-                AdStateManager(reloadPolicies, retryRule, disable(), null, Scheduler(null), TAG) {
+                AdStateManager(reloadPolicies, retryRule, disable(), null, Scheduler(null), requestTag ?: TAG) {
                     loadAdInternally(context)
                 }
         }
@@ -243,6 +244,10 @@ class MetaBannerView @JvmOverloads constructor(
 
     fun setTestModeEnabled(enabled: Boolean) {
         this.testMode = enabled
+    }
+
+    fun setRequestTag(tag: String?) {
+        this.requestTag = tag
     }
 
     fun setPlacementId(id: String) {

@@ -6,6 +6,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import io.github.saifullah.nurani.ads.core.AdInitResult
 import io.github.saifullah.nurani.ads.pangle.PangleAds
 import io.github.saifullah.nurani.ads.core.compose.PlatformContext
 
@@ -17,8 +18,8 @@ actual fun rememberPangleAdsInit(
 ): Boolean {
     var isInitialized by remember(iosAppId) { mutableStateOf(false) }
     LaunchedEffect(iosAppId) {
-        PangleAds.init(context, iosAppId) { success ->
-            isInitialized = success
+        PangleAds.init(context, androidAppId, iosAppId) { result: AdInitResult ->
+            isInitialized = result.success
         }
     }
     return isInitialized

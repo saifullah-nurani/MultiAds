@@ -40,6 +40,7 @@ class AppLovinBannerUIView : UIView(frame = CGRectZero.readValue()) {
     private var adStateManager: AdStateManager? = null
     private var adDelegate: NSObject? = null
     private val bannerTag = "AppLovinBannerUIView"
+    private var requestTag: String? = null
 
     fun setPlacementId(id: String) {
         adUnitId = id
@@ -47,6 +48,10 @@ class AppLovinBannerUIView : UIView(frame = CGRectZero.readValue()) {
 
     fun setAdUnitId(id: String) {
         adUnitId = id
+    }
+
+    fun setRequestTag(tag: String?) {
+        requestTag = tag
     }
 
     fun setBannerAd(ad: BannerAd<AdSize>) {
@@ -69,7 +74,7 @@ class AppLovinBannerUIView : UIView(frame = CGRectZero.readValue()) {
                 AdRefreshStrategy.disable(),
                 null,
                 Scheduler(),
-                bannerTag
+                requestTag ?: bannerTag
             ) {
                 loadAdInternally()
             }

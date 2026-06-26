@@ -28,6 +28,7 @@ actual fun InMobiBannerAd(
 ) {
     InMobiBannerAd(
         placementId = properties.androidPlacementId,
+        tag = properties.tag,
         testModeEnabled = testModeEnabled,
         expandWhenReady = expandWhenReady,
         animateExpansion = animateExpansion,
@@ -44,6 +45,7 @@ actual fun InMobiBannerAd(
 @Composable
 fun InMobiBannerAd(
     placementId: Long,
+    tag: String? = null,
     testModeEnabled: Boolean = false,
     expandWhenReady: Boolean = true,
     animateExpansion: Boolean = true,
@@ -53,8 +55,9 @@ fun InMobiBannerAd(
     adListener: BannerAdListener? = null
 ) {
     val heightController = io.github.saifullah.nurani.ads.core.rememberBannerHeightController(
-        expandWhenReady,
-        animateExpansion
+        initialHeight = adSize.getSize().height,
+        expandWhenReady = expandWhenReady,
+        animateExpansion = animateExpansion
     )
     val placementIdState by rememberSaveable(placementId) {
         mutableStateOf(placementId)
@@ -69,6 +72,7 @@ fun InMobiBannerAd(
             InMobiBannerView(ctx).apply {
                 setAdLogger(adLogger)
                 setPlacementId(placementIdState)
+                setRequestTag(tag)
                 this.retryRule = adFailedAdRetryRule
                 setKeepAdSlot(expandWhenReady)
                 setTestModeEnabled(testModeEnabled)
@@ -102,6 +106,9 @@ fun InMobiBannerAd(
 /**
  * Creates InMobi ad properties for Android placement IDs.
  */
-fun inMobiPlacementProperties(placementId: Long): InMobiAdProperties {
-    return InMobiAdProperties(placementId, 0L)
+fun inMobiPlacementProperties(
+    placementId: Long,
+    tag: String? = null
+): InMobiAdProperties {
+    return InMobiAdProperties(placementId, 0L, tag)
 }

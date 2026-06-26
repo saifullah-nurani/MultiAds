@@ -41,6 +41,7 @@ actual fun rememberAdmobInterstitialAd(
     adContentCallback: AdContentCallback?
 ): FullScreenAdState = rememberAdmobInterstitialAd(
     adUnitId = properties.androidAdUnitId,
+    tag = properties.tag,
     initialLoad = initialLoad,
     immersiveModeEnabled = immersiveModeEnabled,
     testModeEnabled = testModeEnabled,
@@ -62,6 +63,7 @@ actual fun rememberAdmobInterstitialAd(
 @Composable
 fun rememberAdmobInterstitialAd(
     adUnitId: String,
+    tag: String? = null,
     initialLoad: Boolean = true,
     immersiveModeEnabled: Boolean = true,
     testModeEnabled: Boolean = false,
@@ -86,6 +88,7 @@ fun rememberAdmobInterstitialAd(
                 this.adFailedRetryRule = adFailedAdRetryRule
                 this.adRefreshStrategy = adRefreshStrategy
                 this.adReloadPolicies = adReloadPolicies
+                this.tag = tag
                 this.isTestModeEnabled = testModeEnabled
             },
         )
@@ -104,4 +107,3 @@ fun rememberAdmobInterstitialAd(
     )
     return adState
 }
-

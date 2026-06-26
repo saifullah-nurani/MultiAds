@@ -139,7 +139,7 @@ class PangleBannerView @JvmOverloads constructor(
 
     fun loadAd() {
         if (stateManager == null) {
-            stateManager = AdStateManager(reloadPolicies, retryRule, disable(), null, Scheduler(null), TAG) {
+            stateManager = AdStateManager(reloadPolicies, retryRule, disable(), null, Scheduler(null), requestTag ?: TAG) {
                 loadAdInternally(context)
             }
         }
@@ -149,6 +149,15 @@ class PangleBannerView @JvmOverloads constructor(
 
     @SuppressLint("MissingPermission")
     private fun loadAdInternally(context: Context) {
+        if (!PangleAds.isInitialized()) {
+            val adError = io.github.saifullah.nurani.ads.core.AdError(
+                code = 0,
+                message = "Pangle SDK is not initialized yet."
+            )
+            stateManager?.onAdFailedToLoad(adError)
+            adListener?.onAdFailedToLoad(adError)
+            return
+        }
         val id = adUnitId
         if (!testMode) {
             checkNotNull(id) { "adUnitId must be set." }
@@ -286,9 +295,14 @@ class PangleBannerView @JvmOverloads constructor(
     }
 
     private var testMode = false
+    private var requestTag: String? = null
 
     fun setTestModeEnabled(enabled: Boolean) {
         this.testMode = enabled
+    }
+
+    fun setRequestTag(tag: String?) {
+        this.requestTag = tag
     }
 
     companion object {

@@ -10,6 +10,7 @@ import com.bytedance.sdk.openadsdk.api.open.PAGAppOpenAdInteractionListener
 import com.bytedance.sdk.openadsdk.api.open.PAGAppOpenAdLoadListener
 import com.bytedance.sdk.openadsdk.api.open.PAGAppOpenRequest
 import io.github.saifullah.nurani.ads.core.AdConfig
+import io.github.saifullah.nurani.ads.core.AppOpenAd
 import io.github.saifullah.nurani.ads.core.Scheduler
 import io.github.saifullah.nurani.ads.core.utils.ContextUtils.Companion.findActivity
 
@@ -18,7 +19,7 @@ class PangleAppOpenAd(
     val adUnitId: String,
     adConfig: AdConfig?,
     handler: Handler?
-) : FullScreenAdState(context, Scheduler(handler), adConfig, TAG) {
+) : FullScreenAdState(context, Scheduler(handler), adConfig, TAG), AppOpenAd {
     private var mAppOpenAd: PAGAppOpenAd? = null
 
     private val appOpenAdLoadListener = object : PAGAppOpenAdLoadListener {
@@ -63,6 +64,15 @@ class PangleAppOpenAd(
     }
 
     override fun onAdLoad() {
+        if (!PangleAds.isInitialized()) {
+            val adError = io.github.saifullah.nurani.ads.core.AdError(
+                code = 0,
+                message = "Pangle SDK is not initialized yet."
+            )
+            adStateManager.onAdFailedToLoad(adError)
+            adLoadListener?.onAdFailedToLoad(adError)
+            return
+        }
         if (!adConfig.isTestModeEnabled) {
             require(adUnitId.isNotEmpty()) { "$TAG: adUnitId must not be empty." }
         }

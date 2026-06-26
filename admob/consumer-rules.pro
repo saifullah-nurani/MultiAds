@@ -1,6 +1,6 @@
-# Consumer rules for admob module
+# AdMob public API
 -keep class io.github.saifullah.nurani.ads.admob.** { *; }
 -keep interface io.github.saifullah.nurani.ads.admob.** { *; }
 
-# Keep GAD classes if they are being stripped (though the SDK should have its own rules)
+# Google Mobile Ads SDK
 -keep class com.google.android.gms.ads.** { *; }

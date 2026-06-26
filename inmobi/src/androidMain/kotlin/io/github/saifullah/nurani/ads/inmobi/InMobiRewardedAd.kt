@@ -73,6 +73,15 @@ class InMobiRewardedAd(
     }
 
     override fun onAdLoad() {
+        if (!InMobiAds.isInitialized()) {
+            val adError = io.github.saifullah.nurani.ads.core.AdError(
+                code = 0,
+                message = "InMobi SDK is not initialized yet."
+            )
+            adStateManager.onAdFailedToLoad(adError)
+            adLoadListener?.onAdFailedToLoad(adError)
+            return
+        }
         if (!adConfig.isTestModeEnabled) {
             check(placementId != 0L) { "$TAG: placementId must be set." }
         }

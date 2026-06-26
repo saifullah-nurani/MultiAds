@@ -28,6 +28,7 @@ actual fun AdmobBannerAd(
 ) {
     AdmobBannerAd(
         adUnitId = properties.androidAdUnitId,
+        tag = properties.tag,
         testModeEnabled = testModeEnabled,
         expandWhenReady = expandWhenReady,
         animateExpansion = animateExpansion,
@@ -50,6 +51,7 @@ actual fun AdmobBannerAd(
 @Composable
 fun AdmobBannerAd(
     adUnitId: String,
+    tag: String? = null,
     testModeEnabled: Boolean = false,
     expandWhenReady: Boolean = true,
     animateExpansion: Boolean = true,
@@ -59,8 +61,9 @@ fun AdmobBannerAd(
     adListener: BannerAdListener? = null
 ) {
     val heightController = io.github.saifullah.nurani.ads.core.rememberBannerHeightController(
-        expandWhenReady,
-        animateExpansion
+        initialHeight = adSize.getSize().height,
+        expandWhenReady = expandWhenReady,
+        animateExpansion = animateExpansion
     )
     val adUnitId by rememberSaveable(adUnitId) {
         mutableStateOf(adUnitId)
@@ -75,6 +78,7 @@ fun AdmobBannerAd(
             AdmobBannerView(ctx).apply {
                 setAdLogger(adLogger)
                 setAdUnitId(adUnitId)
+                setRequestTag(tag)
                 this.retryRule = adFailedAdRetryRule
                 setKeepAdSlot(expandWhenReady)
                 setTestModeEnabled(testModeEnabled)
@@ -108,6 +112,9 @@ fun AdmobBannerAd(
 /**
  * Creates AdMob ad properties for Android ad unit IDs.
  */
-fun admobAdProperties(adUnitId: String): AdmobAdProperties {
-    return AdmobAdProperties(adUnitId, "")
+fun admobAdProperties(
+    adUnitId: String,
+    tag: String? = null
+): AdmobAdProperties {
+    return AdmobAdProperties(adUnitId, "", tag)
 }

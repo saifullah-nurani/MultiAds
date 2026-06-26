@@ -6,5 +6,7 @@ import io.github.saifullah.nurani.ads.core.compose.PlatformContext
 
 @Composable
 expect fun rememberMetaAdsInit(
+    androidPlacementId: String,
+    iosPlacementId: String = androidPlacementId,
     context: PlatformContext = LocalPlatformContext.current
 ): Boolean

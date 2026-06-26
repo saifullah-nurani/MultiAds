@@ -8,23 +8,29 @@ import io.github.saifullah.nurani.ads.core.AdContentCallback
 import io.github.saifullah.nurani.ads.core.compose.LocalPlatformContext
 import io.github.saifullah.nurani.ads.multi.MultiInterstitialAd
 import io.github.saifullah.nurani.ads.multi.MultiRewardedAd
-import io.github.saifullah.nurani.ads.multi.MultiAppOpenAd
+import io.github.saifullah.nurani.ads.multi.models.MultiAdContentCallback
+import io.github.saifullah.nurani.ads.multi.models.MultiAdLoadCallback
+import io.github.saifullah.nurani.ads.multi.models.MultiAdsConfig
 import io.github.saifullah.nurani.ads.multi.models.WaterfallConfig
 
 @Composable
 fun rememberMultiInterstitialAd(
     waterfallConfig: WaterfallConfig,
     testModeEnabled: Boolean = false,
+    tag: String? = null,
     initialLoad: Boolean = true,
     immersiveModeEnabled: Boolean = true,
     adLoadCallback: AdLoadCallback? = null,
-    adContentCallback: AdContentCallback? = null
+    adContentCallback: AdContentCallback? = null,
+    multiAdLoadCallback: MultiAdLoadCallback? = null,
+    multiAdContentCallback: MultiAdContentCallback? = null
 ): MultiInterstitialAd {
     val context = LocalPlatformContext.current
     val adState = remember(waterfallConfig) {
         MultiInterstitialAd(context).apply {
             this.waterfallConfig = waterfallConfig
             this.testModeEnabled = testModeEnabled
+            this.tag = tag
             this.isImmersiveModeEnabled = immersiveModeEnabled
         }
     }
@@ -32,6 +38,8 @@ fun rememberMultiInterstitialAd(
     DisposableEffect(adState) {
         adState.setAdLoadCallback(adLoadCallback)
         adState.setAdContentCallback(adContentCallback)
+        adState.setMultiAdLoadCallback(multiAdLoadCallback)
+        adState.setMultiAdContentCallback(multiAdContentCallback)
         if (initialLoad && !adState.isAdAvailable && !adState.isAdLoading) {
             adState.loadAd()
         }
@@ -44,13 +52,39 @@ fun rememberMultiInterstitialAd(
 }
 
 @Composable
-fun rememberMultiRewardedAd(
-    waterfallConfig: WaterfallConfig,
-    testModeEnabled: Boolean = false,
+fun rememberMultiInterstitialAd(
+    multiAdsConfig: MultiAdsConfig,
     initialLoad: Boolean = true,
     immersiveModeEnabled: Boolean = true,
     adLoadCallback: AdLoadCallback? = null,
     adContentCallback: AdContentCallback? = null,
+    multiAdLoadCallback: MultiAdLoadCallback? = null,
+    multiAdContentCallback: MultiAdContentCallback? = null
+): MultiInterstitialAd {
+    return rememberMultiInterstitialAd(
+        waterfallConfig = multiAdsConfig.waterfallConfig ?: error("waterfallConfig is required"),
+        testModeEnabled = multiAdsConfig.adConfig.isTestModeEnabled,
+        tag = multiAdsConfig.adConfig.tag,
+        initialLoad = initialLoad,
+        immersiveModeEnabled = immersiveModeEnabled,
+        adLoadCallback = adLoadCallback,
+        adContentCallback = adContentCallback,
+        multiAdLoadCallback = multiAdLoadCallback,
+        multiAdContentCallback = multiAdContentCallback
+    )
+}
+
+@Composable
+fun rememberMultiRewardedAd(
+    waterfallConfig: WaterfallConfig,
+    testModeEnabled: Boolean = false,
+    tag: String? = null,
+    initialLoad: Boolean = true,
+    immersiveModeEnabled: Boolean = true,
+    adLoadCallback: AdLoadCallback? = null,
+    adContentCallback: AdContentCallback? = null,
+    multiAdLoadCallback: MultiAdLoadCallback? = null,
+    multiAdContentCallback: MultiAdContentCallback? = null,
     onUserRewarded: (() -> Unit)? = null
 ): MultiRewardedAd {
     val context = LocalPlatformContext.current
@@ -58,6 +92,7 @@ fun rememberMultiRewardedAd(
         MultiRewardedAd(context).apply {
             this.waterfallConfig = waterfallConfig
             this.testModeEnabled = testModeEnabled
+            this.tag = tag
             this.isImmersiveModeEnabled = immersiveModeEnabled
         }
     }
@@ -65,6 +100,8 @@ fun rememberMultiRewardedAd(
     DisposableEffect(adState) {
         adState.setAdLoadCallback(adLoadCallback)
         adState.setAdContentCallback(adContentCallback)
+        adState.setMultiAdLoadCallback(multiAdLoadCallback)
+        adState.setMultiAdContentCallback(multiAdContentCallback)
         if (onUserRewarded != null) {
             adState.setOnUserRewarded(onUserRewarded)
         }
@@ -80,34 +117,26 @@ fun rememberMultiRewardedAd(
 }
 
 @Composable
-fun rememberMultiAppOpenAd(
-    waterfallConfig: WaterfallConfig,
-    testModeEnabled: Boolean = false,
+fun rememberMultiRewardedAd(
+    multiAdsConfig: MultiAdsConfig,
     initialLoad: Boolean = true,
     immersiveModeEnabled: Boolean = true,
     adLoadCallback: AdLoadCallback? = null,
-    adContentCallback: AdContentCallback? = null
-): MultiAppOpenAd {
-    val context = LocalPlatformContext.current
-    val adState = remember(waterfallConfig) {
-        MultiAppOpenAd(context).apply {
-            this.waterfallConfig = waterfallConfig
-            this.testModeEnabled = testModeEnabled
-            this.isImmersiveModeEnabled = immersiveModeEnabled
-        }
-    }
-
-    DisposableEffect(adState) {
-        adState.setAdLoadCallback(adLoadCallback)
-        adState.setAdContentCallback(adContentCallback)
-        if (initialLoad && !adState.isAdAvailable && !adState.isAdLoading) {
-            adState.loadAd()
-        }
-        onDispose {
-            adState.destroy()
-        }
-    }
-
-    return adState
+    adContentCallback: AdContentCallback? = null,
+    multiAdLoadCallback: MultiAdLoadCallback? = null,
+    multiAdContentCallback: MultiAdContentCallback? = null,
+    onUserRewarded: (() -> Unit)? = null
+): MultiRewardedAd {
+    return rememberMultiRewardedAd(
+        waterfallConfig = multiAdsConfig.waterfallConfig ?: error("waterfallConfig is required"),
+        testModeEnabled = multiAdsConfig.adConfig.isTestModeEnabled,
+        tag = multiAdsConfig.adConfig.tag,
+        initialLoad = initialLoad,
+        immersiveModeEnabled = immersiveModeEnabled,
+        adLoadCallback = adLoadCallback,
+        adContentCallback = adContentCallback,
+        multiAdLoadCallback = multiAdLoadCallback,
+        multiAdContentCallback = multiAdContentCallback,
+        onUserRewarded = onUserRewarded
+    )
 }
-

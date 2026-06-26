@@ -18,7 +18,7 @@ data class AdNetworkConfig(
 
 data class WaterfallConfig(
     val networks: List<AdNetworkConfig>,
-    val maxConcurrentLoads: Int = 1
+    val maxConcurrentLoads: Int = 2
 )
 
 @DslMarker
@@ -27,7 +27,7 @@ annotation class WaterfallDsl
 @WaterfallDsl
 class WaterfallConfigBuilder {
     private val networks = mutableListOf<AdNetworkConfig>()
-    private var maxConcurrentLoads: Int = 1
+    private var maxConcurrentLoads: Int = 2
 
     fun maxConcurrentLoads(value: Int) {
         maxConcurrentLoads = value.coerceAtLeast(1)
@@ -68,7 +68,7 @@ fun waterfallConfig(block: WaterfallConfigBuilder.() -> Unit): WaterfallConfig {
 
 fun waterfallConfig(
     vararg networks: AdNetworkConfig,
-    maxConcurrentLoads: Int = 1
+    maxConcurrentLoads: Int = 2
 ): WaterfallConfig {
     return WaterfallConfig(
         networks = networks

@@ -1,6 +1,7 @@
 package io.github.saifullah.nurani.ads.core
 
 import androidx.compose.runtime.Immutable
+import kotlin.random.Random
 import kotlin.jvm.JvmName
 import kotlin.jvm.JvmStatic
 import kotlin.jvm.JvmSynthetic
@@ -78,6 +79,14 @@ class AdConfigBuilder internal constructor() {
      */
     @JvmSynthetic
     var adRefreshStrategy: AdRefreshStrategy = periodicRefresh()
+
+    /**
+     * Optional custom tag attached to ad requests when supported by the
+     * underlying SDK. Provide your own unique value if you want to correlate
+     * requests with server-side verification.
+     */
+    @JvmSynthetic
+    var tag: String? = null
     /**
      * Enables test mode for ads.
      *
@@ -100,6 +109,7 @@ class AdConfigBuilder internal constructor() {
             adReloadPolicies = adReloadPolicies.toSet(),
             adFailedRetryRule = adFailedRetryRule,
             adRefreshStrategy = adRefreshStrategy,
+            tag = tag,
             isTestModeEnabled = isTestModeEnabled
         )
     }
@@ -140,6 +150,11 @@ data class AdConfig(
     val adRefreshStrategy: AdRefreshStrategy,
 
     /**
+     * Optional custom tag carried with ad requests when supported.
+     */
+    val tag: String?,
+
+    /**
      * Indicates whether the SDK should operate in test mode.
      */
     val isTestModeEnabled: Boolean
@@ -147,5 +162,11 @@ data class AdConfig(
     companion object {
         @JvmStatic
         val default = adConfig()
+
+        @JvmStatic
+        fun newVerificationTag(prefix: String = "ad"): String {
+            val randomPart = Random.nextLong().toULong().toString(16)
+            return "$prefix-$randomPart"
+        }
     }
 }

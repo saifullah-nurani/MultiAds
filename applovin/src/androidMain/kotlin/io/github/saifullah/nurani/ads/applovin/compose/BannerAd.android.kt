@@ -28,6 +28,7 @@ actual fun AppLovinBannerAd(
 ) {
     AppLovinBannerAd(
         adUnitId = properties.androidAdUnitId,
+        tag = properties.tag,
         testModeEnabled = testModeEnabled,
         expandWhenReady = expandWhenReady,
         animateExpansion = animateExpansion,
@@ -44,6 +45,7 @@ actual fun AppLovinBannerAd(
 @Composable
 fun AppLovinBannerAd(
     adUnitId: String,
+    tag: String? = null,
     testModeEnabled: Boolean = false,
     expandWhenReady: Boolean = true,
     animateExpansion: Boolean = true,
@@ -53,8 +55,9 @@ fun AppLovinBannerAd(
     adListener: BannerAdListener? = null
 ) {
     val heightController = io.github.saifullah.nurani.ads.core.rememberBannerHeightController(
-        expandWhenReady,
-        animateExpansion
+        initialHeight = adSize.getSize().height,
+        expandWhenReady = expandWhenReady,
+        animateExpansion = animateExpansion
     )
     val adUnitIdState by rememberSaveable(adUnitId) {
         mutableStateOf(adUnitId)
@@ -69,6 +72,7 @@ fun AppLovinBannerAd(
             AppLovinBannerView(ctx).apply {
                 setAdLogger(adLogger)
                 setAdUnitId(adUnitIdState)
+                setRequestTag(tag)
                 this.retryRule = adFailedAdRetryRule
                 setKeepAdSlot(expandWhenReady)
                 setTestModeEnabled(testModeEnabled)
@@ -102,6 +106,9 @@ fun AppLovinBannerAd(
 /**
  * Creates AppLovin ad properties for Android ad unit IDs.
  */
-fun appLovinAdProperties(adUnitId: String): AppLovinAdProperties {
-    return AppLovinAdProperties(adUnitId, "")
+fun appLovinAdProperties(
+    adUnitId: String,
+    tag: String? = null
+): AppLovinAdProperties {
+    return AppLovinAdProperties(adUnitId, "", tag)
 }

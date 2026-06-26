@@ -1,7 +1,7 @@
-# Consumer rules for applovin module
+# AppLovin public API
 -keep class io.github.saifullah.nurani.ads.applovin.** { *; }
 -keep interface io.github.saifullah.nurani.ads.applovin.** { *; }
 
-# Keep AppLovin SDK classes
+# AppLovin SDK
 -keep class com.applovin.** { *; }
 -dontwarn com.applovin.**

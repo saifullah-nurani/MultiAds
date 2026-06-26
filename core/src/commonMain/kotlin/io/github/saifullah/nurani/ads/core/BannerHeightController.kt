@@ -11,11 +11,13 @@ import androidx.compose.ui.unit.dp
 
 @Composable
 fun rememberBannerHeightController(
+    initialHeight: Int,
     expandWhenReady: Boolean,
     animateExpansion: Boolean
 ): BannerHeightController {
-    return remember(expandWhenReady, animateExpansion) {
+    return remember(initialHeight, expandWhenReady, animateExpansion) {
         BannerHeightController(
+            initialHeight = initialHeight,
             expandWhenReady = expandWhenReady,
             animateExpansion = animateExpansion
         )
@@ -24,10 +26,11 @@ fun rememberBannerHeightController(
 
 @Stable
 class BannerHeightController internal constructor(
+    initialHeight: Int,
     private val expandWhenReady: Boolean,
     private val animateExpansion: Boolean
 ) {
-    private val _currentHeight = mutableStateOf(0)
+    private val _currentHeight = mutableStateOf(initialHeight.coerceAtLeast(0))
     private val _showAdView = mutableStateOf(!expandWhenReady)
 
     val currentHeight: Int get() = _currentHeight.value

@@ -6,11 +6,16 @@ import androidx.compose.runtime.Immutable
 data class MetaAdProperties internal constructor(
     val androidPlacementId: String,
     val iosPlacementId: String,
+    val tag: String? = null,
 )
 
 /**
  * Creates Meta ad properties for Android and iOS placement IDs.
  */
-fun metaPlacementProperties(androidPlacementId: String, iosPlacementId: String): MetaAdProperties {
-    return MetaAdProperties(androidPlacementId, iosPlacementId)
+fun metaPlacementProperties(
+    androidPlacementId: String,
+    iosPlacementId: String,
+    tag: String? = null
+): MetaAdProperties {
+    return MetaAdProperties(androidPlacementId, iosPlacementId, tag)
 }

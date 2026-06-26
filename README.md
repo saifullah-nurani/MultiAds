@@ -1,322 +1,579 @@
 <div align="center">
-  
-# 🚀 MultiAds
 
-**A Professional Kotlin Multiplatform Ad Management Library**
+# MultiAds
+
+**A Kotlin Multiplatform ad library for Android and iOS**
 
 [![Kotlin](https://img.shields.io/badge/Kotlin-2.0.0-blue.svg?logo=kotlin)](http://kotlinlang.org)
 [![KMP](https://img.shields.io/badge/KMP-Supported-purple.svg?logo=kotlin)](https://kotlinlang.org/docs/multiplatform.html)
 [![Version](https://img.shields.io/maven-central/v/io.github.saifullah-nurani.ads/multi-ads)](https://central.sonatype.com/artifact/io.github.saifullah-nurani.ads/multi-ads)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Android Supported](https://img.shields.io/badge/Platform-Android-3DDC84.svg?logo=android)](https://developer.android.com)
-[![iOS Supported](https://img.shields.io/badge/Platform-iOS-000000.svg?logo=apple)](https://developer.apple.com)
-
-**MultiAds** is a lightweight, flexible, and robust ad management solution designed to simplify the complex world of ad integration across **Android** and **iOS** applications. 
-
-[Features](#-key-features) • [Installation](#-installation-dependencies) • [Module Setup](#%EF%B8%8F-module-setup--implementation-guides) • [License](#-license)
 
 </div>
 
----
+`MultiAds` provides:
 
-It provides standard wrappers for multiple popular ad networks, alongside a unified, priority-based **Waterfall Mediation module (`multi-ads`)** that handles dynamic networks fallback, automatic retry policies, and ad lifecycles out-of-the-box.
+- standalone modules for AdMob, AppLovin, Pangle, Vungle, InMobi, IronSource, and Meta
+- a `multi-ads` waterfall module with priority + concurrent loading
+- shared Compose Multiplatform APIs for KMM projects
+- Android native APIs
+- iOS native app-open auto-show helpers
 
----
+## Modules
 
-## 🚀 Key Features
+| Module | Artifact | Formats |
+|---|---|---|
+| Core | `core` | shared config, retry, refresh, callbacks, lifecycle helpers |
+| AdMob | `admob` | banner, interstitial, rewarded, rewarded interstitial, app open |
+| AppLovin | `applovin` | banner, interstitial, rewarded, app open |
+| Pangle | `pangle` | banner, interstitial, rewarded, app open |
+| Vungle | `vungle` | banner, interstitial, rewarded |
+| InMobi | `inmobi` | banner, interstitial, rewarded |
+| IronSource | `ironsource` | banner, interstitial, rewarded |
+| Meta | `man` | banner, interstitial, rewarded |
+| Waterfall | `multi-ads` | multi-network banner, interstitial, rewarded, app open |
 
-* **Multi-Network Support:** Pre-configured modules for **AdMob**, **AppLovin (MAX)**, **Pangle**, **Vungle (Liftoff)**, **InMobi**, and **IronSource**.
-* **Waterfall Mediation (`multi-ads`):** Easily configure ad fallbacks with customizable concurrent loaders and priority rankings.
-* **Unified AdState API:** Standardized API lifecycle callbacks.
-* **Multi-Paradigm Support:** Seamlessly works with **Android Java**, **Android Kotlin (View-based)**, **Compose Multiplatform (KMM)**, and **iOS Compose**.
+## Version
 
----
-
-## 📦 Installation Dependencies
-
-> [!IMPORTANT]
-> **Required Repositories:** Gradle ignores custom repositories defined in library POM files. To resolve transitive SDK dependencies (like Pangle and IronSource), you **MUST** explicitly add their Maven repositories to your consumer project's `settings.gradle.kts` (or root `build.gradle.kts`) file:
+Current version used in this repo:
 
 ```kotlin
-// settings.gradle.kts
+val multiAdsVersion = "1.1.5"
+```
+
+## Repositories
+
+Some ad SDK repositories must be added in the consumer app:
+
+```kotlin
 dependencyResolutionManagement {
     repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
     repositories {
         google()
         mavenCentral()
-        // Required for Pangle SDK
-        maven { url = uri("https://artifact.bytedance.com/repository/pangle/") }
-        // Required for IronSource SDK
-        maven { url = uri("https://android-sdk.is.com/") }
+        maven(url = "https://artifact.bytedance.com/repository/pangle/")
+        maven(url = "https://android-sdk.is.com/")
     }
 }
 ```
 
-Choose the dependency format based on your project type.
+## Installation
 
-### 1. Compose Multiplatform / KMM
-Add dependencies to your `commonMain` source set:
+### KMM / Compose Multiplatform
+
+Add modules in `commonMain`:
+
 ```kotlin
 sourceSets {
     commonMain.dependencies {
-        // All-in-One Waterfall Mediation (Recommended)
-        implementation("io.github.saifullah-nurani.ads:multi-ads:1.1.3")
-        
-        // Standalone Modules
-        // implementation("io.github.saifullah-nurani.ads:core:1.1.3")
-        // implementation("io.github.saifullah-nurani.ads:admob:1.1.3")
-        // implementation("io.github.saifullah-nurani.ads:applovin:1.1.3")
-        // implementation("io.github.saifullah-nurani.ads:pangle:1.1.3")
-        // implementation("io.github.saifullah-nurani.ads:vungle:1.1.3")
-        // implementation("io.github.saifullah-nurani.ads:inmobi:1.1.3")
-        // implementation("io.github.saifullah-nurani.ads:is:1.1.3")
+        implementation("io.github.saifullah-nurani.ads:multi-ads:1.1.5")
+
+        // Optional standalone modules
+        implementation("io.github.saifullah-nurani.ads:admob:1.1.5")
+        implementation("io.github.saifullah-nurani.ads:applovin:1.1.5")
+        implementation("io.github.saifullah-nurani.ads:pangle:1.1.5")
+        implementation("io.github.saifullah-nurani.ads:vungle:1.1.5")
+        implementation("io.github.saifullah-nurani.ads:inmobi:1.1.5")
+        implementation("io.github.saifullah-nurani.ads:ironsource:1.1.5")
+        implementation("io.github.saifullah-nurani.ads:man:1.1.5")
     }
 }
 ```
 
-### 2. Pure Android (Java / Kotlin View-based)
-If you are building a standard Android app (non-KMP), append the `-android` suffix to ensure you get the Android-specific AARs:
+### Android-only
+
+Use Android AAR variants:
+
 ```kotlin
 dependencies {
-    implementation("io.github.saifullah-nurani.ads:multi-ads-android:1.1.3")
-    
-    // Standalone Modules
-    // implementation("io.github.saifullah-nurani.ads:core-android:1.1.3")
-    // implementation("io.github.saifullah-nurani.ads:admob-android:1.1.3")
-    // implementation("io.github.saifullah-nurani.ads:applovin-android:1.1.3")
-    // implementation("io.github.saifullah-nurani.ads:pangle-android:1.1.3")
-    // implementation("io.github.saifullah-nurani.ads:vungle-android:1.1.3")
-    // implementation("io.github.saifullah-nurani.ads:inmobi-android:1.1.3")
-    // implementation("io.github.saifullah-nurani.ads:is-android:1.1.3")
+    implementation("io.github.saifullah-nurani.ads:multi-ads-android:1.1.5")
+
+    // Optional standalone modules
+    implementation("io.github.saifullah-nurani.ads:admob-android:1.1.5")
+    implementation("io.github.saifullah-nurani.ads:applovin-android:1.1.5")
+    implementation("io.github.saifullah-nurani.ads:pangle-android:1.1.5")
+    implementation("io.github.saifullah-nurani.ads:vungle-android:1.1.5")
+    implementation("io.github.saifullah-nurani.ads:inmobi-android:1.1.5")
+    implementation("io.github.saifullah-nurani.ads:ironsource-android:1.1.5")
+    implementation("io.github.saifullah-nurani.ads:man-android:1.1.5")
 }
 ```
 
-### 3. iOS Setup (CocoaPods)
-```ruby
-pod 'MultiAdsMulti', '~> 1.1.3'
-# pod 'MultiAdsAdmob', '~> 1.1.3'
-```
+## R8 / ProGuard
 
----
+`consumer-rules.pro` is already bundled in every published module.
 
-## 🛠️ Module Setup & Implementation Guides
+That means:
 
-Below are the detailed setup and implementation steps for every ad format, broken down by module and programming paradigm.
+- public models/config classes are already kept
+- module API packages are already protected
+- required SDK keep rules are already included
 
----
+In normal usage you do **not** need to manually copy extra ProGuard rules from this repo into your app.
 
-### 1. Waterfall Mediation (`multi-ads`)
-The `multi-ads` module handles all networks. You simply configure a `WaterfallConfig`.
+## Initialization
 
-#### Interstitial Ad
-**Compose (KMP / Android / iOS):**
+Initialize each SDK once before loading ads.
+
+### Compose commonMain
+
 ```kotlin
-val waterfall = remember { waterfallConfig { admob("ID", 1); applovin("ID", 2) } }
-val ad = rememberMultiInterstitialAd(waterfall, true)
-Button(onClick = { ad.showAd(activity) }) { Text("Show Interstitial") }
+val admobReady = rememberAdmobAdsInit(
+    androidAppId = "ANDROID_APP_ID",
+    iosAppId = "IOS_APP_ID"
+)
+
+val appLovinReady = rememberAppLovinAdsInit(
+    androidSdkKey = "ANDROID_SDK_KEY",
+    iosSdkKey = "IOS_SDK_KEY"
+)
+
+val pangleReady = rememberPangleAdsInit(
+    androidAppId = "ANDROID_APP_ID",
+    iosAppId = "IOS_APP_ID"
+)
+
+val vungleReady = rememberVungleAdsInit(
+    androidAppId = "ANDROID_APP_ID",
+    iosAppId = "IOS_APP_ID"
+)
+
+val inMobiReady = rememberInMobiAdsInit(
+    androidAccountId = "ANDROID_ACCOUNT_ID",
+    iosAccountId = "IOS_ACCOUNT_ID"
+)
+
+val ironSourceReady = rememberIronSourceAdsInit(
+    androidAppKey = "ANDROID_APP_KEY",
+    iosAppKey = "IOS_APP_KEY"
+)
+
+val metaReady = rememberMetaAdsInit(
+    androidPlacementId = "ANDROID_META_PLACEMENT_ID",
+    iosPlacementId = "IOS_META_PLACEMENT_ID"
+)
 ```
-**Android Kotlin (View):**
+
+### Shared non-Compose init
+
 ```kotlin
-val waterfall = waterfallConfig { admob("ID", 1); applovin("ID", 2) }
-val ad = MultiInterstitialAd(context).apply { waterfallConfig = waterfall; loadAd() }
-// showAd(activity) when loaded
+AdmobAds.init(context)
+
+AppLovinAds.init(
+    context = context,
+    androidSdkKey = "ANDROID_SDK_KEY",
+    iosSdkKey = "IOS_SDK_KEY"
+)
+
+PangleAds.init(
+    context = context,
+    androidAppId = "ANDROID_APP_ID",
+    iosAppId = "IOS_APP_ID"
+)
+
+VungleAds.init(
+    context = context,
+    androidAppId = "ANDROID_APP_ID",
+    iosAppId = "IOS_APP_ID"
+)
+
+InMobiAds.init(
+    context = context,
+    androidAccountId = "ANDROID_ACCOUNT_ID",
+    iosAccountId = "IOS_ACCOUNT_ID"
+)
+
+IronSourceAds.init(
+    context = context,
+    androidAppKey = "ANDROID_APP_KEY",
+    iosAppKey = "IOS_APP_KEY"
+)
+
+MetaAds.init(
+    context = context,
+    androidPlacementId = "ANDROID_META_PLACEMENT_ID",
+    iosPlacementId = "IOS_META_PLACEMENT_ID"
+)
 ```
-**Android Java:**
-```java
-MultiInterstitialAd ad = new MultiInterstitialAd(context);
-ad.setWaterfallConfig(waterfall); // Configured via builder
-ad.loadAd();
-// ad.showAd(activity);
-```
 
-#### Rewarded Ad
-**Compose:** `val ad = rememberMultiRewardedAd(waterfall, true)`
-**Android Kotlin:** `val ad = MultiRewardedAd(context)`
-**Android Java:** `MultiRewardedAd ad = new MultiRewardedAd(context);`
+## Shared property helpers
 
-#### App Open Ad
-**Compose:** `val ad = rememberMultiAppOpenAd(waterfall, true)`
-**Android Kotlin:** `val ad = MultiAppOpenAd(context)`
-**Android Java:** `MultiAppOpenAd ad = new MultiAppOpenAd(context);`
+All standalone modules support a request `tag`.
 
-#### Banner Ad
-**Compose:**
 ```kotlin
-MultiBannerAd(waterfallConfig = waterfall, modifier = Modifier.fillMaxWidth())
+val admob = admobAdProperties(
+    androidAdUnitId = "ANDROID_ID",
+    iosAdUnitId = "IOS_ID",
+    tag = "session-123"
+)
+
+val appLovin = appLovinAdProperties(
+    androidAdUnitId = "ANDROID_ID",
+    iosAdUnitId = "IOS_ID",
+    tag = "session-123"
+)
+
+val pangle = pangleAdProperties(
+    androidAdUnitId = "ANDROID_ID",
+    iosAdUnitId = "IOS_ID",
+    tag = "session-123"
+)
+
+val vungle = vunglePlacementProperties(
+    androidPlacementId = "ANDROID_PLACEMENT",
+    iosPlacementId = "IOS_PLACEMENT",
+    tag = "session-123"
+)
+
+val inmobi = inMobiPlacementProperties(
+    androidPlacementId = 123456789L,
+    iosPlacementId = 987654321L,
+    tag = "session-123"
+)
+
+val ironSource = ironSourceAdProperties(
+    androidPlacementName = "ANDROID_PLACEMENT_NAME",
+    iosPlacementName = "IOS_AD_UNIT_OR_PLACEMENT",
+    tag = "session-123"
+)
+
+val meta = metaPlacementProperties(
+    androidPlacementId = "ANDROID_PLACEMENT_ID",
+    iosPlacementId = "IOS_PLACEMENT_ID",
+    tag = "session-123"
+)
 ```
-**Android Kotlin / Java:**
+
+## Standalone module usage
+
+### AdMob
+
 ```kotlin
-val bannerView = MultiBannerView(context)
-bannerView.waterfallConfig = waterfall
-bannerView.loadAd()
-layout.addView(bannerView)
+val interstitial = rememberAdmobInterstitialAd(properties = admob)
+val rewarded = rememberAdmobRewardedAd(properties = admob)
+val rewardedInterstitial = rememberAdmobRewardedInterstitialAd(properties = admob)
+
+AdmobBannerAd(
+    properties = admob,
+    testModeEnabled = true,
+    expandWhenReady = true
+)
 ```
 
----
+### AppLovin
 
-### 2. AdMob Module (`admob`)
-**Setup Requirement:**
-Android (`AndroidManifest.xml`):
-```xml
-<meta-data android:name="com.google.android.gms.ads.APPLICATION_ID" android:value="ca-app-pub-xxx~yyy"/>
-```
-iOS (`Info.plist`):
-```xml
-<key>GADApplicationIdentifier</key><string>ca-app-pub-xxx~yyy</string>
-```
-
-#### Formats Implementation
-**Interstitial:**
-*   Compose: `rememberAdmobInterstitialAd(properties)`
-*   Kotlin: `AdmobInterstitialAd.with(context, "ID").apply { loadAd() }`
-*   Java: `AdmobInterstitialAd ad = AdmobInterstitialAd.with(context, "ID"); ad.loadAd();`
-
-**Rewarded:**
-*   Compose: `rememberAdmobRewardedAd(properties)`
-*   Kotlin/Java: `AdmobRewardedAd.with(context, "ID")`
-
-**App Open:**
-*   Compose: `rememberAdmobAppOpenAd(properties)`
-*   Kotlin/Java: `AdmobAppOpenAd.with(context, "ID")`
-
-**Banner:**
-*   Compose: `AdmobBannerAd(properties)`
-*   Kotlin/Java: `AdmobBannerView(context).apply { adUnitId = "ID"; loadAd() }`
-
----
-
-### 3. AppLovin Module (`applovin`)
-**Setup Requirement:**
-You must configure your AppLovin SDK Key. You can do this in your Android app's `build.gradle.kts` or `AndroidManifest.xml`.
-
-**Option 1: Using `build.gradle.kts` (Recommended)**
-Add the AppLovin Quality Service plugin (optional but recommended for MAX) and/or use manifest placeholders:
 ```kotlin
-// app/build.gradle.kts
-android {
-    defaultConfig {
-        manifestPlaceholders["applovin.sdk.key"] = "YOUR_SDK_KEY"
+val interstitial = rememberAppLovinInterstitialAd(properties = appLovin)
+val rewarded = rememberAppLovinRewardedAd(properties = appLovin)
+
+AppLovinBannerAd(
+    properties = appLovin,
+    testModeEnabled = true,
+    expandWhenReady = true
+)
+```
+
+### Pangle
+
+```kotlin
+val interstitial = rememberPangleInterstitialAd(properties = pangle)
+val rewarded = rememberPangleRewardedAd(properties = pangle)
+
+PangleBannerAd(
+    properties = pangle,
+    testModeEnabled = true,
+    expandWhenReady = true
+)
+```
+
+### Vungle
+
+```kotlin
+val interstitial = rememberVungleInterstitialAd(properties = vungle)
+val rewarded = rememberVungleRewardedAd(properties = vungle)
+
+VungleBannerAd(
+    properties = vungle,
+    testModeEnabled = true,
+    expandWhenReady = true
+)
+```
+
+### InMobi
+
+```kotlin
+val interstitial = rememberInMobiInterstitialAd(properties = inmobi)
+val rewarded = rememberInMobiRewardedAd(properties = inmobi)
+
+InMobiBannerAd(
+    properties = inmobi,
+    testModeEnabled = true,
+    expandWhenReady = true
+)
+```
+
+### IronSource
+
+```kotlin
+val interstitial = rememberIronSourceInterstitialAd(properties = ironSource)
+val rewarded = rememberIronSourceRewardedAd(properties = ironSource)
+
+IronSourceBannerAd(
+    properties = ironSource,
+    testModeEnabled = true,
+    expandWhenReady = true
+)
+```
+
+### Meta
+
+```kotlin
+val interstitial = rememberMetaInterstitialAd(properties = meta)
+val rewarded = rememberMetaRewardedAd(properties = meta)
+
+MetaBannerAd(
+    properties = meta,
+    testModeEnabled = true,
+    expandWhenReady = true
+)
+```
+
+## Waterfall module (`multi-ads`)
+
+`multi-ads` loads networks by priority and can keep multiple requests active concurrently.
+
+### Waterfall config
+
+```kotlin
+val waterfall = waterfallConfig {
+    maxConcurrentLoads(2)
+    admob("ADMOB_UNIT_ID", priority = 1)
+    applovin("APPLOVIN_UNIT_ID", priority = 2)
+    pangle("PANGLE_UNIT_ID", priority = 3)
+    vungle("VUNGLE_PLACEMENT_ID", priority = 4)
+    inmobi(123456789L, priority = 5)
+    ironsource("IRONSOURCE_PLACEMENT_NAME", priority = 6)
+}
+```
+
+### Interstitial
+
+```kotlin
+val interstitial = rememberMultiInterstitialAd(
+    waterfallConfig = waterfall,
+    testModeEnabled = true,
+    initialLoad = true,
+    tag = "session-123"
+)
+```
+
+### Rewarded
+
+```kotlin
+val rewarded = rememberMultiRewardedAd(
+    waterfallConfig = waterfall,
+    testModeEnabled = true,
+    initialLoad = true,
+    tag = "session-123",
+    onUserRewarded = {
+        // reward user
+    }
+)
+```
+
+### Banner
+
+Simple overload:
+
+```kotlin
+MultiBannerAd(
+    waterfallConfig = waterfall,
+    testModeEnabled = true,
+    expandWhenReady = true,
+    animateExpansion = true,
+    adSize = BannerAd.Fixed(AdSize.BANNER),
+    tag = "banner-session"
+)
+```
+
+Advanced DSL config:
+
+```kotlin
+MultiBannerAd(
+    waterfallConfig = waterfall,
+    config = multiBannerAdConfig {
+        testModeEnabled = true
+        expandWhenReady = true
+        animateExpansion = true
+        adSize = BannerAd.Fixed(AdSize.BANNER)
+        tag = "banner-session"
+        adListener = BannerAdListener(
+            onAdLoaded = { println("banner loaded") },
+            onAdFailedToLoad = { println("banner failed: ${it?.message}") }
+        )
+    },
+    adListener = object : MultiAdListener {
+        override fun onAdLoaded(network: AdNetworkConfig) {
+            println("loaded from ${network.network}")
+        }
+
+        override fun onAdFailedToLoad(network: AdNetworkConfig, error: AdError?) {
+            println("${network.network} failed: ${error?.message}")
+        }
+    }
+)
+```
+
+### Shared waterfall config object
+
+Use `MultiAdsConfig` when you want one place for tag/logger/retry/refresh/test mode:
+
+```kotlin
+val config = multiAdsConfig {
+    isTestModeEnabled = true
+    tag = "global-session"
+    waterfall {
+        maxConcurrentLoads(2)
+        admob("ADMOB_UNIT_ID", 1)
+        applovin("APPLOVIN_UNIT_ID", 2)
     }
 }
-
-// Optional: AppLovin Quality Service Plugin
-// applovin {
-//     apiKey = "YOUR_SDK_KEY"
-// }
 ```
 
-**Option 2: Android (`AndroidManifest.xml`)**
-```xml
-<meta-data android:name="applovin.sdk.key" android:value="YOUR_SDK_KEY"/>
+Then:
+
+```kotlin
+val interstitial = rememberMultiInterstitialAd(multiAdsConfig = config)
+val rewarded = rememberMultiRewardedAd(multiAdsConfig = config)
+
+MultiBannerAd(
+    multiAdsConfig = config,
+    config = multiBannerAdConfig {
+        expandWhenReady = true
+    }
+)
 ```
-iOS (`Info.plist`):
-```xml
-<key>AppLovinSDKKey</key><string>YOUR_SDK_KEY</string>
+
+### Multi callbacks
+
+`multi-ads` supports network-aware callbacks:
+
+- `MultiAdLoadCallback`
+- `MultiAdContentCallback`
+- `MultiAdListener` for banners
+
+These callbacks tell you which network actually loaded or showed the ad.
+
+### App open support in waterfall
+
+`MultiAppOpenAd` currently supports:
+
+- AdMob
+- AppLovin
+
+Example:
+
+```kotlin
+val appOpenWaterfall = waterfallConfig {
+    maxConcurrentLoads(2)
+    admob("ADMOB_APP_OPEN_ID", 1)
+    applovin("APPLOVIN_APP_OPEN_ID", 2)
+}
+
+val appOpenAd = MultiAppOpenAd(context).apply {
+    waterfallConfig = appOpenWaterfall
+    testModeEnabled = true
+    tag = "app-open-session"
+}
+
+appOpenAd.loadAd()
 ```
 
-#### Formats Implementation
-**Interstitial:**
-*   Compose: `rememberAppLovinInterstitialAd(properties)`
-*   Kotlin/Java: `AppLovinInterstitialAd.with(context, "ID")`
+## Native app-open auto show
 
-**Rewarded:**
-*   Compose: `rememberAppLovinRewardedAd(properties)`
-*   Kotlin/Java: `AppLovinRewardedAd.with(context, "ID")`
+Compose app-open helpers were removed. Use native registration APIs instead.
 
-**App Open:**
-*   Compose: `rememberAppLovinAppOpenAd(properties)`
-*   Kotlin/Java: `AppLovinAppOpenAd.with(context, "ID")`
+### Android
 
-**Banner:**
-*   Compose: `AppLovinBannerAd(properties)`
-*   Kotlin/Java: `AppLovinBannerView(context).apply { adUnitId = "ID"; loadAd() }`
+Available in:
 
----
+- `AdmobNativeAppOpen`
+- `AppLovinNativeAppOpen`
+- `PangleNativeAppOpen`
+- `MultiNativeAppOpen`
 
-### 4. Pangle Module (`pangle`)
-**Setup Requirement:** Requires explicit SDK initialization before loading ads.
-**Init (Compose):** `val isInitialized = rememberPangleAdsInit("APP_ID")`
-**Init (Kotlin/Java):** `PangleAds.init(context, "APP_ID", callback)`
+Example:
 
-#### Formats Implementation
-**Interstitial:**
-*   Compose: `rememberPangleInterstitialAd(properties)`
-*   Kotlin/Java: `PangleInterstitialAd.with(context, "ID")`
+```kotlin
+AdmobNativeAppOpen.register(
+    application = application,
+    adUnitId = "APP_OPEN_ID",
+    initialLoad = true,
+    testModeEnabled = true
+) {
+    anyActivity()
+    // or:
+    // activity<MainActivity>(Lifecycle.Event.ON_RESUME)
+    // fragment<HomeFragment>(Lifecycle.Event.ON_RESUME)
+}
+```
 
-**Rewarded:**
-*   Compose: `rememberPangleRewardedAd(properties)`
-*   Kotlin/Java: `PangleRewardedAd.with(context, "ID")`
+### iOS
 
-**App Open:**
-*   Compose: `rememberPangleAppOpenAd(properties)`
-*   Kotlin/Java: `PangleAppOpenAd.with(context, "ID")`
+Available in:
 
-**Banner:**
-*   Compose: `PangleBannerAd(properties)`
-*   Kotlin/Java: `PangleBannerView(context)`
+- `AdmobNativeAppOpen`
+- `AppLovinNativeAppOpen`
+- `PangleNativeAppOpen`
+- `MultiNativeAppOpen`
 
----
+Example:
 
-### 5. Vungle (Liftoff) Module (`vungle`)
-**Setup Requirement:** Requires SDK initialization.
-**Init (Compose):** `val isInitialized = rememberVungleAdsInit("APP_ID")`
-**Init (Kotlin/Java):** `VungleAds.init(context, "APP_ID", callback)`
+```kotlin
+val handle = AdmobNativeAppOpen.register(
+    adUnitId = "APP_OPEN_ID",
+    initialLoad = true,
+    testModeEnabled = true
+) {
+    appDidBecomeActive()
+    // or:
+    // appWillEnterForeground()
+    // viewController<MyViewController>(IosAppOpenLifecycleState.VIEW_DID_APPEAR)
+}
+```
 
-#### Formats Implementation
-**Interstitial:**
-*   Compose: `rememberVungleInterstitialAd(properties)`
-*   Kotlin/Java: `VungleInterstitialAd.with(context, "ID")`
+If you use view-controller based rules, forward lifecycle manually:
 
-**Rewarded:**
-*   Compose: `rememberVungleRewardedAd(properties)`
-*   Kotlin/Java: `VungleRewardedAd.with(context, "ID")`
+```kotlin
+handle.notifyViewWillAppear(viewController)
+handle.notifyViewDidAppear(viewController)
+```
 
-**Banner:**
-*   Compose: `VungleBannerAd(properties)`
-*   Kotlin/Java: `VungleBannerView(context)`
+Dispose when no longer needed:
 
----
+```kotlin
+handle.dispose()
+```
 
-### 6. InMobi Module (`inmobi`)
-**Setup Requirement:** Requires SDK initialization.
-**Init (Compose):** `val isInitialized = rememberInMobiAdsInit("ACCOUNT_ID")`
-**Init (Kotlin/Java):** `InMobiAds.init(context, "ACCOUNT_ID", callback)`
+## Android SDK setup reminders
 
-#### Formats Implementation
-**Interstitial:**
-*   Compose: `rememberInMobiInterstitialAd(properties)`
-*   Kotlin/Java: `InMobiInterstitialAd.with(context, 123456789L)` // Uses Long IDs
+Some SDKs still require their normal manifest / plist setup:
 
-**Rewarded:**
-*   Compose: `rememberInMobiRewardedAd(properties)`
-*   Kotlin/Java: `InMobiRewardedAd.with(context, 123456789L)`
+- AdMob: `APPLICATION_ID` in AndroidManifest and `GADApplicationIdentifier` in `Info.plist`
+- AppLovin: SDK key in Android manifest / placeholders and `Info.plist`
+- Pangle: app id initialization before load
+- Vungle: app id initialization before load
+- InMobi: account id initialization before load
+- IronSource: app key initialization before load
 
-**Banner:**
-*   Compose: `InMobiBannerAd(properties)`
-*   Kotlin/Java: `InMobiBannerView(context)`
+## Sample app
 
----
+The `sample` module contains working showcase screens for:
 
-### 7. IronSource Module (`is`)
-**Setup Requirement:** Requires SDK initialization.
-**Init (Compose):** `val isInitialized = rememberIronSourceAdsInit("APP_KEY")`
-**Init (Kotlin/Java):** `IronSourceAds.init(context, "APP_KEY", callback)`
+- standalone networks
+- multi-network waterfall
+- banner, interstitial, rewarded, and app-open scenarios
 
-#### Formats Implementation
-**Interstitial:**
-*   Compose: `rememberIronSourceInterstitialAd(properties)`
-*   Kotlin/Java: `IronSourceInterstitialAd.with(context, "ID")`
+## License
 
-**Rewarded:**
-*   Compose: `rememberIronSourceRewardedAd(properties)`
-*   Kotlin/Java: `IronSourceRewardedAd.with(context, "ID")`
-
-**Banner:**
-*   Compose: `IronSourceBannerAd(properties)`
-*   Kotlin/Java: `IronSourceBannerView(context)`
-
----
-
-## 📜 License
-
-This project is licensed under the **MIT License**. See the [LICENSE](LICENSE) file for details.
+MIT. See [LICENSE](LICENSE).

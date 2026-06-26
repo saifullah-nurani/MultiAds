@@ -21,8 +21,8 @@ import androidx.compose.ui.unit.sp
 
 @Composable
 fun App() {
-
     MaterialTheme {
+        SampleAdsInitializer()
         var currentScreen by remember { mutableStateOf("Home") }
 
         if (currentScreen == "Home") {

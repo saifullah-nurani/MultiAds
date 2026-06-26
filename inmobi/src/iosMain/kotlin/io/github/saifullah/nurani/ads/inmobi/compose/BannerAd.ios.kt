@@ -29,8 +29,9 @@ actual fun InMobiBannerAd(
     adListener: BannerAdListener?
 ) {
     val heightController = io.github.saifullah.nurani.ads.core.rememberBannerHeightController(
-        expandWhenReady,
-        animateExpansion
+        initialHeight = adSize.getSize().height,
+        expandWhenReady = expandWhenReady,
+        animateExpansion = animateExpansion
     )
     val placementId by rememberSaveable(properties.iosPlacementId) {
         mutableStateOf(properties.iosPlacementId)
@@ -47,6 +48,7 @@ actual fun InMobiBannerAd(
                 this.isTestModeEnabled = testModeEnabled
                 this.retryRule = adFailedAdRetryRule
                 this.keepAdSlot = expandWhenReady
+                setRequestTag(properties.tag)
                 setPlacementId(placementId)
             }
         },

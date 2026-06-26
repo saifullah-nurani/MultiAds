@@ -6,6 +6,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import io.github.saifullah.nurani.ads.core.AdInitResult
 import io.github.saifullah.nurani.ads.vungle.VungleAds
 import io.github.saifullah.nurani.ads.core.compose.PlatformContext
 
@@ -17,8 +18,8 @@ actual fun rememberVungleAdsInit(
 ): Boolean {
     var isInitialized by remember(androidAppId) { mutableStateOf(false) }
     LaunchedEffect(androidAppId, context) {
-        VungleAds.init(context, androidAppId) { success ->
-            isInitialized = success
+        VungleAds.init(context, androidAppId, iosAppId) { result: AdInitResult ->
+            isInitialized = result.success
         }
     }
     return isInitialized

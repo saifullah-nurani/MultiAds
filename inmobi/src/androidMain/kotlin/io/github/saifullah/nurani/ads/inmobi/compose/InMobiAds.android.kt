@@ -6,6 +6,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import io.github.saifullah.nurani.ads.core.AdInitResult
 import io.github.saifullah.nurani.ads.inmobi.InMobiAds
 import io.github.saifullah.nurani.ads.core.compose.PlatformContext
 
@@ -17,8 +18,8 @@ actual fun rememberInMobiAdsInit(
 ): Boolean {
     var isInitialized by remember(androidAccountId) { mutableStateOf(false) }
     LaunchedEffect(androidAccountId, context) {
-        InMobiAds.init(context, androidAccountId) { success: Boolean ->
-            isInitialized = success
+        InMobiAds.init(context, androidAccountId, iosAccountId) { result: AdInitResult ->
+            isInitialized = result.success
         }
     }
     return isInitialized

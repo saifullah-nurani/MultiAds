@@ -8,17 +8,21 @@ import io.github.saifullah.nurani.ads.admob.AdmobBannerView
 import io.github.saifullah.nurani.ads.applovin.AppLovinAds
 import io.github.saifullah.nurani.ads.applovin.AppLovinBannerView
 import io.github.saifullah.nurani.ads.core.AdError
+import io.github.saifullah.nurani.ads.core.AdFailedRetryRule
+import io.github.saifullah.nurani.ads.core.AdLogger
 import io.github.saifullah.nurani.ads.core.AdSize
 import io.github.saifullah.nurani.ads.core.BannerAd
 import io.github.saifullah.nurani.ads.core.BannerAdListener
+import io.github.saifullah.nurani.ads.core.exponentialRetry
 import io.github.saifullah.nurani.ads.inmobi.InMobiAds
 import io.github.saifullah.nurani.ads.inmobi.InMobiBannerView
-import io.github.saifullah.nurani.ads.`is`.IronSourceBannerView
-import io.github.saifullah.nurani.ads.`is`.IronSourceAds
+import io.github.saifullah.nurani.ads.ironsource.IronSourceBannerView
+import io.github.saifullah.nurani.ads.ironsource.IronSourceAds
 import io.github.saifullah.nurani.ads.man.MetaBannerView
 import io.github.saifullah.nurani.ads.man.MetaAds
 import io.github.saifullah.nurani.ads.multi.models.AdNetwork
 import io.github.saifullah.nurani.ads.multi.models.AdNetworkConfig
+import io.github.saifullah.nurani.ads.multi.models.MultiAdListener
 import io.github.saifullah.nurani.ads.multi.models.WaterfallConfig
 import io.github.saifullah.nurani.ads.pangle.PangleAds
 import io.github.saifullah.nurani.ads.pangle.PangleBannerView
@@ -41,6 +45,10 @@ class MultiBannerView @JvmOverloads constructor(
     private val loadingViews = mutableMapOf<AdNetworkConfig, View>()
     private var activeAdView: View? = null
     private var isDestroyed = AtomicBoolean(false)
+    private var requestTag: String? = null
+    private var multiAdListener: MultiAdListener? = null
+    private var adFailedAdRetryRule: AdFailedRetryRule = exponentialRetry()
+    private var adLogger: AdLogger? = null
 
     fun setWaterfallConfig(config: WaterfallConfig) {
         this.waterfallConfig = config
@@ -54,8 +62,24 @@ class MultiBannerView @JvmOverloads constructor(
         this.adListener = listener
     }
 
+    fun setMultiAdListener(listener: MultiAdListener?) {
+        this.multiAdListener = listener
+    }
+
     fun setTestModeEnabled(enabled: Boolean) {
         this.testMode = enabled
+    }
+
+    fun setAdFailedAdRetryRule(rule: AdFailedRetryRule) {
+        this.adFailedAdRetryRule = rule
+    }
+
+    fun setAdLogger(logger: AdLogger?) {
+        this.adLogger = logger
+    }
+
+    fun setRequestTag(tag: String?) {
+        this.requestTag = tag
     }
 
     fun loadAd() {
@@ -103,40 +127,61 @@ class MultiBannerView @JvmOverloads constructor(
                 view.setAdUnitId(config.adUnitId)
                 bannerAdSize?.let { view.setBannerAd(it) }
                 view.setTestModeEnabled(testMode)
+                view.retryRule = adFailedAdRetryRule
+                view.setAdLogger(adLogger)
+                view.setRequestTag(requestTag)
                 view.adListener = createChildListener(config, view)
             }
             is AppLovinBannerView -> {
                 view.setAdUnitId(config.adUnitId)
                 bannerAdSize?.let { view.setBannerAd(it) }
                 view.setTestModeEnabled(testMode)
+                view.retryRule = adFailedAdRetryRule
+                view.setAdLogger(adLogger)
+                view.setRequestTag(requestTag)
                 view.adListener = createChildListener(config, view)
             }
             is MetaBannerView -> {
                 view.setPlacementId(config.adUnitId)
                 bannerAdSize?.let { view.setBannerAd(it) }
                 view.setTestModeEnabled(testMode)
+                view.retryRule = adFailedAdRetryRule
+                view.setAdLogger(adLogger)
+                view.setRequestTag(requestTag)
                 view.adListener = createChildListener(config, view)
             }
             is VungleBannerView -> {
                 view.setPlacementId(config.adUnitId)
                 bannerAdSize?.let { view.setBannerAd(it) }
                 view.setTestModeEnabled(testMode)
+                view.retryRule = adFailedAdRetryRule
+                view.setAdLogger(adLogger)
+                view.setRequestTag(requestTag)
                 view.adListener = createChildListener(config, view)
             }
             is InMobiBannerView -> {
                 view.setPlacementId(config.adUnitId.toLong())
                 bannerAdSize?.let { view.setBannerAd(it) }
+                view.retryRule = adFailedAdRetryRule
+                view.setAdLogger(adLogger)
+                view.setRequestTag(requestTag)
                 view.adListener = createChildListener(config, view)
             }
             is PangleBannerView -> {
                 view.setAdUnitId(config.adUnitId)
                 bannerAdSize?.let { view.setBannerAd(it) }
+                view.retryRule = adFailedAdRetryRule
+                view.setAdLogger(adLogger)
+                view.setRequestTag(requestTag)
                 view.adListener = createChildListener(config, view)
             }
             is IronSourceBannerView -> {
                 view.setPlacementId(config.adUnitId)
                 bannerAdSize?.let { view.setBannerAd(it) }
                 view.setTestModeEnabled(testMode)
+                view.retryRule = adFailedAdRetryRule
+                view.setAdLogger(adLogger)
+                view.setRequestTag(requestTag)
                 view.adListener = createChildListener(config, view)
             }
         }
@@ -161,6 +206,7 @@ class MultiBannerView @JvmOverloads constructor(
     private fun createChildListener(config: AdNetworkConfig, view: View): BannerAdListener {
         return object : BannerAdListener {
             override fun onAdLoaded() {
+                multiAdListener?.onAdLoaded(config)
                 if (isDestroyed.get() || activeAdView != null) {
                     // Already have an active ad, or destroyed
                     destroyAdView(view)
@@ -180,7 +226,7 @@ class MultiBannerView @JvmOverloads constructor(
                     // Destroy all other loading views to save memory
                     destroyAllLoadingViews()
                     pendingNetworks.clear()
-                    
+
                     adListener?.onAdLoaded()
                 } else {
                     // Keep it hidden, waiting for higher priority to fail or succeed
@@ -188,6 +234,7 @@ class MultiBannerView @JvmOverloads constructor(
             }
 
             override fun onAdFailedToLoad(error: AdError?) {
+                multiAdListener?.onAdFailedToLoad(config, error)
                 if (isDestroyed.get()) return
                 
                 loadingViews.remove(config)
@@ -219,18 +266,23 @@ class MultiBannerView @JvmOverloads constructor(
             }
 
             override fun onAdFailedToShow(error: AdError?) {
+                multiAdListener?.onAdFailedToShow(config, error)
                 if (activeAdView == view) adListener?.onAdFailedToShow(error)
             }
             override fun onAdShowed() {
+                multiAdListener?.onAdShowed(config)
                 if (activeAdView == view) adListener?.onAdShowed()
             }
             override fun onAdDisplayed() {
+                multiAdListener?.onAdDisplayed(config)
                 if (activeAdView == view) adListener?.onAdDisplayed()
             }
             override fun onAdDismissed() {
+                multiAdListener?.onAdDismissed(config)
                 if (activeAdView == view) adListener?.onAdDismissed()
             }
             override fun onAdClicked() {
+                multiAdListener?.onAdClicked(config)
                 if (activeAdView == view) adListener?.onAdClicked()
             }
         }

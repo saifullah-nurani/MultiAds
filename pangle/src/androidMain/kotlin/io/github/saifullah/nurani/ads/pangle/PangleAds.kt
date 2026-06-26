@@ -5,6 +5,7 @@ import android.app.Activity
 import android.content.Context
 import com.bytedance.sdk.openadsdk.api.init.PAGConfig
 import com.bytedance.sdk.openadsdk.api.init.PAGSdk
+import io.github.saifullah.nurani.ads.core.AdInitResult
 import io.github.saifullah.nurani.ads.core.AdConfig
 import io.github.saifullah.nurani.ads.core.AdLogger
 import io.github.saifullah.nurani.ads.core.OnUserRewardedListener
@@ -17,6 +18,7 @@ actual object PangleAds {
 
     private var applicationContext: WeakReference<Context>? = null
     private var currentConfig: Config? = null
+    private var isInitialized = false
 
     private val mInterstitialAds = ConcurrentHashMap<String, WeakReference<PangleInterstitialAd>>()
     private val mRewardedAds = ConcurrentHashMap<String, WeakReference<PangleRewardedAd>>()
@@ -88,6 +90,7 @@ actual object PangleAds {
     fun init(appContext: Context, appId: String, config: Config, onComplete: ((Boolean) -> Unit)?) {
         applicationContext = WeakReference(appContext)
         currentConfig = config
+        isInitialized = false
 
         val pagConfig = PAGConfig.Builder()
             .appId(appId)
@@ -97,11 +100,13 @@ actual object PangleAds {
         PAGSdk.init(appContext, pagConfig, object : PAGSdk.PAGInitCallback {
             override fun success() {
                 logDebug("Pangle SDK Initialization Complete")
+                isInitialized = true
                 onComplete?.invoke(true)
             }
 
             override fun fail(code: Int, msg: String) {
                 logError("Pangle SDK Init failed: code: $code, msg: $msg")
+                isInitialized = false
                 onComplete?.invoke(false)
             }
         })
@@ -113,12 +118,19 @@ actual object PangleAds {
     }
 
     @JvmStatic
-    actual fun init(context: io.github.saifullah.nurani.ads.core.compose.PlatformContext, appId: String, onComplete: ((Boolean) -> Unit)?) {
-        init(context as Context, appId, Config.Builder().build(), onComplete)
+    actual fun init(
+        context: io.github.saifullah.nurani.ads.core.compose.PlatformContext,
+        androidAppId: String,
+        iosAppId: String,
+        onComplete: ((AdInitResult) -> Unit)?
+    ) {
+        init(context as Context, androidAppId, Config.Builder().build()) { success ->
+            onComplete?.invoke(AdInitResult(success))
+        }
     }
 
     @JvmStatic
-    actual fun isInitialized(): Boolean = applicationContext?.get() != null
+    actual fun isInitialized(): Boolean = isInitialized
 
     /**
      * MUST be called in Application class or at start of the app with standard configurations.

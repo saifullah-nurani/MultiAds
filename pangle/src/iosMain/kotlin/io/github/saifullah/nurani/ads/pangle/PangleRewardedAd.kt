@@ -32,6 +32,15 @@ class PangleRewardedAd(
     }
 
     override fun onAdLoad() {
+        if (!PangleAds.isInitialized()) {
+            val adError = io.github.saifullah.nurani.ads.core.AdError(
+                code = 0,
+                message = "Pangle SDK is not initialized yet."
+            )
+            adStateManager.onAdFailedToLoad(adError)
+            adLoadListener?.onAdFailedToLoad(adError)
+            return
+        }
         if (!adConfig.isTestModeEnabled) {
             require(adUnitId.isNotEmpty()) { "$TAG: adUnitId must not be empty." }
         }

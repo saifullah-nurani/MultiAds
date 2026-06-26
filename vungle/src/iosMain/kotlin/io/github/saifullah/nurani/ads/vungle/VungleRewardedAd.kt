@@ -29,6 +29,15 @@ class VungleRewardedAd(
     }
 
     override fun onAdLoad() {
+        if (!VungleAds.isInitialized()) {
+            val adError = io.github.saifullah.nurani.ads.core.AdError(
+                code = 0,
+                message = "Vungle SDK is not initialized yet."
+            )
+            adStateManager.onAdFailedToLoad(adError)
+            adLoadListener?.onAdFailedToLoad(adError)
+            return
+        }
         if (adConfig?.isTestModeEnabled != true) {
             checkNotNull(placementId) { "placementId must be set." }
             require(placementId.isNotEmpty()) { "placementId must not be empty." }

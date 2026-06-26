@@ -139,7 +139,7 @@ class VungleBannerView @JvmOverloads constructor(
 
     fun loadAd() {
         if (stateManager == null) {
-            stateManager = AdStateManager(reloadPolicies, retryRule, disable(), null, Scheduler(null), TAG) {
+            stateManager = AdStateManager(reloadPolicies, retryRule, disable(), null, Scheduler(null), requestTag ?: TAG) {
                 loadAdInternally(context)
             }
         }
@@ -149,6 +149,15 @@ class VungleBannerView @JvmOverloads constructor(
 
     @SuppressLint("MissingPermission")
     private fun loadAdInternally(context: Context) {
+        if (!VungleAds.isInitialized()) {
+            val adError = io.github.saifullah.nurani.ads.core.AdError(
+                code = 0,
+                message = "Vungle SDK is not initialized yet."
+            )
+            stateManager?.onAdFailedToLoad(adError)
+            adListener?.onAdFailedToLoad(adError)
+            return
+        }
         if (!testMode) {
             checkNotNull(placementId) { "placementId must be set." }
             require(placementId!!.isNotEmpty()) { "placementId must not be empty." }
@@ -292,9 +301,14 @@ class VungleBannerView @JvmOverloads constructor(
     }
 
     private var testMode = false
+    private var requestTag: String? = null
 
     fun setTestModeEnabled(enabled: Boolean) {
         this.testMode = enabled
+    }
+
+    fun setRequestTag(tag: String?) {
+        this.requestTag = tag
     }
 
     companion object {

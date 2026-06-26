@@ -23,7 +23,6 @@ import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import io.github.saifullah.nurani.ads.admob.compose.admobAdProperties
-import io.github.saifullah.nurani.ads.admob.compose.rememberAdmobAdsInit
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -71,47 +70,6 @@ val PlaceHolderAdmobProperties = admobAdProperties("", "")
 
 @Composable
 fun AdmobTestScreen(onBack: () -> Unit) {
-    val isInitialized = rememberAdmobAdsInit()
-
-    if (!isInitialized) {
-        Scaffold(
-            topBar = {
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(WindowInsets.statusBars.asPaddingValues())
-                        .padding(horizontal = 16.dp, vertical = 8.dp),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    OutlinedButton(
-                        onClick = onBack,
-                        shape = RoundedCornerShape(12.dp)
-                    ) {
-                        Text("Back")
-                    }
-                    Text(
-                        text = "Admob Showcase",
-                        modifier = Modifier.padding(start = 16.dp),
-                        style = MaterialTheme.typography.headlineSmall.copy(
-                            fontWeight = FontWeight.ExtraBold,
-                            color = MaterialTheme.colorScheme.primary
-                        )
-                    )
-                }
-            }
-        ) { padding ->
-            Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(padding),
-                contentAlignment = Alignment.Center
-            ) {
-                CircularProgressIndicator()
-            }
-        }
-        return
-    }
-
     var bannerType by remember { mutableStateOf("Fixed") }
 
     val scrollState = rememberScrollState()

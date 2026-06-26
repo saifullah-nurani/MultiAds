@@ -4,6 +4,7 @@ import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Context
 import com.facebook.ads.AudienceNetworkAds
+import io.github.saifullah.nurani.ads.core.AdInitResult
 import io.github.saifullah.nurani.ads.core.AdConfig
 import io.github.saifullah.nurani.ads.core.AdLogger
 import io.github.saifullah.nurani.ads.core.OnUserRewardedListener
@@ -76,8 +77,15 @@ actual object MetaAds {
         init(appContext, Config.Builder().build())
     }
 
-    actual fun init(context: PlatformContext, onComplete: ((Boolean) -> Unit)?) {
-        init(context, Config.Builder().build(), onComplete)
+    actual fun init(
+        context: PlatformContext,
+        androidPlacementId: String,
+        iosPlacementId: String,
+        onComplete: ((AdInitResult) -> Unit)?
+    ) {
+        init(context, Config.Builder().build()) { success ->
+            onComplete?.invoke(AdInitResult(success))
+        }
     }
 
     @JvmStatic

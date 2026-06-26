@@ -42,6 +42,7 @@ class MetaBannerUIView : UIView(frame = CGRectZero.readValue()) {
     private var adStateManager: AdStateManager? = null
     private var adDelegate: NSObject? = null
     private val bannerTag = "MetaBannerUIView"
+    private var requestTag: String? = null
 
     fun setPlacementId(id: String) {
         placementId = id
@@ -52,6 +53,10 @@ class MetaBannerUIView : UIView(frame = CGRectZero.readValue()) {
         bannerAd = ad
     }
 
+    fun setRequestTag(tag: String?) {
+        requestTag = tag
+    }
+
     fun loadAd() {
         if (adStateManager == null) {
             adStateManager = AdStateManager(
@@ -60,7 +65,7 @@ class MetaBannerUIView : UIView(frame = CGRectZero.readValue()) {
                 AdRefreshStrategy.disable(),
                 null,
                 Scheduler(),
-                bannerTag
+                requestTag ?: bannerTag
             ) {
                 loadAdInternally()
             }

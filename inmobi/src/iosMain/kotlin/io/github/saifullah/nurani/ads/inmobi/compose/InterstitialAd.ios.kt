@@ -39,6 +39,7 @@ actual fun rememberInMobiInterstitialAd(
                 this.adFailedRetryRule = adFailedAdRetryRule
                 this.adRefreshStrategy = adRefreshStrategy
                 this.adReloadPolicies = adReloadPolicies
+                this.tag = properties.tag
                 this.isTestModeEnabled = testModeEnabled
             }
         )

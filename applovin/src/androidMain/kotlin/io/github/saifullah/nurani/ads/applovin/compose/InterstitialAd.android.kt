@@ -34,6 +34,7 @@ actual fun rememberAppLovinInterstitialAd(
     adContentCallback: AdContentCallback?
 ): FullScreenAdState = rememberAppLovinInterstitialAd(
     adUnitId = properties.androidAdUnitId,
+    tag = properties.tag,
     initialLoad = initialLoad,
     immersiveModeEnabled = immersiveModeEnabled,
     testModeEnabled = testModeEnabled,
@@ -54,6 +55,7 @@ actual fun rememberAppLovinInterstitialAd(
 @Composable
 fun rememberAppLovinInterstitialAd(
     adUnitId: String,
+    tag: String? = null,
     initialLoad: Boolean = true,
     immersiveModeEnabled: Boolean = true,
     testModeEnabled: Boolean = false,
@@ -76,6 +78,7 @@ fun rememberAppLovinInterstitialAd(
                 this.adFailedRetryRule = adFailedAdRetryRule
                 this.adRefreshStrategy = adRefreshStrategy
                 this.adReloadPolicies = adReloadPolicies
+                this.tag = tag
                 this.isTestModeEnabled = testModeEnabled
             },
         )

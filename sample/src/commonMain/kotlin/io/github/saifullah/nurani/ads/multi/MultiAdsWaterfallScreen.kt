@@ -25,10 +25,12 @@ import io.github.saifullah.nurani.ads.core.BannerAd
 import io.github.saifullah.nurani.ads.core.BannerAdListener
 import io.github.saifullah.nurani.ads.core.AdLoadCallback
 import io.github.saifullah.nurani.ads.core.AdContentCallback
+import io.github.saifullah.nurani.ads.core.compose.LocalPlatformContext
 import io.github.saifullah.nurani.ads.multi.compose.MultiBannerAd
 import io.github.saifullah.nurani.ads.multi.compose.rememberMultiInterstitialAd
 import io.github.saifullah.nurani.ads.multi.compose.rememberMultiRewardedAd
-import io.github.saifullah.nurani.ads.multi.compose.rememberMultiAppOpenAd
+import io.github.saifullah.nurani.ads.multi.models.MultiAdListener
+import io.github.saifullah.nurani.ads.multi.models.multiBannerAdConfig
 import io.github.saifullah.nurani.ads.multi.models.AdNetwork
 import io.github.saifullah.nurani.ads.multi.models.WaterfallConfig
 import io.github.saifullah.nurani.ads.multi.models.waterfallConfig
@@ -198,6 +200,44 @@ fun MultiAdsWaterfallScreen(onBack: () -> Unit) {
         )
     }
 
+    val multiBannerListener = remember {
+        object : MultiAdListener {
+            override fun onAdLoaded(network: io.github.saifullah.nurani.ads.multi.models.AdNetworkConfig) {
+                logEvent("MultiBanner", "Loaded from ${network.network} (${network.adUnitId})")
+            }
+
+            override fun onAdFailedToLoad(
+                network: io.github.saifullah.nurani.ads.multi.models.AdNetworkConfig,
+                error: io.github.saifullah.nurani.ads.core.AdError?
+            ) {
+                logEvent("MultiBanner", "${network.network} failed: ${error?.message ?: "Unknown"}")
+            }
+
+            override fun onAdFailedToShow(
+                network: io.github.saifullah.nurani.ads.multi.models.AdNetworkConfig,
+                error: io.github.saifullah.nurani.ads.core.AdError?
+            ) {
+                logEvent("MultiBanner", "${network.network} failed to show: ${error?.message ?: "Unknown"}")
+            }
+
+            override fun onAdShowed(network: io.github.saifullah.nurani.ads.multi.models.AdNetworkConfig) {
+                logEvent("MultiBanner", "Showed from ${network.network}")
+            }
+
+            override fun onAdDisplayed(network: io.github.saifullah.nurani.ads.multi.models.AdNetworkConfig) {
+                logEvent("MultiBanner", "Displayed from ${network.network}")
+            }
+
+            override fun onAdDismissed(network: io.github.saifullah.nurani.ads.multi.models.AdNetworkConfig) {
+                logEvent("MultiBanner", "Dismissed from ${network.network}")
+            }
+
+            override fun onAdClicked(network: io.github.saifullah.nurani.ads.multi.models.AdNetworkConfig) {
+                logEvent("MultiBanner", "Clicked from ${network.network}")
+            }
+        }
+    }
+
     val interstitialLoadCallback = remember {
         AdLoadCallback(
             onAdLoaded = { logEvent("Interstitial", "Waterfall ad loaded successfully and ready to show") },
@@ -274,13 +314,26 @@ fun MultiAdsWaterfallScreen(onBack: () -> Unit) {
         )
     }
 
-    val appOpenAd = rememberMultiAppOpenAd(
-        waterfallConfig = waterfallAppOpen,
-        testModeEnabled = true,
-        initialLoad = false,
-        adLoadCallback = appOpenAdLoadCallback,
-        adContentCallback = appOpenAdContentCallback
-    )
+    val appOpenContext = LocalPlatformContext.current
+    val appOpenAd = remember(waterfallAppOpen, appOpenContext) {
+        MultiAppOpenAd(appOpenContext).apply {
+            waterfallConfig = waterfallAppOpen
+            testModeEnabled = true
+            isImmersiveModeEnabled = true
+            setAdLoadCallback(appOpenAdLoadCallback)
+            setAdContentCallback(appOpenAdContentCallback)
+        }
+    }
+
+    DisposableEffect(appOpenAd, waterfallAppOpen) {
+        appOpenAd.waterfallConfig = waterfallAppOpen
+        appOpenAd.testModeEnabled = true
+        appOpenAd.setAdLoadCallback(appOpenAdLoadCallback)
+        appOpenAd.setAdContentCallback(appOpenAdContentCallback)
+        onDispose {
+            appOpenAd.destroy()
+        }
+    }
 
     Scaffold(
         topBar = {
@@ -487,9 +540,15 @@ fun MultiAdsWaterfallScreen(onBack: () -> Unit) {
                         key(loadKey) {
                             MultiBannerAd(
                                 waterfallConfig = waterfallBanner,
-                                testModeEnabled = true,
-                                adSize = selectedAdSize,
-                                adListener = bannerListener
+                                config = multiBannerAdConfig {
+                                    testModeEnabled = true
+                                    expandWhenReady = false
+                                    animateExpansion = true
+                                    adSize = selectedAdSize
+                                    adListener = bannerListener
+                                    tag = "waterfall_banner_${loadKey}"
+                                },
+                                adListener = multiBannerListener
                             )
                         }
                     }

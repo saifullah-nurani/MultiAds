@@ -111,7 +111,7 @@ kotlin {
         commonMain {
             dependencies {
                 implementation(libs.kotlin.stdlib)
-                implementation(project(":core"))
+                api(project(":core"))
                 implementation(libs.compose.runtime)
                 implementation(libs.androidx.lifecycle.runtimeCompose)
             }
