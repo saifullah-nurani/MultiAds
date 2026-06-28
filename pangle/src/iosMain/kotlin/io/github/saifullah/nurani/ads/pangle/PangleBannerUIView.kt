@@ -31,6 +31,10 @@ import platform.darwin.dispatch_get_main_queue
 @OptIn(ExperimentalForeignApi::class)
 class PangleBannerUIView : UIView(frame = CGRectZero.readValue()) {
 
+    init {
+        backgroundColor = platform.UIKit.UIColor.clearColor
+    }
+
     var logger: AdLogger? = null
     var reloadPolicies: Set<AdReloadPolicy> = emptySet()
     var retryRule: AdFailedRetryRule = AdFailedRetryRule.exponentialDefault()

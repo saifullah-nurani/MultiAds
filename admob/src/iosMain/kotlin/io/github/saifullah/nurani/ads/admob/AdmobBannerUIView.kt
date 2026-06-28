@@ -32,6 +32,10 @@ import platform.darwin.NSObject
 @OptIn(ExperimentalForeignApi::class)
 class AdmobBannerUIView : UIView(frame = CGRectZero.readValue()) {
 
+    init {
+        backgroundColor = platform.UIKit.UIColor.clearColor
+    }
+
     private val testAdUnitId = "ca-app-pub-3940256099942544/2435281174"
     private val bannerTag = "AdmobBannerUIView"
     private var bannerView: GADBannerView? = null

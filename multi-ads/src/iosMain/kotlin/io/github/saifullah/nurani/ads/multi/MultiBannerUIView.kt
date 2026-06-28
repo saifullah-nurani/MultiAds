@@ -33,6 +33,10 @@ import kotlin.concurrent.AtomicReference
 @OptIn(ExperimentalForeignApi::class)
 class MultiBannerUIView : UIView(frame = CGRectZero.readValue()) {
 
+    init {
+        backgroundColor = platform.UIKit.UIColor.clearColor
+    }
+
     private var waterfallConfig: WaterfallConfig? = null
     private var bannerAdSize: BannerAd<AdSize>? = null
     private var adListener: BannerAdListener? = null

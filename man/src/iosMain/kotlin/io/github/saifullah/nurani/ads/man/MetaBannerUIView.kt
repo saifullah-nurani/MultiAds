@@ -27,6 +27,10 @@ import platform.darwin.NSObject
 @OptIn(ExperimentalForeignApi::class)
 class MetaBannerUIView : UIView(frame = CGRectZero.readValue()) {
 
+    init {
+        backgroundColor = platform.UIKit.UIColor.clearColor
+    }
+
     var logger: AdLogger? = null
     var reloadPolicies: Set<AdReloadPolicy> = emptySet()
     var retryRule: AdFailedRetryRule = AdFailedRetryRule.exponentialDefault()
