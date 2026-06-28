@@ -195,6 +195,8 @@ fun MetaTestScreen(onBack: () -> Unit) {
                     )
                 }
             }
+            Spacer(modifier = Modifier.height(16.dp))
+            AdConsoleCard()
             Spacer(modifier = Modifier.height(32.dp))
         }
     }
@@ -270,6 +272,8 @@ fun AppLovinTestScreen(onBack: () -> Unit) {
                     )
                 }
             }
+            Spacer(modifier = Modifier.height(16.dp))
+            AdConsoleCard()
             Spacer(modifier = Modifier.height(32.dp))
         }
     }
@@ -355,6 +359,8 @@ fun InMobiTestScreen(onBack: () -> Unit) {
                     )
                 }
             }
+            Spacer(modifier = Modifier.height(16.dp))
+            AdConsoleCard()
             Spacer(modifier = Modifier.height(32.dp))
         }
     }
@@ -440,6 +446,8 @@ fun VungleTestScreen(onBack: () -> Unit) {
                     )
                 }
             }
+            Spacer(modifier = Modifier.height(16.dp))
+            AdConsoleCard()
             Spacer(modifier = Modifier.height(32.dp))
         }
     }
@@ -525,6 +533,8 @@ fun PangleTestScreen(onBack: () -> Unit) {
                     )
                 }
             }
+            Spacer(modifier = Modifier.height(16.dp))
+            AdConsoleCard()
             Spacer(modifier = Modifier.height(32.dp))
         }
     }
@@ -610,6 +620,8 @@ fun IronSourceTestScreen(onBack: () -> Unit) {
                     )
                 }
             }
+            Spacer(modifier = Modifier.height(16.dp))
+            AdConsoleCard()
             Spacer(modifier = Modifier.height(32.dp))
         }
     }

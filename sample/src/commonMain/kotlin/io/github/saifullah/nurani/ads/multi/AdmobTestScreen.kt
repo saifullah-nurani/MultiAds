@@ -117,6 +117,8 @@ fun AdmobTestScreen(onBack: () -> Unit) {
 
             Spacer(modifier = Modifier.height(16.dp))
             FullScreenAdsSection()
+            Spacer(modifier = Modifier.height(16.dp))
+            AdConsoleCard()
             Spacer(modifier = Modifier.height(32.dp))
         }
     }
