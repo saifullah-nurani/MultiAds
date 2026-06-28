@@ -19,9 +19,21 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
+private val SampleDarkColorScheme = darkColorScheme(
+    primary = Color(0xFFD0BCFF),
+    secondary = Color(0xFFCCC2DC),
+    tertiary = Color(0xFFEFB8C8),
+    background = Color(0xFF1C1B1F),
+    surface = Color(0xFF1C1B1F),
+    onPrimary = Color(0xFF381E72),
+    onSecondary = Color(0xFF332D41),
+    onBackground = Color(0xFFE6E1E5),
+    onSurface = Color(0xFFE6E1E5),
+)
+
 @Composable
 fun App() {
-    MaterialTheme {
+    MaterialTheme(colorScheme = SampleDarkColorScheme) {
         SampleAdsInitializer()
         var currentScreen by remember { mutableStateOf("Home") }
 
