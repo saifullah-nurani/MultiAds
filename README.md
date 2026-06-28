@@ -201,6 +201,14 @@ MetaAds.init(
 All standalone modules support a request `tag`.
 
 ```kotlin
+import io.github.saifullah.nurani.ads.admob.compose.admobAdProperties
+import io.github.saifullah.nurani.ads.applovin.compose.appLovinAdProperties
+import io.github.saifullah.nurani.ads.pangle.compose.pangleAdProperties
+import io.github.saifullah.nurani.ads.vungle.compose.vunglePlacementProperties
+import io.github.saifullah.nurani.ads.inmobi.compose.inMobiPlacementProperties
+import io.github.saifullah.nurani.ads.ironsource.compose.ironSourceAdProperties
+import io.github.saifullah.nurani.ads.man.compose.metaPlacementProperties
+
 val admob = admobAdProperties(
     androidAdUnitId = "ANDROID_ID",
     iosAdUnitId = "IOS_ID",
@@ -249,6 +257,11 @@ val meta = metaPlacementProperties(
 ### AdMob
 
 ```kotlin
+import io.github.saifullah.nurani.ads.admob.compose.AdmobBannerAd
+import io.github.saifullah.nurani.ads.admob.compose.rememberAdmobInterstitialAd
+import io.github.saifullah.nurani.ads.admob.compose.rememberAdmobRewardedAd
+import io.github.saifullah.nurani.ads.admob.compose.rememberAdmobRewardedInterstitialAd
+
 val interstitial = rememberAdmobInterstitialAd(properties = admob)
 val rewarded = rememberAdmobRewardedAd(properties = admob)
 val rewardedInterstitial = rememberAdmobRewardedInterstitialAd(properties = admob)
@@ -263,6 +276,10 @@ AdmobBannerAd(
 ### AppLovin
 
 ```kotlin
+import io.github.saifullah.nurani.ads.applovin.compose.AppLovinBannerAd
+import io.github.saifullah.nurani.ads.applovin.compose.rememberAppLovinInterstitialAd
+import io.github.saifullah.nurani.ads.applovin.compose.rememberAppLovinRewardedAd
+
 val interstitial = rememberAppLovinInterstitialAd(properties = appLovin)
 val rewarded = rememberAppLovinRewardedAd(properties = appLovin)
 
@@ -276,6 +293,10 @@ AppLovinBannerAd(
 ### Pangle
 
 ```kotlin
+import io.github.saifullah.nurani.ads.pangle.compose.PangleBannerAd
+import io.github.saifullah.nurani.ads.pangle.compose.rememberPangleInterstitialAd
+import io.github.saifullah.nurani.ads.pangle.compose.rememberPangleRewardedAd
+
 val interstitial = rememberPangleInterstitialAd(properties = pangle)
 val rewarded = rememberPangleRewardedAd(properties = pangle)
 
@@ -289,6 +310,10 @@ PangleBannerAd(
 ### Vungle
 
 ```kotlin
+import io.github.saifullah.nurani.ads.vungle.compose.VungleBannerAd
+import io.github.saifullah.nurani.ads.vungle.compose.rememberVungleInterstitialAd
+import io.github.saifullah.nurani.ads.vungle.compose.rememberVungleRewardedAd
+
 val interstitial = rememberVungleInterstitialAd(properties = vungle)
 val rewarded = rememberVungleRewardedAd(properties = vungle)
 
@@ -302,6 +327,10 @@ VungleBannerAd(
 ### InMobi
 
 ```kotlin
+import io.github.saifullah.nurani.ads.inmobi.compose.InMobiBannerAd
+import io.github.saifullah.nurani.ads.inmobi.compose.rememberInMobiInterstitialAd
+import io.github.saifullah.nurani.ads.inmobi.compose.rememberInMobiRewardedAd
+
 val interstitial = rememberInMobiInterstitialAd(properties = inmobi)
 val rewarded = rememberInMobiRewardedAd(properties = inmobi)
 
@@ -315,6 +344,10 @@ InMobiBannerAd(
 ### IronSource
 
 ```kotlin
+import io.github.saifullah.nurani.ads.ironsource.compose.IronSourceBannerAd
+import io.github.saifullah.nurani.ads.ironsource.compose.rememberIronSourceInterstitialAd
+import io.github.saifullah.nurani.ads.ironsource.compose.rememberIronSourceRewardedAd
+
 val interstitial = rememberIronSourceInterstitialAd(properties = ironSource)
 val rewarded = rememberIronSourceRewardedAd(properties = ironSource)
 
@@ -328,6 +361,10 @@ IronSourceBannerAd(
 ### Meta
 
 ```kotlin
+import io.github.saifullah.nurani.ads.man.compose.MetaBannerAd
+import io.github.saifullah.nurani.ads.man.compose.rememberMetaInterstitialAd
+import io.github.saifullah.nurani.ads.man.compose.rememberMetaRewardedAd
+
 val interstitial = rememberMetaInterstitialAd(properties = meta)
 val rewarded = rememberMetaRewardedAd(properties = meta)
 
@@ -345,6 +382,8 @@ MetaBannerAd(
 ### Waterfall config
 
 ```kotlin
+import io.github.saifullah.nurani.ads.multi.models.waterfallConfig
+
 val waterfall = waterfallConfig {
     maxConcurrentLoads(2)
     admob("ADMOB_UNIT_ID", priority = 1)
@@ -359,6 +398,8 @@ val waterfall = waterfallConfig {
 ### Interstitial
 
 ```kotlin
+import io.github.saifullah.nurani.ads.multi.compose.rememberMultiInterstitialAd
+
 val interstitial = rememberMultiInterstitialAd(
     waterfallConfig = waterfall,
     testModeEnabled = true,
@@ -370,6 +411,8 @@ val interstitial = rememberMultiInterstitialAd(
 ### Rewarded
 
 ```kotlin
+import io.github.saifullah.nurani.ads.multi.compose.rememberMultiRewardedAd
+
 val rewarded = rememberMultiRewardedAd(
     waterfallConfig = waterfall,
     testModeEnabled = true,
@@ -386,6 +429,10 @@ val rewarded = rememberMultiRewardedAd(
 Simple overload:
 
 ```kotlin
+import io.github.saifullah.nurani.ads.core.AdSize
+import io.github.saifullah.nurani.ads.core.BannerAd
+import io.github.saifullah.nurani.ads.multi.compose.MultiBannerAd
+
 MultiBannerAd(
     waterfallConfig = waterfall,
     testModeEnabled = true,
@@ -399,6 +446,15 @@ MultiBannerAd(
 Advanced DSL config:
 
 ```kotlin
+import io.github.saifullah.nurani.ads.core.AdError
+import io.github.saifullah.nurani.ads.core.AdSize
+import io.github.saifullah.nurani.ads.core.BannerAd
+import io.github.saifullah.nurani.ads.core.BannerAdListener
+import io.github.saifullah.nurani.ads.multi.compose.MultiBannerAd
+import io.github.saifullah.nurani.ads.multi.models.AdNetworkConfig
+import io.github.saifullah.nurani.ads.multi.models.MultiAdListener
+import io.github.saifullah.nurani.ads.multi.models.multiBannerAdConfig
+
 MultiBannerAd(
     waterfallConfig = waterfall,
     config = multiBannerAdConfig {
@@ -429,6 +485,8 @@ MultiBannerAd(
 Use `MultiAdsConfig` when you want one place for tag/logger/retry/refresh/test mode:
 
 ```kotlin
+import io.github.saifullah.nurani.ads.multi.models.multiAdsConfig
+
 val config = multiAdsConfig {
     isTestModeEnabled = true
     tag = "global-session"
@@ -443,6 +501,11 @@ val config = multiAdsConfig {
 Then:
 
 ```kotlin
+import io.github.saifullah.nurani.ads.multi.compose.MultiBannerAd
+import io.github.saifullah.nurani.ads.multi.compose.rememberMultiInterstitialAd
+import io.github.saifullah.nurani.ads.multi.compose.rememberMultiRewardedAd
+import io.github.saifullah.nurani.ads.multi.models.multiBannerAdConfig
+
 val interstitial = rememberMultiInterstitialAd(multiAdsConfig = config)
 val rewarded = rememberMultiRewardedAd(multiAdsConfig = config)
 
@@ -505,6 +568,10 @@ Available in:
 Example:
 
 ```kotlin
+import android.app.Application
+import androidx.lifecycle.Lifecycle
+import io.github.saifullah.nurani.ads.admob.AdmobNativeAppOpen
+
 AdmobNativeAppOpen.register(
     application = application,
     adUnitId = "APP_OPEN_ID",
@@ -530,6 +597,9 @@ Available in:
 Example:
 
 ```kotlin
+import io.github.saifullah.nurani.ads.admob.AdmobNativeAppOpen
+import io.github.saifullah.nurani.ads.core.IosAppOpenLifecycleState
+
 val handle = AdmobNativeAppOpen.register(
     adUnitId = "APP_OPEN_ID",
     initialLoad = true,

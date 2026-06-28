@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.viewinterop.AndroidView
@@ -14,6 +15,7 @@ import io.github.saifullah.nurani.ads.core.AdLogger
 import io.github.saifullah.nurani.ads.core.AdSize
 import io.github.saifullah.nurani.ads.core.BannerAd
 import io.github.saifullah.nurani.ads.core.BannerAdListener
+import io.github.saifullah.nurani.ads.core.rememberBannerHeightController
 
 @Composable
 actual fun MetaBannerAd(
@@ -54,7 +56,7 @@ fun MetaBannerAd(
     adLogger: AdLogger? = null,
     adListener: BannerAdListener? = null
 ) {
-    val heightController = io.github.saifullah.nurani.ads.core.rememberBannerHeightController(
+    val heightController = rememberBannerHeightController(
         initialHeight = adSize.getSize().height,
         expandWhenReady = expandWhenReady,
         animateExpansion = animateExpansion
@@ -62,7 +64,7 @@ fun MetaBannerAd(
     val placementIdState by rememberSaveable(placementId) {
         mutableStateOf(placementId)
     }
-    val initialLoadRequested = androidx.compose.runtime.remember { booleanArrayOf(false) }
+    val initialLoadRequested = remember { booleanArrayOf(false) }
     AndroidView(
         modifier = Modifier
             .fillMaxWidth()

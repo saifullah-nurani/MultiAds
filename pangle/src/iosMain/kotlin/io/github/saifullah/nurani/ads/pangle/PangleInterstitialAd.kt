@@ -32,7 +32,7 @@ class PangleInterstitialAd(
 
     override fun onAdLoad() {
         if (!PangleAds.isInitialized()) {
-            val adError = io.github.saifullah.nurani.ads.core.AdError(
+            val adError = AdError(
                 code = 0,
                 message = "Pangle SDK is not initialized yet."
             )

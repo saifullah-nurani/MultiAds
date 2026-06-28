@@ -11,6 +11,7 @@ import com.bytedance.sdk.openadsdk.api.reward.PAGRewardedAdInteractionListener
 import com.bytedance.sdk.openadsdk.api.reward.PAGRewardedAdLoadListener
 import com.bytedance.sdk.openadsdk.api.reward.PAGRewardedRequest
 import io.github.saifullah.nurani.ads.core.AdConfig
+import io.github.saifullah.nurani.ads.core.AdError
 import io.github.saifullah.nurani.ads.core.OnUserRewardedListener
 import io.github.saifullah.nurani.ads.core.Scheduler
 import io.github.saifullah.nurani.ads.core.compose.PlatformActivity
@@ -75,7 +76,7 @@ class PangleRewardedAd(
 
     override fun onAdLoad() {
         if (!PangleAds.isInitialized()) {
-            val adError = io.github.saifullah.nurani.ads.core.AdError(
+            val adError = AdError(
                 code = 0,
                 message = "Pangle SDK is not initialized yet."
             )

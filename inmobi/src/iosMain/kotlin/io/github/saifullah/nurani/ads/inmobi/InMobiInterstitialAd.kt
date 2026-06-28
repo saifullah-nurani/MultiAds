@@ -30,7 +30,7 @@ class InMobiInterstitialAd(
 
     override fun onAdLoad() {
         if (!InMobiAds.isInitialized()) {
-            val adError = io.github.saifullah.nurani.ads.core.AdError(
+            val adError = AdError(
                 code = 0,
                 message = "InMobi SDK is not initialized yet."
             )

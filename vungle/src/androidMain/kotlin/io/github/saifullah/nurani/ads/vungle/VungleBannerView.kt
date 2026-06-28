@@ -9,6 +9,7 @@ import com.vungle.ads.BaseAdListener
 import com.vungle.ads.VungleAdSize
 import com.vungle.ads.VungleBannerView as VungleSDKBannerView
 import com.vungle.ads.VungleError
+import io.github.saifullah.nurani.ads.core.AdError
 import io.github.saifullah.nurani.ads.core.AdFailedRetryRule
 import io.github.saifullah.nurani.ads.core.AdFailedRetryRule.Companion.exponentialDefault
 import io.github.saifullah.nurani.ads.core.AdLogger
@@ -150,7 +151,7 @@ class VungleBannerView @JvmOverloads constructor(
     @SuppressLint("MissingPermission")
     private fun loadAdInternally(context: Context) {
         if (!VungleAds.isInitialized()) {
-            val adError = io.github.saifullah.nurani.ads.core.AdError(
+            val adError = AdError(
                 code = 0,
                 message = "Vungle SDK is not initialized yet."
             )

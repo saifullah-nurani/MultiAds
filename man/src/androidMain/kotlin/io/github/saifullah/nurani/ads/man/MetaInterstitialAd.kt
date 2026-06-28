@@ -10,6 +10,7 @@ import com.facebook.ads.AdError
 import com.facebook.ads.InterstitialAd
 import com.facebook.ads.InterstitialAdListener
 import io.github.saifullah.nurani.ads.core.AdConfig
+import io.github.saifullah.nurani.ads.core.AdError as CoreAdError
 import io.github.saifullah.nurani.ads.core.Scheduler
 import io.github.saifullah.nurani.ads.core.utils.ContextUtils.Companion.findActivity
 
@@ -35,7 +36,7 @@ class MetaInterstitialAd(
 
         override fun onError(ad: Ad?, adError: AdError?) {
             val error =
-                if (adError != null) MetaUtils.adErrorFrom(adError) else io.github.saifullah.nurani.ads.core.AdError(
+                if (adError != null) MetaUtils.adErrorFrom(adError) else CoreAdError(
                     -1,
                     "Unknown error"
                 )

@@ -10,6 +10,7 @@ import com.facebook.ads.AdError
 import com.facebook.ads.AdListener
 import com.facebook.ads.AdSize
 import com.facebook.ads.AdView
+import io.github.saifullah.nurani.ads.core.AdError as CoreAdError
 import io.github.saifullah.nurani.ads.core.AdFailedRetryRule
 import io.github.saifullah.nurani.ads.core.AdFailedRetryRule.Companion.exponentialDefault
 import io.github.saifullah.nurani.ads.core.AdLogger
@@ -174,7 +175,7 @@ class MetaBannerView @JvmOverloads constructor(
                 val msg = adError?.errorMessage ?: "Unknown error"
                 log("Load failed: $msg")
                 val error =
-                    if (adError != null) MetaUtils.adErrorFrom(adError) else io.github.saifullah.nurani.ads.core.AdError(
+                    if (adError != null) MetaUtils.adErrorFrom(adError) else CoreAdError(
                         -1,
                         "Unknown error"
                     )

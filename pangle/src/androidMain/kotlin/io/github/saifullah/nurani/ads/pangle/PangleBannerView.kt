@@ -10,6 +10,7 @@ import com.bytedance.sdk.openadsdk.api.banner.PAGBannerAdInteractionListener
 import com.bytedance.sdk.openadsdk.api.banner.PAGBannerAdLoadListener
 import com.bytedance.sdk.openadsdk.api.banner.PAGBannerRequest
 import com.bytedance.sdk.openadsdk.api.banner.PAGBannerSize
+import io.github.saifullah.nurani.ads.core.AdError
 import io.github.saifullah.nurani.ads.core.AdFailedRetryRule
 import io.github.saifullah.nurani.ads.core.AdFailedRetryRule.Companion.exponentialDefault
 import io.github.saifullah.nurani.ads.core.AdLogger
@@ -150,7 +151,7 @@ class PangleBannerView @JvmOverloads constructor(
     @SuppressLint("MissingPermission")
     private fun loadAdInternally(context: Context) {
         if (!PangleAds.isInitialized()) {
-            val adError = io.github.saifullah.nurani.ads.core.AdError(
+            val adError = AdError(
                 code = 0,
                 message = "Pangle SDK is not initialized yet."
             )

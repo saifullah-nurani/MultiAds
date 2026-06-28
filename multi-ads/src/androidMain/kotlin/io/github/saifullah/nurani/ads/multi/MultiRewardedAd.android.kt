@@ -11,10 +11,13 @@ import io.github.saifullah.nurani.ads.applovin.AppLovinAds
 import io.github.saifullah.nurani.ads.core.AdState
 import io.github.saifullah.nurani.ads.core.AdLoadCallback
 import io.github.saifullah.nurani.ads.core.AdContentCallback
+import io.github.saifullah.nurani.ads.core.AdConfig
 import io.github.saifullah.nurani.ads.core.AdError
 import io.github.saifullah.nurani.ads.core.adConfig
+import io.github.saifullah.nurani.ads.core.AdLifecycleObserver
 import io.github.saifullah.nurani.ads.core.compose.PlatformContext
 import io.github.saifullah.nurani.ads.core.compose.PlatformActivity
+import io.github.saifullah.nurani.ads.core.utils.ContextUtils
 import io.github.saifullah.nurani.ads.inmobi.InMobiRewardedAd
 import io.github.saifullah.nurani.ads.inmobi.InMobiAds
 import io.github.saifullah.nurani.ads.ironsource.IronSourceRewardedAd
@@ -157,7 +160,7 @@ actual class MultiRewardedAd actual constructor(
 
     actual fun tryShowAd(onUserRewarded: () -> Unit): Boolean {
         if (!isAdAvailable) return false
-        val activity = io.github.saifullah.nurani.ads.core.utils.ContextUtils.findActivity(context) ?: return false
+        val activity = ContextUtils.findActivity(context) ?: return false
         showAd(activity, onUserRewarded)
         return true
     }
@@ -258,7 +261,7 @@ actual class MultiRewardedAd actual constructor(
         ad.loadAd()
     }
 
-    private fun createAd(config: AdNetworkConfig, adConfigObj: io.github.saifullah.nurani.ads.core.AdConfig): AdState? {
+    private fun createAd(config: AdNetworkConfig, adConfigObj: AdConfig): AdState? {
         return try {
             when (config.network) {
                 AdNetwork.ADMOB -> AdmobRewardedAd(context, config.adUnitId, adConfigObj, null, null)
@@ -304,7 +307,7 @@ actual class MultiRewardedAd actual constructor(
 
     private fun destroyAd(ad: AdState) {
         try {
-            if (ad is io.github.saifullah.nurani.ads.core.AdLifecycleObserver) {
+            if (ad is AdLifecycleObserver) {
                 ad.onDestroy()
             }
         } catch (e: Exception) {

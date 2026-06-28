@@ -10,6 +10,7 @@ import com.inmobi.ads.InMobiAdRequestStatus
 import com.inmobi.ads.InMobiInterstitial
 import com.inmobi.ads.listeners.InterstitialAdEventListener
 import io.github.saifullah.nurani.ads.core.AdConfig
+import io.github.saifullah.nurani.ads.core.AdError
 import io.github.saifullah.nurani.ads.core.Scheduler
 import io.github.saifullah.nurani.ads.core.utils.ContextUtils.Companion.findActivity
 
@@ -53,7 +54,7 @@ class InMobiInterstitialAd(
         }
 
         override fun onAdDisplayFailed(ad: InMobiInterstitial) {
-            val adError = io.github.saifullah.nurani.ads.core.AdError(-1, "Ad Display Failed")
+            val adError = AdError(-1, "Ad Display Failed")
             adScreenContentCallback?.onAdFailedToShow(adError)
             clean()
         }
@@ -68,7 +69,7 @@ class InMobiInterstitialAd(
 
     override fun onAdLoad() {
         if (!InMobiAds.isInitialized()) {
-            val adError = io.github.saifullah.nurani.ads.core.AdError(
+            val adError = AdError(
                 code = 0,
                 message = "InMobi SDK is not initialized yet."
             )

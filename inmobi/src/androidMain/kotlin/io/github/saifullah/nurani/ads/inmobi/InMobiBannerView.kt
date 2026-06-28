@@ -8,6 +8,7 @@ import com.inmobi.ads.AdMetaInfo
 import com.inmobi.ads.InMobiAdRequestStatus
 import com.inmobi.ads.InMobiBanner
 import com.inmobi.ads.listeners.BannerAdEventListener
+import io.github.saifullah.nurani.ads.core.AdError
 import io.github.saifullah.nurani.ads.core.AdFailedRetryRule
 import io.github.saifullah.nurani.ads.core.AdFailedRetryRule.Companion.exponentialDefault
 import io.github.saifullah.nurani.ads.core.AdLogger
@@ -154,7 +155,7 @@ class InMobiBannerView @JvmOverloads constructor(
     @SuppressLint("MissingPermission")
     private fun loadAdInternally(context: Context) {
         if (!InMobiAds.isInitialized()) {
-            val adError = io.github.saifullah.nurani.ads.core.AdError(
+            val adError = AdError(
                 code = 0,
                 message = "InMobi SDK is not initialized yet."
             )

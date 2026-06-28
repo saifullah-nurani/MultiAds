@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.viewinterop.UIKitView
@@ -14,6 +15,7 @@ import io.github.saifullah.nurani.ads.core.AdLogger
 import io.github.saifullah.nurani.ads.core.AdSize
 import io.github.saifullah.nurani.ads.core.BannerAd
 import io.github.saifullah.nurani.ads.core.BannerAdListener
+import io.github.saifullah.nurani.ads.core.rememberBannerHeightController
 import kotlinx.cinterop.ExperimentalForeignApi
 
 @OptIn(ExperimentalForeignApi::class)
@@ -28,7 +30,7 @@ actual fun VungleBannerAd(
     adLogger: AdLogger?,
     adListener: BannerAdListener?
 ) {
-    val heightController = io.github.saifullah.nurani.ads.core.rememberBannerHeightController(
+    val heightController = rememberBannerHeightController(
         initialHeight = adSize.getSize().height,
         expandWhenReady = expandWhenReady,
         animateExpansion = animateExpansion
@@ -36,7 +38,7 @@ actual fun VungleBannerAd(
     val placementId by rememberSaveable(properties.iosPlacementId) {
         mutableStateOf(properties.iosPlacementId)
     }
-    val initialLoadRequested = androidx.compose.runtime.remember { booleanArrayOf(false) }
+    val initialLoadRequested = remember { booleanArrayOf(false) }
     UIKitView(
         modifier = Modifier
             .fillMaxWidth()

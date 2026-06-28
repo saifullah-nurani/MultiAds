@@ -13,8 +13,10 @@ import io.github.saifullah.nurani.ads.core.AdState
 import io.github.saifullah.nurani.ads.core.AppOpenAd
 import io.github.saifullah.nurani.ads.core.AdLoadCallback
 import io.github.saifullah.nurani.ads.core.AdContentCallback
+import io.github.saifullah.nurani.ads.core.AdConfig
 import io.github.saifullah.nurani.ads.core.AdError
 import io.github.saifullah.nurani.ads.core.adConfig
+import io.github.saifullah.nurani.ads.core.AdLifecycleObserver
 import io.github.saifullah.nurani.ads.core.compose.PlatformContext
 import io.github.saifullah.nurani.ads.core.compose.PlatformActivity
 import io.github.saifullah.nurani.ads.multi.models.AdNetwork
@@ -236,7 +238,7 @@ actual class MultiAppOpenAd actual constructor(
         ad.loadAd()
     }
 
-    private fun createAd(config: AdNetworkConfig, adConfigObj: io.github.saifullah.nurani.ads.core.AdConfig): AdState? {
+    private fun createAd(config: AdNetworkConfig, adConfigObj: AdConfig): AdState? {
         return try {
             when (config.network) {
                 AdNetwork.ADMOB -> AdmobAppOpenAd(config.adUnitId, null, adConfigObj, null)
@@ -274,7 +276,7 @@ actual class MultiAppOpenAd actual constructor(
 
     private fun destroyAd(ad: AdState) {
         try {
-            if (ad is io.github.saifullah.nurani.ads.core.AdLifecycleObserver) {
+            if (ad is AdLifecycleObserver) {
                 ad.onDestroy()
             }
         } catch (e: Exception) {

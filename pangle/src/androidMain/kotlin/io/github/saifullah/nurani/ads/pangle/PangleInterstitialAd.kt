@@ -10,6 +10,7 @@ import com.bytedance.sdk.openadsdk.api.interstitial.PAGInterstitialAdInteraction
 import com.bytedance.sdk.openadsdk.api.interstitial.PAGInterstitialAdLoadListener
 import com.bytedance.sdk.openadsdk.api.interstitial.PAGInterstitialRequest
 import io.github.saifullah.nurani.ads.core.AdConfig
+import io.github.saifullah.nurani.ads.core.AdError
 import io.github.saifullah.nurani.ads.core.Scheduler
 import io.github.saifullah.nurani.ads.core.utils.ContextUtils.Companion.findActivity
 
@@ -64,7 +65,7 @@ class PangleInterstitialAd(
 
     override fun onAdLoad() {
         if (!PangleAds.isInitialized()) {
-            val adError = io.github.saifullah.nurani.ads.core.AdError(
+            val adError = AdError(
                 code = 0,
                 message = "Pangle SDK is not initialized yet."
             )

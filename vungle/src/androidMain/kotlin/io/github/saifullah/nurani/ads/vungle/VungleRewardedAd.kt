@@ -10,6 +10,7 @@ import com.vungle.ads.RewardedAd
 import com.vungle.ads.RewardedAdListener
 import com.vungle.ads.VungleError
 import io.github.saifullah.nurani.ads.core.AdConfig
+import io.github.saifullah.nurani.ads.core.AdError
 import io.github.saifullah.nurani.ads.core.OnUserRewardedListener
 import io.github.saifullah.nurani.ads.core.Scheduler
 import io.github.saifullah.nurani.ads.core.compose.PlatformActivity
@@ -91,7 +92,7 @@ class VungleRewardedAd(
 
     override fun onAdLoad() {
         if (!VungleAds.isInitialized()) {
-            val adError = io.github.saifullah.nurani.ads.core.AdError(
+            val adError = AdError(
                 code = 0,
                 message = "Vungle SDK is not initialized yet."
             )
