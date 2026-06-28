@@ -49,7 +49,7 @@
 The latest release version for all multiplatform artifacts:
 
 ```kotlin
-val multiAdsVersion = "1.1.5"
+val multiAdsVersion = "1.1.6"
 ```
 
 ## Repositories
@@ -77,16 +77,16 @@ Add modules in `commonMain`:
 ```kotlin
 sourceSets {
     commonMain.dependencies {
-        implementation("io.github.saifullah-nurani.ads:multi-ads:1.1.5")
+        implementation("io.github.saifullah-nurani.ads:multi-ads:1.1.6")
 
         // Optional standalone modules
-        implementation("io.github.saifullah-nurani.ads:admob:1.1.5")
-        implementation("io.github.saifullah-nurani.ads:applovin:1.1.5")
-        implementation("io.github.saifullah-nurani.ads:pangle:1.1.5")
-        implementation("io.github.saifullah-nurani.ads:vungle:1.1.5")
-        implementation("io.github.saifullah-nurani.ads:inmobi:1.1.5")
-        implementation("io.github.saifullah-nurani.ads:ironsource:1.1.5")
-        implementation("io.github.saifullah-nurani.ads:man:1.1.5")
+        implementation("io.github.saifullah-nurani.ads:admob:1.1.6")
+        implementation("io.github.saifullah-nurani.ads:applovin:1.1.6")
+        implementation("io.github.saifullah-nurani.ads:pangle:1.1.6")
+        implementation("io.github.saifullah-nurani.ads:vungle:1.1.6")
+        implementation("io.github.saifullah-nurani.ads:inmobi:1.1.6")
+        implementation("io.github.saifullah-nurani.ads:ironsource:1.1.6")
+        implementation("io.github.saifullah-nurani.ads:man:1.1.6")
     }
 }
 ```
@@ -97,16 +97,16 @@ Use Android AAR variants:
 
 ```kotlin
 dependencies {
-    implementation("io.github.saifullah-nurani.ads:multi-ads-android:1.1.5")
+    implementation("io.github.saifullah-nurani.ads:multi-ads-android:1.1.6")
 
     // Optional standalone modules
-    implementation("io.github.saifullah-nurani.ads:admob-android:1.1.5")
-    implementation("io.github.saifullah-nurani.ads:applovin-android:1.1.5")
-    implementation("io.github.saifullah-nurani.ads:pangle-android:1.1.5")
-    implementation("io.github.saifullah-nurani.ads:vungle-android:1.1.5")
-    implementation("io.github.saifullah-nurani.ads:inmobi-android:1.1.5")
-    implementation("io.github.saifullah-nurani.ads:ironsource-android:1.1.5")
-    implementation("io.github.saifullah-nurani.ads:man-android:1.1.5")
+    implementation("io.github.saifullah-nurani.ads:admob-android:1.1.6")
+    implementation("io.github.saifullah-nurani.ads:applovin-android:1.1.6")
+    implementation("io.github.saifullah-nurani.ads:pangle-android:1.1.6")
+    implementation("io.github.saifullah-nurani.ads:vungle-android:1.1.6")
+    implementation("io.github.saifullah-nurani.ads:inmobi-android:1.1.6")
+    implementation("io.github.saifullah-nurani.ads:ironsource-android:1.1.6")
+    implementation("io.github.saifullah-nurani.ads:man-android:1.1.6")
 }
 ```
 
