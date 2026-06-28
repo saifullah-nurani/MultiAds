@@ -351,6 +351,7 @@ fun MultiAdsWaterfallScreen(onBack: () -> Unit) {
         testModeEnabled = true,
         initialLoad = false,
         adLoadCallback = rewardedLoadCallback,
+        adContentCallback = rewardedContentCallback,
         multiAdLoadCallback = multiRewardedLoadCallback,
         multiAdContentCallback = multiRewardedContentCallback,
         onUserRewarded = onUserRewarded

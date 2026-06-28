@@ -316,44 +316,26 @@ fun AdControlSection(
 
         Spacer(modifier = Modifier.height(8.dp))
 
-        if (ad.isAdAvailable) {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
-                OutlinedButton(
-                    onClick = onLoad,
-                    modifier = Modifier.weight(1f),
-                    shape = RoundedCornerShape(8.dp)
-                ) {
-                    Text("Load $title")
+        Button(
+            onClick = {
+                if (ad.isAdAvailable) {
+                    onShow()
+                } else {
+                    onLoad()
                 }
-                Button(
-                    onClick = onShow,
-                    modifier = Modifier.weight(1f),
-                    shape = RoundedCornerShape(8.dp),
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = MaterialTheme.colorScheme.primary
-                    )
-                ) {
-                    Text("Show $title")
-                }
-            }
-        } else {
-            Button(
-                onClick = onLoad,
-                modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(8.dp),
-                enabled = !ad.isAdLoading,
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = MaterialTheme.colorScheme.secondary
-                )
-            ) {
-                Text(
-                    if (ad.isAdLoading) "Loading..."
-                    else "Load $title"
-                )
-            }
+            },
+            modifier = Modifier.fillMaxWidth(),
+            shape = RoundedCornerShape(8.dp),
+            enabled = ad.isAdAvailable || !ad.isAdLoading,
+            colors = ButtonDefaults.buttonColors(
+                containerColor = if (ad.isAdAvailable) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.secondary
+            )
+        ) {
+            Text(
+                if (ad.isAdAvailable) "Show $title"
+                else if (ad.isAdLoading) "Loading..."
+                else "Load $title"
+            )
         }
     }
 }
