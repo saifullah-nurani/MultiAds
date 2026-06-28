@@ -9,3 +9,17 @@ interface MultiAdContentCallback {
     fun onAdClicked(network: AdNetworkConfig) {}
     fun onAdFailedToShow(network: AdNetworkConfig, error: AdError?) {}
 }
+
+inline fun MultiAdContentCallback(
+    crossinline onAdShowed: (network: AdNetworkConfig) -> Unit = {},
+    crossinline onAdDisplayed: (network: AdNetworkConfig) -> Unit = {},
+    crossinline onAdDismissed: (network: AdNetworkConfig) -> Unit = {},
+    crossinline onAdClicked: (network: AdNetworkConfig) -> Unit = {},
+    crossinline onAdFailedToShow: (network: AdNetworkConfig, error: AdError?) -> Unit = { _, _ -> }
+): MultiAdContentCallback = object : MultiAdContentCallback {
+    override fun onAdShowed(network: AdNetworkConfig) = onAdShowed(network)
+    override fun onAdDisplayed(network: AdNetworkConfig) = onAdDisplayed(network)
+    override fun onAdDismissed(network: AdNetworkConfig) = onAdDismissed(network)
+    override fun onAdClicked(network: AdNetworkConfig) = onAdClicked(network)
+    override fun onAdFailedToShow(network: AdNetworkConfig, error: AdError?) = onAdFailedToShow(network, error)
+}

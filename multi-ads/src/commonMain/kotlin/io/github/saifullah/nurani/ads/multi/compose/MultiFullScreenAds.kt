@@ -82,7 +82,6 @@ fun rememberMultiRewardedAd(
     initialLoad: Boolean = true,
     immersiveModeEnabled: Boolean = true,
     adLoadCallback: AdLoadCallback? = null,
-    adContentCallback: AdContentCallback? = null,
     multiAdLoadCallback: MultiAdLoadCallback? = null,
     multiAdContentCallback: MultiAdContentCallback? = null,
     onUserRewarded: (() -> Unit)? = null
@@ -99,7 +98,6 @@ fun rememberMultiRewardedAd(
 
     DisposableEffect(adState) {
         adState.setAdLoadCallback(adLoadCallback)
-        adState.setAdContentCallback(adContentCallback)
         adState.setMultiAdLoadCallback(multiAdLoadCallback)
         adState.setMultiAdContentCallback(multiAdContentCallback)
         if (onUserRewarded != null) {
@@ -122,7 +120,6 @@ fun rememberMultiRewardedAd(
     initialLoad: Boolean = true,
     immersiveModeEnabled: Boolean = true,
     adLoadCallback: AdLoadCallback? = null,
-    adContentCallback: AdContentCallback? = null,
     multiAdLoadCallback: MultiAdLoadCallback? = null,
     multiAdContentCallback: MultiAdContentCallback? = null,
     onUserRewarded: (() -> Unit)? = null
@@ -134,7 +131,6 @@ fun rememberMultiRewardedAd(
         initialLoad = initialLoad,
         immersiveModeEnabled = immersiveModeEnabled,
         adLoadCallback = adLoadCallback,
-        adContentCallback = adContentCallback,
         multiAdLoadCallback = multiAdLoadCallback,
         multiAdContentCallback = multiAdContentCallback,
         onUserRewarded = onUserRewarded

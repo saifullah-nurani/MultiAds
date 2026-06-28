@@ -284,96 +284,54 @@ fun MultiAdsWaterfallScreen(onBack: () -> Unit) {
     }
 
     val multiInterstitialLoadCallback = remember {
-        object : MultiAdLoadCallback {
-            override fun onAdLoaded(network: AdNetworkConfig) {
-                logEvent("MultiInterstitial", "Loaded from ${network.network}")
-            }
-            override fun onAdFailedToLoad(network: AdNetworkConfig, error: AdError?) {
-                logEvent("MultiInterstitial", "${network.network} failed to load: ${error?.message ?: "Unknown"}")
-            }
-        }
+        MultiAdLoadCallback(
+            onAdLoaded = { network -> logEvent("MultiInterstitial", "Loaded from ${network.network}") },
+            onAdFailedToLoad = { network, error -> logEvent("MultiInterstitial", "${network.network} failed to load: ${error?.message ?: "Unknown"}") }
+        )
     }
 
     val multiInterstitialContentCallback = remember {
-        object : MultiAdContentCallback {
-            override fun onAdShowed(network: AdNetworkConfig) {
-                logEvent("MultiInterstitial", "Showed from ${network.network}")
-            }
-            override fun onAdDisplayed(network: AdNetworkConfig) {
-                logEvent("MultiInterstitial", "Displayed from ${network.network}")
-            }
-            override fun onAdDismissed(network: AdNetworkConfig) {
-                logEvent("MultiInterstitial", "Dismissed from ${network.network}")
-            }
-            override fun onAdClicked(network: AdNetworkConfig) {
-                logEvent("MultiInterstitial", "Clicked from ${network.network}")
-            }
-            override fun onAdFailedToShow(network: AdNetworkConfig, error: AdError?) {
-                logEvent("MultiInterstitial", "${network.network} failed to show: ${error?.message ?: "Unknown"}")
-            }
-        }
+        MultiAdContentCallback(
+            onAdShowed = { network -> logEvent("MultiInterstitial", "Showed from ${network.network}") },
+            onAdDisplayed = { network -> logEvent("MultiInterstitial", "Displayed from ${network.network}") },
+            onAdDismissed = { network -> logEvent("MultiInterstitial", "Dismissed from ${network.network}") },
+            onAdClicked = { network -> logEvent("MultiInterstitial", "Clicked from ${network.network}") },
+            onAdFailedToShow = { network, error -> logEvent("MultiInterstitial", "${network.network} failed to show: ${error?.message ?: "Unknown"}") }
+        )
     }
 
     val multiRewardedLoadCallback = remember {
-        object : MultiAdLoadCallback {
-            override fun onAdLoaded(network: AdNetworkConfig) {
-                logEvent("MultiRewarded", "Loaded from ${network.network}")
-            }
-            override fun onAdFailedToLoad(network: AdNetworkConfig, error: AdError?) {
-                logEvent("MultiRewarded", "${network.network} failed to load: ${error?.message ?: "Unknown"}")
-            }
-        }
+        MultiAdLoadCallback(
+            onAdLoaded = { network -> logEvent("MultiRewarded", "Loaded from ${network.network}") },
+            onAdFailedToLoad = { network, error -> logEvent("MultiRewarded", "${network.network} failed to load: ${error?.message ?: "Unknown"}") }
+        )
     }
 
     val multiRewardedContentCallback = remember {
-        object : MultiAdContentCallback {
-            override fun onAdShowed(network: AdNetworkConfig) {
-                logEvent("MultiRewarded", "Showed from ${network.network}")
-            }
-            override fun onAdDisplayed(network: AdNetworkConfig) {
-                logEvent("MultiRewarded", "Displayed from ${network.network}")
-            }
-            override fun onAdDismissed(network: AdNetworkConfig) {
-                logEvent("MultiRewarded", "Dismissed from ${network.network}")
-            }
-            override fun onAdClicked(network: AdNetworkConfig) {
-                logEvent("MultiRewarded", "Clicked from ${network.network}")
-            }
-            override fun onAdFailedToShow(network: AdNetworkConfig, error: AdError?) {
-                logEvent("MultiRewarded", "${network.network} failed to show: ${error?.message ?: "Unknown"}")
-            }
-        }
+        MultiAdContentCallback(
+            onAdShowed = { network -> logEvent("MultiRewarded", "Showed from ${network.network}") },
+            onAdDisplayed = { network -> logEvent("MultiRewarded", "Displayed from ${network.network}") },
+            onAdDismissed = { network -> logEvent("MultiRewarded", "Dismissed from ${network.network}") },
+            onAdClicked = { network -> logEvent("MultiRewarded", "Clicked from ${network.network}") },
+            onAdFailedToShow = { network, error -> logEvent("MultiRewarded", "${network.network} failed to show: ${error?.message ?: "Unknown"}") }
+        )
     }
 
     val multiAppOpenLoadCallback = remember {
-        object : MultiAdLoadCallback {
-            override fun onAdLoaded(network: AdNetworkConfig) {
-                logEvent("MultiAppOpen", "Loaded from ${network.network}")
-            }
-            override fun onAdFailedToLoad(network: AdNetworkConfig, error: AdError?) {
-                logEvent("MultiAppOpen", "${network.network} failed to load: ${error?.message ?: "Unknown"}")
-            }
-        }
+        MultiAdLoadCallback(
+            onAdLoaded = { network -> logEvent("MultiAppOpen", "Loaded from ${network.network}") },
+            onAdFailedToLoad = { network, error -> logEvent("MultiAppOpen", "${network.network} failed to load: ${error?.message ?: "Unknown"}") }
+        )
     }
 
     val multiAppOpenContentCallback = remember {
-        object : MultiAdContentCallback {
-            override fun onAdShowed(network: AdNetworkConfig) {
-                logEvent("MultiAppOpen", "Showed from ${network.network}")
-            }
-            override fun onAdDisplayed(network: AdNetworkConfig) {
-                logEvent("MultiAppOpen", "Displayed from ${network.network}")
-            }
-            override fun onAdDismissed(network: AdNetworkConfig) {
-                logEvent("MultiAppOpen", "Dismissed from ${network.network}")
-            }
-            override fun onAdClicked(network: AdNetworkConfig) {
-                logEvent("MultiAppOpen", "Clicked from ${network.network}")
-            }
-            override fun onAdFailedToShow(network: AdNetworkConfig, error: AdError?) {
-                logEvent("MultiAppOpen", "${network.network} failed to show: ${error?.message ?: "Unknown"}")
-            }
-        }
+        MultiAdContentCallback(
+            onAdShowed = { network -> logEvent("MultiAppOpen", "Showed from ${network.network}") },
+            onAdDisplayed = { network -> logEvent("MultiAppOpen", "Displayed from ${network.network}") },
+            onAdDismissed = { network -> logEvent("MultiAppOpen", "Dismissed from ${network.network}") },
+            onAdClicked = { network -> logEvent("MultiAppOpen", "Clicked from ${network.network}") },
+            onAdFailedToShow = { network, error -> logEvent("MultiAppOpen", "${network.network} failed to show: ${error?.message ?: "Unknown"}") }
+        )
     }
 
     val activity = LocalPlatformActivity.current
@@ -393,7 +351,6 @@ fun MultiAdsWaterfallScreen(onBack: () -> Unit) {
         testModeEnabled = true,
         initialLoad = false,
         adLoadCallback = rewardedLoadCallback,
-        adContentCallback = rewardedContentCallback,
         multiAdLoadCallback = multiRewardedLoadCallback,
         multiAdContentCallback = multiRewardedContentCallback,
         onUserRewarded = onUserRewarded
