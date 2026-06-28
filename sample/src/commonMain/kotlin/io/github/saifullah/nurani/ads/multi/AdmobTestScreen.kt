@@ -28,6 +28,8 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.LaunchedEffect
+import kotlinx.coroutines.delay
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -283,6 +285,15 @@ fun AdControlSection(
     onShow: () -> Unit,
     onLoad: () -> Unit
 ) {
+    var tick by remember { mutableStateOf(0) }
+    LaunchedEffect(ad) {
+        while (true) {
+            delay(250)
+            tick++
+        }
+    }
+    val currentTick = tick // Read the tick to register recomposition dependency
+
     Column(
         modifier = Modifier
             .fillMaxWidth()
