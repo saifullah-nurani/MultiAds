@@ -121,7 +121,7 @@ fun PlatformSpecificScreens(screen: String, onBack: () -> Unit): Boolean {
 }
 
 // ==========================================
-// 1. Meta (Audience Network) Test Screen
+// 1. Meta Audience Network Test Screen
 // ==========================================
 @Composable
 fun MetaTestScreen(onBack: () -> Unit) {
@@ -141,20 +141,20 @@ fun MetaTestScreen(onBack: () -> Unit) {
     val interstitialAd = rememberMetaInterstitialAd(
         properties = metaProperties,
         testModeEnabled = false,
-        adLoadCallback = createLoadCallback("Meta", "Interstitial"),
-        adContentCallback = createContentCallback("Meta", "Interstitial")
+        adLoadCallback = createLoadCallback("MetaAudienceNetwork", "Interstitial"),
+        adContentCallback = createContentCallback("MetaAudienceNetwork", "Interstitial")
     )
 
     val rewardedAd = rememberMetaRewardedAd(
         properties = metaRewardedProperties,
         testModeEnabled = false,
-        adLoadCallback = createLoadCallback("Meta", "Rewarded"),
-        adContentCallback = createContentCallback("Meta", "Rewarded")
+        adLoadCallback = createLoadCallback("MetaAudienceNetwork", "Rewarded"),
+        adContentCallback = createContentCallback("MetaAudienceNetwork", "Rewarded")
     )
 
     Scaffold(
         topBar = {
-            TopAppBarRow(title = "Meta (MAN) Showcase", onBack = onBack)
+            TopAppBarRow(title = "Meta Audience Network Showcase", onBack = onBack)
         }
     ) { padding ->
         Column(
@@ -165,30 +165,30 @@ fun MetaTestScreen(onBack: () -> Unit) {
                 .background(MaterialTheme.colorScheme.background)
         ) {
             // Banner Section
-            ShowcaseCard(title = "Meta Banner Ad") {
+            ShowcaseCard(title = "Meta Audience Network Banner Ad") {
                 MetaBannerAd(
                     properties = metaProperties,
                     adSize = BannerAd.Fixed(AdSize.BANNER),
                     testModeEnabled = true,
                     expandWhenReady = true,
-                    adListener = createBannerListener("Meta")
+                    adListener = createBannerListener("MetaAudienceNetwork")
                 )
             }
 
             Spacer(modifier = Modifier.height(16.dp))
 
             // Fullscreen Ads Section
-            ShowcaseCard(title = "Meta Full Screen Ads") {
+            ShowcaseCard(title = "Meta Audience Network Full Screen Ads") {
                 Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
                     AdControlSection(
-                        title = "Meta Interstitial",
+                        title = "MetaAudienceNetwork Interstitial",
                         ad = interstitialAd,
                         onShow = { if (activity != null) interstitialAd.showAd(activity) },
                         onLoad = { interstitialAd.loadAd() }
                     )
 
                     AdControlSection(
-                        title = "Meta Rewarded",
+                        title = "MetaAudienceNetwork Rewarded",
                         ad = rewardedAd,
                         onShow = { if (activity != null) rewardedAd.showAd(activity) },
                         onLoad = { rewardedAd.loadAd() }

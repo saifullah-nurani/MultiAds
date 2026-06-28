@@ -7,7 +7,7 @@ import io.github.saifullah.nurani.ads.applovin.AppLovinAds
 import io.github.saifullah.nurani.ads.core.compose.LocalPlatformContext
 import io.github.saifullah.nurani.ads.core.compose.PlatformContext
 import io.github.saifullah.nurani.ads.inmobi.InMobiAds
-import io.github.saifullah.nurani.ads.man.MetaAds
+import io.github.saifullah.nurani.ads.man.MetaAudienceNetworkAds
 import io.github.saifullah.nurani.ads.pangle.PangleAds
 import io.github.saifullah.nurani.ads.ironsource.IronSourceAds
 import io.github.saifullah.nurani.ads.vungle.VungleAds
@@ -49,10 +49,8 @@ fun SampleAdsInitializer(
 
     LaunchedEffect(context, keys, isIos) {
         AdmobAds.init(context)
-        MetaAds.init(
+        MetaAudienceNetworkAds.init(
             context = context,
-            androidPlacementId = "IMG_16_9_APP_INSTALL#YOUR_PLACEMENT_ID",
-            iosPlacementId = "IMG_16_9_APP_INSTALL#YOUR_PLACEMENT_ID",
             onComplete = null
         )
         AppLovinAds.init(

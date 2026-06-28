@@ -159,10 +159,7 @@ val ironSourceReady = rememberIronSourceAdsInit(
     iosAppKey = "IOS_APP_KEY"
 )
 
-val metaReady = rememberMetaAdsInit(
-    androidPlacementId = "ANDROID_META_PLACEMENT_ID",
-    iosPlacementId = "IOS_META_PLACEMENT_ID"
-)
+val metaReady = rememberMetaAudienceNetworkAdsInit()
 ```
 
 ### Shared non-Compose init
@@ -200,11 +197,7 @@ IronSourceAds.init(
     iosAppKey = "IOS_APP_KEY"
 )
 
-MetaAds.init(
-    context = context,
-    androidPlacementId = "ANDROID_META_PLACEMENT_ID",
-    iosPlacementId = "IOS_META_PLACEMENT_ID"
-)
+MetaAudienceNetworkAds.init(context)
 ```
 
 ## Shared property helpers

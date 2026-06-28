@@ -19,7 +19,7 @@ import io.github.saifullah.nurani.ads.inmobi.InMobiBannerView
 import io.github.saifullah.nurani.ads.ironsource.IronSourceBannerView
 import io.github.saifullah.nurani.ads.ironsource.IronSourceAds
 import io.github.saifullah.nurani.ads.man.MetaBannerView
-import io.github.saifullah.nurani.ads.man.MetaAds
+import io.github.saifullah.nurani.ads.man.MetaAudienceNetworkAds
 import io.github.saifullah.nurani.ads.multi.models.AdNetwork
 import io.github.saifullah.nurani.ads.multi.models.AdNetworkConfig
 import io.github.saifullah.nurani.ads.multi.models.MultiAdListener
@@ -309,7 +309,7 @@ class MultiBannerView @JvmOverloads constructor(
         return when (network) {
             AdNetwork.ADMOB -> true
             AdNetwork.APPLOVIN -> AppLovinAds.isInitialized()
-            AdNetwork.META -> MetaAds.isInitialized()
+            AdNetwork.META -> MetaAudienceNetworkAds.isInitialized()
             AdNetwork.VUNGLE -> VungleAds.isInitialized()
             AdNetwork.INMOBI -> InMobiAds.isInitialized()
             AdNetwork.PANGLE -> PangleAds.isInitialized()

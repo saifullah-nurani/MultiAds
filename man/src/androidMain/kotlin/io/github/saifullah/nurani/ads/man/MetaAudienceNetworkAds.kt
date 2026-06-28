@@ -12,8 +12,8 @@ import io.github.saifullah.nurani.ads.core.compose.PlatformContext
 import java.lang.ref.WeakReference
 import java.util.concurrent.ConcurrentHashMap
 
-actual object MetaAds {
-    private const val TAG = "MetaAds"
+actual object MetaAudienceNetworkAds {
+    private const val TAG = "MetaAudienceNetworkAds"
 
     private var applicationContext: WeakReference<Context>? = null
     private var currentConfig: Config? = null
@@ -79,8 +79,6 @@ actual object MetaAds {
 
     actual fun init(
         context: PlatformContext,
-        androidPlacementId: String,
-        iosPlacementId: String,
         onComplete: ((AdInitResult) -> Unit)?
     ) {
         init(context, Config.Builder().build()) { success ->
@@ -93,12 +91,12 @@ actual object MetaAds {
 
     private fun checkInitialized() {
         if (applicationContext == null) {
-            throw IllegalStateException("MetaAds is not initialized. Call MetaAds.init(appContext) first.")
+            throw IllegalStateException("MetaAudienceNetworkAds is not initialized. Call MetaAudienceNetworkAds.init(appContext) first.")
         }
     }
 
     private fun getContext(): Context {
-        return applicationContext?.get() ?: throw IllegalStateException("Context lost. Reinitialize MetaAds.")
+        return applicationContext?.get() ?: throw IllegalStateException("Context lost. Reinitialize MetaAudienceNetworkAds.")
     }
 
     @JvmStatic

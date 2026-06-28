@@ -6,8 +6,8 @@ import FBAudienceNetwork.FBAudienceNetworkAds
 import io.github.saifullah.nurani.ads.core.AdInitResult
 import io.github.saifullah.nurani.ads.core.compose.PlatformContext
 
-actual object MetaAds {
-    actual fun init(context: PlatformContext, androidPlacementId: String, iosPlacementId: String, onComplete: ((AdInitResult) -> Unit)?) {
+actual object MetaAudienceNetworkAds {
+    actual fun init(context: PlatformContext, onComplete: ((AdInitResult) -> Unit)?) {
         FBAudienceNetworkAds.initializeWithSettings(null) { results ->
             onComplete?.invoke(AdInitResult(results?.success ?: false))
         }
