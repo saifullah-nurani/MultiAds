@@ -55,20 +55,26 @@ class InMobiRewardedAd(
 
             override fun interstitialDidPresent(interstitial: IMInterstitial) {
                 adStateManager.onAdDisplayed()
+                adScreenContentCallback?.onAdShowed()
+                adScreenContentCallback?.onAdDisplayed()
             }
 
             override fun interstitialDidDismiss(interstitial: IMInterstitial) {
                 adStateManager.onAdDismissed()
+                adScreenContentCallback?.onAdDismissed()
                 clean()
             }
 
             @kotlinx.cinterop.ObjCSignatureOverride
             override fun interstitial(interstitial: IMInterstitial, didFailToPresentWithError: IMRequestStatus) {
-                adStateManager.onAdFailedToShow(AdError(0, didFailToPresentWithError.toString()))
+                val adError = AdError(0, didFailToPresentWithError.toString())
+                adStateManager.onAdFailedToShow(adError)
+                adScreenContentCallback?.onAdFailedToShow(adError)
             }
 
             override fun interstitial(interstitial: IMInterstitial, didInteractWithParams: Map<Any?, *>?) {
                 adStateManager.onAdClicked()
+                adScreenContentCallback?.onAdClicked()
             }
 
             override fun interstitial(interstitial: IMInterstitial, rewardActionCompletedWithRewards: Map<Any?, *>) {

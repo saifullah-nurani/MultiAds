@@ -57,12 +57,16 @@ class PangleRewardedAd(
                 val delegate = object : NSObject(), PAGRewardedAdDelegateProtocol {
                     override fun adDidShow(ad: PAGAdProtocolProtocol) {
                         adStateManager.onAdDisplayed()
+                        adScreenContentCallback?.onAdShowed()
+                        adScreenContentCallback?.onAdDisplayed()
                     }
                     override fun adDidClick(ad: PAGAdProtocolProtocol) {
                         adStateManager.onAdClicked()
+                        adScreenContentCallback?.onAdClicked()
                     }
                     override fun adDidDismiss(ad: PAGAdProtocolProtocol) {
                         adStateManager.onAdDismissed()
+                        adScreenContentCallback?.onAdDismissed()
                         clean()
                     }
                     override fun rewardedAd(rewardedAd: PAGRewardedAd, userDidEarnReward: PAGRewardModel) {

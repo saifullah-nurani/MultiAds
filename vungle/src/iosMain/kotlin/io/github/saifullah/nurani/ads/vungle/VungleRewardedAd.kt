@@ -62,18 +62,24 @@ class VungleRewardedAd(
 
             override fun rewardedAdDidPresent(rewarded: VungleRewarded) {
                 adStateManager.onAdDisplayed()
+                adScreenContentCallback?.onAdShowed()
+                adScreenContentCallback?.onAdDisplayed()
             }
 
             override fun rewardedAdDidFailToPresent(rewarded: VungleRewarded, withError: NSError) {
-                adStateManager.onAdFailedToShow(AdError(0, withError.localizedDescription ?: "Unknown error"))
+                val adError = AdError(0, withError.localizedDescription ?: "Unknown error")
+                adStateManager.onAdFailedToShow(adError)
+                adScreenContentCallback?.onAdFailedToShow(adError)
             }
 
             override fun rewardedAdDidClick(rewarded: VungleRewarded) {
                 adStateManager.onAdClicked()
+                adScreenContentCallback?.onAdClicked()
             }
 
             override fun rewardedAdDidClose(rewarded: VungleRewarded) {
                 adStateManager.onAdDismissed()
+                adScreenContentCallback?.onAdDismissed()
                 clean()
             }
             

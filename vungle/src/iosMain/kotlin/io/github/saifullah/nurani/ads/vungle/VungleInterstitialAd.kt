@@ -62,18 +62,24 @@ class VungleInterstitialAd(
 
             override fun interstitialAdDidPresent(interstitial: VungleInterstitial) {
                 adStateManager.onAdDisplayed()
+                adScreenContentCallback?.onAdShowed()
+                adScreenContentCallback?.onAdDisplayed()
             }
 
             override fun interstitialAdDidFailToPresent(interstitial: VungleInterstitial, withError: NSError) {
-                adStateManager.onAdFailedToShow(AdError(0, withError.localizedDescription ?: "Unknown error"))
+                val adError = AdError(0, withError.localizedDescription ?: "Unknown error")
+                adStateManager.onAdFailedToShow(adError)
+                adScreenContentCallback?.onAdFailedToShow(adError)
             }
 
             override fun interstitialAdDidClick(interstitial: VungleInterstitial) {
                 adStateManager.onAdClicked()
+                adScreenContentCallback?.onAdClicked()
             }
 
             override fun interstitialAdDidClose(interstitial: VungleInterstitial) {
                 adStateManager.onAdDismissed()
+                adScreenContentCallback?.onAdDismissed()
                 clean()
             }
             

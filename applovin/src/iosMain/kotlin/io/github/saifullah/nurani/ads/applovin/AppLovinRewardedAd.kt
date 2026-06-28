@@ -53,19 +53,25 @@ class AppLovinRewardedAd(
 
             override fun didDisplayAd(ad: MAAd) {
                 adStateManager.onAdDisplayed()
+                adScreenContentCallback?.onAdShowed()
+                adScreenContentCallback?.onAdDisplayed()
             }
 
             override fun didHideAd(ad: MAAd) {
                 adStateManager.onAdDismissed()
+                adScreenContentCallback?.onAdDismissed()
                 clean()
             }
 
             override fun didClickAd(ad: MAAd) {
                 adStateManager.onAdClicked()
+                adScreenContentCallback?.onAdClicked()
             }
 
             override fun didFailToDisplayAd(ad: MAAd, withError: MAError) {
-                adStateManager.onAdFailedToShow(AdError(0, withError.toString()))
+                val adError = AdError(0, withError.toString())
+                adStateManager.onAdFailedToShow(adError)
+                adScreenContentCallback?.onAdFailedToShow(adError)
             }
 
             override fun didRewardUserForAd(ad: MAAd, withReward: MAReward) {

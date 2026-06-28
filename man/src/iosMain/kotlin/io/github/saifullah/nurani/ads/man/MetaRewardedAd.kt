@@ -51,15 +51,19 @@ class MetaRewardedAd(
 
             override fun rewardedVideoAdDidClick(rewardedVideoAd: FBRewardedVideoAd) {
                 adStateManager.onAdClicked()
+                adScreenContentCallback?.onAdClicked()
             }
 
             override fun rewardedVideoAdDidClose(rewardedVideoAd: FBRewardedVideoAd) {
                 adStateManager.onAdDismissed()
+                adScreenContentCallback?.onAdDismissed()
                 clean()
             }
 
             override fun rewardedVideoAdWillLogImpression(rewardedVideoAd: FBRewardedVideoAd) {
                 adStateManager.onAdDisplayed()
+                adScreenContentCallback?.onAdShowed()
+                adScreenContentCallback?.onAdDisplayed()
             }
             
             override fun rewardedVideoAdVideoComplete(rewardedVideoAd: FBRewardedVideoAd) {

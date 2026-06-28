@@ -51,15 +51,19 @@ class MetaInterstitialAd(
 
             override fun interstitialAdDidClick(interstitialAd: FBInterstitialAd) {
                 adStateManager.onAdClicked()
+                adScreenContentCallback?.onAdClicked()
             }
 
             override fun interstitialAdDidClose(interstitialAd: FBInterstitialAd) {
                 adStateManager.onAdDismissed()
+                adScreenContentCallback?.onAdDismissed()
                 clean()
             }
 
             override fun interstitialAdWillLogImpression(interstitialAd: FBInterstitialAd) {
                 adStateManager.onAdDisplayed()
+                adScreenContentCallback?.onAdShowed()
+                adScreenContentCallback?.onAdDisplayed()
             }
         }
         adDelegate = delegate

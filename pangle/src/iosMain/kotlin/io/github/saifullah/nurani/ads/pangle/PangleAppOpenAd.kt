@@ -57,12 +57,16 @@ class PangleAppOpenAd(
                 val delegate = object : NSObject(), PAGLAppOpenAdDelegateProtocol {
                     override fun adDidShow(ad: PAGAdProtocolProtocol) {
                         adStateManager.onAdDisplayed()
+                        adScreenContentCallback?.onAdShowed()
+                        adScreenContentCallback?.onAdDisplayed()
                     }
                     override fun adDidClick(ad: PAGAdProtocolProtocol) {
                         adStateManager.onAdClicked()
+                        adScreenContentCallback?.onAdClicked()
                     }
                     override fun adDidDismiss(ad: PAGAdProtocolProtocol) {
                         adStateManager.onAdDismissed()
+                        adScreenContentCallback?.onAdDismissed()
                         clean()
                     }
                 }
