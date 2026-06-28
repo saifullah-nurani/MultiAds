@@ -70,6 +70,7 @@ class PangleRewardedAd(
                         clean()
                     }
                     override fun rewardedAd(rewardedAd: PAGRewardedAd, userDidEarnReward: PAGRewardModel) {
+                        println("PangleRewardedAd [iOS]: rewardedAd delegate method called. userRewardedCallback is $userRewardedCallback")
                         userRewardedCallback?.invoke()
                     }
                     override fun rewardedAd(rewardedAd: PAGRewardedAd, userEarnRewardFailWithError: NSError) {}

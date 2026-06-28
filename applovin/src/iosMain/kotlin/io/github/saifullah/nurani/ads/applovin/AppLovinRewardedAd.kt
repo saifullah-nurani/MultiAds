@@ -75,6 +75,7 @@ class AppLovinRewardedAd(
             }
 
             override fun didRewardUserForAd(ad: MAAd, withReward: MAReward) {
+                println("AppLovinRewardedAd [iOS]: didRewardUserForAd delegate method called. userRewardedCallback is $userRewardedCallback")
                 userRewardedCallback?.invoke()
             }
         }

@@ -80,6 +80,7 @@ class IronSourceRewardedAd(
                 }
                 
                 override fun didRewardAdWithAdInfo(adInfo: LPMAdInfo, reward: LPMReward) {
+                    println("IronSourceRewardedAd [iOS]: didRewardAdWithAdInfo delegate method called. userRewardedCallback is $userRewardedCallback")
                     userRewardedCallback?.invoke()
                 }
 

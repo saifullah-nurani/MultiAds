@@ -78,6 +78,7 @@ class InMobiRewardedAd(
             }
 
             override fun interstitial(interstitial: IMInterstitial, rewardActionCompletedWithRewards: Map<Any?, *>) {
+                println("InMobiRewardedAd [iOS]: rewardActionCompletedWithRewards delegate method called. userRewardedCallback is $userRewardedCallback")
                 userRewardedCallback?.invoke()
             }
         }

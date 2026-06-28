@@ -67,6 +67,7 @@ class MetaRewardedAd(
             }
             
             override fun rewardedVideoAdVideoComplete(rewardedVideoAd: FBRewardedVideoAd) {
+                println("MetaRewardedAd [iOS]: rewardedVideoAdVideoComplete delegate method called. userRewardedCallback is $userRewardedCallback")
                 userRewardedCallback?.invoke()
             }
         }

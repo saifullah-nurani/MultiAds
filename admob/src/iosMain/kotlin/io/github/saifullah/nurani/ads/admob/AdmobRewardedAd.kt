@@ -61,8 +61,10 @@ class AdmobRewardedAd(
 
     private fun showAd(controller: UIViewController?, onUserRewarded: () -> Unit = {}) {
         if (isAdAvailable) {
+            println("AdmobRewardedAd [iOS]: showAd called, userRewardedCallback is $userRewardedCallback")
             mRewardedAd!!.fullScreenContentDelegate = fullScreenContentCallback(adStateManager, adScreenContentCallback, ::clean)
             mRewardedAd!!.presentFromRootViewController(controller) {
+                println("AdmobRewardedAd [iOS]: presentFromRootViewController reward handler triggered")
                 onUserRewarded()
                 userRewardedCallback?.invoke()
             }

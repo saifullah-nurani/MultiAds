@@ -84,6 +84,7 @@ class VungleRewardedAd(
             }
             
             override fun rewardedAdDidRewardUser(rewarded: VungleRewarded) {
+                println("VungleRewardedAd [iOS]: rewardedAdDidRewardUser delegate method called. userRewardedCallback is $userRewardedCallback")
                 userRewardedCallback?.invoke()
             }
             
