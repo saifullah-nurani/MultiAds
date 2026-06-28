@@ -10,6 +10,17 @@ interface MultiAdContentCallback {
     fun onAdFailedToShow(network: AdNetworkConfig, error: AdError?) {}
 }
 
+/**
+ * Creates an instance of [MultiAdContentCallback] using lambda expressions.
+ * This helper function allows consumers to implement only the callbacks they care about.
+ *
+ * Example:
+ * ```
+ * MultiAdContentCallback(
+ *     onAdDismissed = { network -> println("Dismissed from ${network.network}") }
+ * )
+ * ```
+ */
 inline fun MultiAdContentCallback(
     crossinline onAdShowed: (network: AdNetworkConfig) -> Unit = {},
     crossinline onAdDisplayed: (network: AdNetworkConfig) -> Unit = {},
