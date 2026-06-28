@@ -1,41 +1,52 @@
 <div align="center">
 
-# MultiAds
+# 💎 MultiAds
 
-**A Kotlin Multiplatform ad library for Android and iOS**
+**A Premium, Lightweight & Mediated Kotlin Multiplatform Ad Library for Android and iOS**
 
-[![Kotlin](https://img.shields.io/badge/Kotlin-2.0.0-blue.svg?logo=kotlin)](http://kotlinlang.org)
-[![KMP](https://img.shields.io/badge/KMP-Supported-purple.svg?logo=kotlin)](https://kotlinlang.org/docs/multiplatform.html)
-[![Version](https://img.shields.io/maven-central/v/io.github.saifullah-nurani.ads/multi-ads)](https://central.sonatype.com/artifact/io.github.saifullah-nurani.ads/multi-ads)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Kotlin](https://img.shields.io/badge/Kotlin-2.0.21-blue.svg?style=for-the-badge&logo=kotlin)](http://kotlinlang.org)
+[![KMP](https://img.shields.io/badge/KMP-Supported-purple.svg?style=for-the-badge&logo=kotlin)](https://kotlinlang.org/docs/multiplatform.html)
+[![Maven Central](https://img.shields.io/maven-central/v/io.github.saifullah-nurani.ads/multi-ads?style=for-the-badge&color=brightgreen)](https://central.sonatype.com/artifact/io.github.saifullah-nurani.ads/multi-ads)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg?style=for-the-badge)](https://opensource.org/licenses/MIT)
+
+---
+
+🤖 **Android (SDK 21+)** &nbsp;•&nbsp; 🍏 **iOS (14.1+)** &nbsp;•&nbsp; 🎨 **Compose Multiplatform** &nbsp;•&nbsp; ⚡ **Waterfall Mediation**
 
 </div>
 
-`MultiAds` provides:
+`MultiAds` provides a complete, performance-optimized, and unified solution to load and show ads across both Android and iOS platforms. It wraps official native SDKs to ensure maximum rendering reliability and ad delivery rates.
 
-- standalone modules for AdMob, AppLovin, Pangle, Vungle, InMobi, IronSource, and Meta
-- a `multi-ads` waterfall module with priority + concurrent loading
-- shared Compose Multiplatform APIs for KMM projects
-- Android native APIs
-- iOS native app-open auto-show helpers
+### Key Features 🌟
+
+- **⚡ Unified Mediation (Waterfall)**: Prioritized loading, concurrent network requests, and automatic fallbacks on ad load failure.
+- **🎨 Compose Multiplatform UI**: Ready-to-use Composable UI components for Banner ads (`MultiBannerAd`) and remember-hooks for fullscreen formats.
+- **💎 Pure Platform Native Binding**: Direct integration via native views (`UIView` for iOS, native `FrameLayout` for Android) preventing container rendering issues (like white background/recomposition overlaps).
+- **📦 Modular Design**: Standalone sub-modules for AdMob, AppLovin, Pangle, Vungle, InMobi, IronSource, and Meta if you don't need waterfall mediation.
+- **🔄 Auto-Orchestrated Lifecycle**: Automatic auto-reload policy management, state restoration, and background state handling.
+- **📝 Real-time Log Console**: Tagged diagnostic logger (`DefaultAdLogger`) with customizable print callbacks.
+
+---
 
 ## Modules
 
-| Module | Artifact | Formats |
-|---|---|---|
-| Core | `core` | shared config, retry, refresh, callbacks, lifecycle helpers |
-| AdMob | `admob` | banner, interstitial, rewarded, rewarded interstitial, app open |
-| AppLovin | `applovin` | banner, interstitial, rewarded, app open |
-| Pangle | `pangle` | banner, interstitial, rewarded, app open |
-| Vungle | `vungle` | banner, interstitial, rewarded |
-| InMobi | `inmobi` | banner, interstitial, rewarded |
-| IronSource | `ironsource` | banner, interstitial, rewarded |
-| Meta | `man` | banner, interstitial, rewarded |
-| Waterfall | `multi-ads` | multi-network banner, interstitial, rewarded, app open |
+| Module | Artifact Name | Supported Formats | Description |
+| :--- | :--- | :--- | :--- |
+| **Core** | `core` | Shared abstractions | Shared configurations, retry/refresh policies, callback managers |
+| **AdMob** | `admob` | Banner, Interstitial, Rewarded, Rewarded Interstitial, App Open | Google Mobile Ads SDK implementation |
+| **AppLovin** | `applovin` | Banner, Interstitial, Rewarded, App Open | AppLovin MAX SDK implementation |
+| **Pangle** | `pangle` | Banner, Interstitial, Rewarded, App Open | ByteDance PAGAdSDK implementation |
+| **Vungle** | `vungle` | Banner, Interstitial, Rewarded | Liftoff Vungle Ads SDK implementation |
+| **InMobi** | `inmobi` | Banner, Interstitial, Rewarded | InMobi Ads SDK implementation |
+| **IronSource** | `ironsource` | Banner, Interstitial, Rewarded | Unity IronSource SDK implementation |
+| **Meta** | `man` | Banner, Interstitial, Rewarded | Meta Audience Network SDK implementation |
+| **Waterfall** | `multi-ads` | Mediation Banner, Interstitial, Rewarded, App Open | Priority-concurrency mediated waterfall orchestration |
+
+---
 
 ## Version
 
-Current version used in this repo:
+The latest release version for all multiplatform artifacts:
 
 ```kotlin
 val multiAdsVersion = "1.1.5"
