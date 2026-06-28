@@ -34,6 +34,8 @@ import io.github.saifullah.nurani.ads.multi.compose.rememberMultiRewardedAd
 import io.github.saifullah.nurani.ads.multi.models.AdNetwork
 import io.github.saifullah.nurani.ads.multi.models.AdNetworkConfig
 import io.github.saifullah.nurani.ads.multi.models.MultiAdListener
+import io.github.saifullah.nurani.ads.multi.models.MultiAdLoadCallback
+import io.github.saifullah.nurani.ads.multi.models.MultiAdContentCallback
 import io.github.saifullah.nurani.ads.multi.models.WaterfallConfig
 import io.github.saifullah.nurani.ads.multi.models.multiBannerAdConfig
 import io.github.saifullah.nurani.ads.multi.models.waterfallConfig
@@ -281,6 +283,99 @@ fun MultiAdsWaterfallScreen(onBack: () -> Unit) {
         }
     }
 
+    val multiInterstitialLoadCallback = remember {
+        object : MultiAdLoadCallback {
+            override fun onAdLoaded(network: AdNetworkConfig) {
+                logEvent("MultiInterstitial", "Loaded from ${network.network}")
+            }
+            override fun onAdFailedToLoad(network: AdNetworkConfig, error: AdError?) {
+                logEvent("MultiInterstitial", "${network.network} failed to load: ${error?.message ?: "Unknown"}")
+            }
+        }
+    }
+
+    val multiInterstitialContentCallback = remember {
+        object : MultiAdContentCallback {
+            override fun onAdShowed(network: AdNetworkConfig) {
+                logEvent("MultiInterstitial", "Showed from ${network.network}")
+            }
+            override fun onAdDisplayed(network: AdNetworkConfig) {
+                logEvent("MultiInterstitial", "Displayed from ${network.network}")
+            }
+            override fun onAdDismissed(network: AdNetworkConfig) {
+                logEvent("MultiInterstitial", "Dismissed from ${network.network}")
+            }
+            override fun onAdClicked(network: AdNetworkConfig) {
+                logEvent("MultiInterstitial", "Clicked from ${network.network}")
+            }
+            override fun onAdFailedToShow(network: AdNetworkConfig, error: AdError?) {
+                logEvent("MultiInterstitial", "${network.network} failed to show: ${error?.message ?: "Unknown"}")
+            }
+        }
+    }
+
+    val multiRewardedLoadCallback = remember {
+        object : MultiAdLoadCallback {
+            override fun onAdLoaded(network: AdNetworkConfig) {
+                logEvent("MultiRewarded", "Loaded from ${network.network}")
+            }
+            override fun onAdFailedToLoad(network: AdNetworkConfig, error: AdError?) {
+                logEvent("MultiRewarded", "${network.network} failed to load: ${error?.message ?: "Unknown"}")
+            }
+        }
+    }
+
+    val multiRewardedContentCallback = remember {
+        object : MultiAdContentCallback {
+            override fun onAdShowed(network: AdNetworkConfig) {
+                logEvent("MultiRewarded", "Showed from ${network.network}")
+            }
+            override fun onAdDisplayed(network: AdNetworkConfig) {
+                logEvent("MultiRewarded", "Displayed from ${network.network}")
+            }
+            override fun onAdDismissed(network: AdNetworkConfig) {
+                logEvent("MultiRewarded", "Dismissed from ${network.network}")
+            }
+            override fun onAdClicked(network: AdNetworkConfig) {
+                logEvent("MultiRewarded", "Clicked from ${network.network}")
+            }
+            override fun onAdFailedToShow(network: AdNetworkConfig, error: AdError?) {
+                logEvent("MultiRewarded", "${network.network} failed to show: ${error?.message ?: "Unknown"}")
+            }
+        }
+    }
+
+    val multiAppOpenLoadCallback = remember {
+        object : MultiAdLoadCallback {
+            override fun onAdLoaded(network: AdNetworkConfig) {
+                logEvent("MultiAppOpen", "Loaded from ${network.network}")
+            }
+            override fun onAdFailedToLoad(network: AdNetworkConfig, error: AdError?) {
+                logEvent("MultiAppOpen", "${network.network} failed to load: ${error?.message ?: "Unknown"}")
+            }
+        }
+    }
+
+    val multiAppOpenContentCallback = remember {
+        object : MultiAdContentCallback {
+            override fun onAdShowed(network: AdNetworkConfig) {
+                logEvent("MultiAppOpen", "Showed from ${network.network}")
+            }
+            override fun onAdDisplayed(network: AdNetworkConfig) {
+                logEvent("MultiAppOpen", "Displayed from ${network.network}")
+            }
+            override fun onAdDismissed(network: AdNetworkConfig) {
+                logEvent("MultiAppOpen", "Dismissed from ${network.network}")
+            }
+            override fun onAdClicked(network: AdNetworkConfig) {
+                logEvent("MultiAppOpen", "Clicked from ${network.network}")
+            }
+            override fun onAdFailedToShow(network: AdNetworkConfig, error: AdError?) {
+                logEvent("MultiAppOpen", "${network.network} failed to show: ${error?.message ?: "Unknown"}")
+            }
+        }
+    }
+
     val activity = LocalPlatformActivity.current
 
     val interstitialAd = rememberMultiInterstitialAd(
@@ -288,7 +383,9 @@ fun MultiAdsWaterfallScreen(onBack: () -> Unit) {
         testModeEnabled = true,
         initialLoad = false,
         adLoadCallback = interstitialLoadCallback,
-        adContentCallback = interstitialContentCallback
+        adContentCallback = interstitialContentCallback,
+        multiAdLoadCallback = multiInterstitialLoadCallback,
+        multiAdContentCallback = multiInterstitialContentCallback
     )
 
     val rewardedAd = rememberMultiRewardedAd(
@@ -297,6 +394,8 @@ fun MultiAdsWaterfallScreen(onBack: () -> Unit) {
         initialLoad = false,
         adLoadCallback = rewardedLoadCallback,
         adContentCallback = rewardedContentCallback,
+        multiAdLoadCallback = multiRewardedLoadCallback,
+        multiAdContentCallback = multiRewardedContentCallback,
         onUserRewarded = onUserRewarded
     )
 
@@ -325,6 +424,8 @@ fun MultiAdsWaterfallScreen(onBack: () -> Unit) {
             isImmersiveModeEnabled = true
             setAdLoadCallback(appOpenAdLoadCallback)
             setAdContentCallback(appOpenAdContentCallback)
+            setMultiAdLoadCallback(multiAppOpenLoadCallback)
+            setMultiAdContentCallback(multiAppOpenContentCallback)
         }
     }
 
@@ -333,16 +434,19 @@ fun MultiAdsWaterfallScreen(onBack: () -> Unit) {
         appOpenAd.testModeEnabled = true
         appOpenAd.setAdLoadCallback(appOpenAdLoadCallback)
         appOpenAd.setAdContentCallback(appOpenAdContentCallback)
+        appOpenAd.setMultiAdLoadCallback(multiAppOpenLoadCallback)
+        appOpenAd.setMultiAdContentCallback(multiAppOpenContentCallback)
         onDispose {
             appOpenAd.destroy()
         }
     }
 
-    Scaffold(
-        topBar = {
-            WaterfallTopAppBarRow(title = "Waterfall Mediation", onBack = onBack)
-        }
-    ) { padding ->
+    Box(modifier = Modifier.fillMaxSize()) {
+        Scaffold(
+            topBar = {
+                WaterfallTopAppBarRow(title = "Waterfall Mediation", onBack = onBack)
+            }
+        ) { padding ->
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -715,6 +819,7 @@ fun MultiAdsWaterfallScreen(onBack: () -> Unit) {
             Spacer(modifier = Modifier.height(24.dp))
         }
     }
+}
 }
 
 @Composable
