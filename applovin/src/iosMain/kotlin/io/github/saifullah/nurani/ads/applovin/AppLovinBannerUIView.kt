@@ -19,6 +19,7 @@ import kotlinx.cinterop.ExperimentalForeignApi
 import kotlinx.cinterop.readValue
 import platform.CoreGraphics.CGRectZero
 import platform.UIKit.NSLayoutConstraint
+import platform.UIKit.UIColor
 import platform.UIKit.UIView
 import platform.darwin.NSObject
 
@@ -26,7 +27,8 @@ import platform.darwin.NSObject
 class AppLovinBannerUIView : UIView(frame = CGRectZero.readValue()) {
 
     init {
-        backgroundColor = platform.UIKit.UIColor.clearColor
+        backgroundColor = UIColor.clearColor
+        opaque = false
     }
 
     var logger: AdLogger? = null

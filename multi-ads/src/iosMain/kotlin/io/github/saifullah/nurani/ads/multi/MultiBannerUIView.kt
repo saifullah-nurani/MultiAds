@@ -27,6 +27,7 @@ import io.github.saifullah.nurani.ads.vungle.VungleBannerUIView
 import kotlinx.cinterop.ExperimentalForeignApi
 import kotlinx.cinterop.readValue
 import platform.CoreGraphics.CGRectZero
+import platform.UIKit.UIColor
 import platform.UIKit.UIView
 import kotlin.concurrent.AtomicReference
 
@@ -34,7 +35,8 @@ import kotlin.concurrent.AtomicReference
 class MultiBannerUIView : UIView(frame = CGRectZero.readValue()) {
 
     init {
-        backgroundColor = platform.UIKit.UIColor.clearColor
+        backgroundColor = UIColor.clearColor
+        opaque = false
     }
 
     private var waterfallConfig: WaterfallConfig? = null

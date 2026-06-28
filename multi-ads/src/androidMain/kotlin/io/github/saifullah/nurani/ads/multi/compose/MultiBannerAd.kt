@@ -5,7 +5,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import io.github.saifullah.nurani.ads.core.AdFailedRetryRule
 import io.github.saifullah.nurani.ads.core.AdLogger
@@ -15,7 +14,6 @@ import io.github.saifullah.nurani.ads.core.BannerAdListener
 import io.github.saifullah.nurani.ads.core.rememberBannerHeightController
 import io.github.saifullah.nurani.ads.multi.MultiBannerView
 import io.github.saifullah.nurani.ads.multi.models.MultiAdListener
-import io.github.saifullah.nurani.ads.multi.models.MultiAdsConfig
 import io.github.saifullah.nurani.ads.multi.models.MultiBannerAdConfig
 import io.github.saifullah.nurani.ads.multi.models.WaterfallConfig
 
@@ -115,23 +113,5 @@ actual fun MultiBannerAd(
         onRelease = { view ->
             view.destroy()
         }
-    )
-}
-
-@Composable
-actual fun MultiBannerAd(
-    multiAdsConfig: MultiAdsConfig,
-    config: MultiBannerAdConfig,
-    adListener: MultiAdListener?
-) {
-    val mergedConfig = config.copy(
-        testModeEnabled = multiAdsConfig.adConfig.isTestModeEnabled || config.testModeEnabled,
-        adLogger = config.adLogger ?: multiAdsConfig.adConfig.adLogger,
-        tag = config.tag ?: multiAdsConfig.adConfig.tag
-    )
-    MultiBannerAd(
-        waterfallConfig = multiAdsConfig.waterfallConfig ?: error("waterfallConfig is required"),
-        config = mergedConfig,
-        adListener = adListener
     )
 }

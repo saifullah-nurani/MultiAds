@@ -46,7 +46,6 @@ actual fun AdmobBannerAd(
         modifier = Modifier
             .fillMaxWidth()
             .height(heightController.animatedHeight()),
-        background = androidx.compose.ui.graphics.Color.Transparent,
         factory = {
             GADMobileAds.sharedInstance().startWithCompletionHandler(null)
             AdmobBannerUIView().apply {

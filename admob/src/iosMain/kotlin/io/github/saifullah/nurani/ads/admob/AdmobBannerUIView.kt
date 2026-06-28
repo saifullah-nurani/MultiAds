@@ -19,11 +19,13 @@ import io.github.saifullah.nurani.ads.core.Scheduler
 import kotlinx.cinterop.CValue
 import kotlinx.cinterop.ExperimentalForeignApi
 import kotlinx.cinterop.readValue
+import kotlinx.cinterop.useContents
 import platform.CoreGraphics.CGRectZero
 import platform.CoreGraphics.CGSizeMake
 import platform.Foundation.NSError
 import platform.UIKit.NSLayoutConstraint
 import platform.UIKit.UIApplication
+import platform.UIKit.UIColor
 import platform.UIKit.UIResponder
 import platform.UIKit.UIView
 import platform.UIKit.UIViewController
@@ -31,9 +33,10 @@ import platform.darwin.NSObject
 
 @OptIn(ExperimentalForeignApi::class)
 class AdmobBannerUIView : UIView(frame = CGRectZero.readValue()) {
-
+    
     init {
-        backgroundColor = platform.UIKit.UIColor.clearColor
+        backgroundColor = UIColor.clearColor
+        opaque = false
     }
 
     private val testAdUnitId = "ca-app-pub-3940256099942544/2435281174"
@@ -150,17 +153,16 @@ class AdmobBannerUIView : UIView(frame = CGRectZero.readValue()) {
             }
 
             addSubview(bannerView!!)
-
-            NSLayoutConstraint.activateConstraints(
-                listOf(
-                    bannerView!!.bottomAnchor.constraintEqualToAnchor(
-                        safeAreaLayoutGuide.bottomAnchor
-                    ),
-                    bannerView!!.centerXAnchor.constraintEqualToAnchor(
-                        centerXAnchor
+            currentAdSize.useContents {
+                NSLayoutConstraint.activateConstraints(
+                    listOf(
+                        bannerView!!.bottomAnchor.constraintEqualToAnchor(safeAreaLayoutGuide.bottomAnchor),
+                        bannerView!!.centerXAnchor.constraintEqualToAnchor(centerXAnchor),
+                        bannerView!!.widthAnchor.constraintEqualToConstant(size.width),
+                        bannerView!!.heightAnchor.constraintEqualToConstant(size.height)
                     )
                 )
-            )
+            }
         }
 
         bannerView!!.rootViewController =

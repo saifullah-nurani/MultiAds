@@ -18,6 +18,7 @@ import kotlinx.cinterop.readValue
 import platform.CoreGraphics.CGRectZero
 import platform.Foundation.NSError
 import platform.UIKit.NSLayoutConstraint
+import platform.UIKit.UIColor
 import platform.UIKit.UIView
 import platform.darwin.NSObject
 
@@ -25,7 +26,8 @@ import platform.darwin.NSObject
 class VungleBannerUIView : UIView(frame = CGRectZero.readValue()) {
 
     init {
-        backgroundColor = platform.UIKit.UIColor.clearColor
+        backgroundColor = UIColor.clearColor
+        opaque = false
     }
 
     var logger: AdLogger? = null

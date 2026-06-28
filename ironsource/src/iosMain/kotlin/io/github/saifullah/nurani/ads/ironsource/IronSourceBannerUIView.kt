@@ -20,6 +20,7 @@ import platform.Foundation.NSError
 import platform.UIKit.NSLayoutConstraint
 import platform.UIKit.UIApplication
 import platform.UIKit.UIResponder
+import platform.UIKit.UIColor
 import platform.UIKit.UIView
 import platform.UIKit.UIViewController
 import platform.darwin.NSObject
@@ -28,7 +29,8 @@ import platform.darwin.NSObject
 class IronSourceBannerUIView : UIView(frame = CGRectZero.readValue()) {
 
     init {
-        backgroundColor = platform.UIKit.UIColor.clearColor
+        backgroundColor = UIColor.clearColor
+        opaque = false
     }
 
     var logger: AdLogger? = null

@@ -43,7 +43,6 @@ actual fun MetaBannerAd(
         modifier = Modifier
             .fillMaxWidth()
             .height(heightController.animatedHeight()),
-        background = androidx.compose.ui.graphics.Color.Transparent,
         factory = {
             MetaBannerUIView().apply {
                 logger = adLogger

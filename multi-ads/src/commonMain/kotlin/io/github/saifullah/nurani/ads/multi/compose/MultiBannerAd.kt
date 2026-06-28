@@ -27,13 +27,6 @@ expect fun MultiBannerAd(
 
 @Composable
 expect fun MultiBannerAd(
-    multiAdsConfig: MultiAdsConfig,
-    config: MultiBannerAdConfig,
-    adListener: MultiAdListener? = null
-)
-
-@Composable
-expect fun MultiBannerAd(
     waterfallConfig: WaterfallConfig,
     config: MultiBannerAdConfig,
     adListener: MultiAdListener? = null

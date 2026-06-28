@@ -2,11 +2,12 @@ package io.github.saifullah.nurani.ads.multi.compose
 
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.interop.UIKitView
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.viewinterop.UIKitView
 import io.github.saifullah.nurani.ads.core.AdFailedRetryRule
 import io.github.saifullah.nurani.ads.core.AdLogger
 import io.github.saifullah.nurani.ads.core.AdSize
@@ -15,10 +16,11 @@ import io.github.saifullah.nurani.ads.core.BannerAdListener
 import io.github.saifullah.nurani.ads.core.rememberBannerHeightController
 import io.github.saifullah.nurani.ads.multi.MultiBannerUIView
 import io.github.saifullah.nurani.ads.multi.models.MultiAdListener
-import io.github.saifullah.nurani.ads.multi.models.MultiAdsConfig
 import io.github.saifullah.nurani.ads.multi.models.MultiBannerAdConfig
 import io.github.saifullah.nurani.ads.multi.models.WaterfallConfig
 import kotlinx.cinterop.ExperimentalForeignApi
+import platform.UIKit.UIColor
+import platform.UIKit.UIView
 
 @OptIn(ExperimentalForeignApi::class)
 @Composable
@@ -88,7 +90,6 @@ actual fun MultiBannerAd(
 
     UIKitView(
         modifier = modifier,
-        background = androidx.compose.ui.graphics.Color.Transparent,
         factory = {
             MultiBannerUIView().apply {
                 setWaterfallConfig(waterfallConfig)
@@ -99,7 +100,6 @@ actual fun MultiBannerAd(
                 setBannerAd(config.adSize)
                 setAdListener(bannerAdListener)
                 setMultiAdListener(adListener)
-                loadAd()
             }
         },
         update = { view ->
@@ -119,24 +119,5 @@ actual fun MultiBannerAd(
         onRelease = { view ->
             view.destroy()
         }
-    )
-}
-
-@OptIn(ExperimentalForeignApi::class)
-@Composable
-actual fun MultiBannerAd(
-    multiAdsConfig: MultiAdsConfig,
-    config: MultiBannerAdConfig,
-    adListener: MultiAdListener?
-) {
-    val mergedConfig = config.copy(
-        testModeEnabled = multiAdsConfig.adConfig.isTestModeEnabled || config.testModeEnabled,
-        adLogger = config.adLogger ?: multiAdsConfig.adConfig.adLogger,
-        tag = config.tag ?: multiAdsConfig.adConfig.tag
-    )
-    MultiBannerAd(
-        waterfallConfig = multiAdsConfig.waterfallConfig ?: error("waterfallConfig is required"),
-        config = mergedConfig,
-        adListener = adListener
     )
 }
