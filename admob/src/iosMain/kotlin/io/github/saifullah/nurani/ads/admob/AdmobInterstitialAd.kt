@@ -18,6 +18,7 @@ class AdmobInterstitialAd(
 ) : FullScreenAdState(uIViewController, Scheduler(), adConfig, TAG) {
 
     private var mInterstitialAd: GADInterstitialAd? = null
+    private var adDelegate: GoogleMobileAds.GADFullScreenContentDelegateProtocol? = null
     private val adUnitId: String = if (this.adConfig.isTestModeEnabled) TEST_AD_UNIT_ID else adUnitId
     private val adRequest: GADRequest = adRequest ?: GADRequest()
 
@@ -52,11 +53,14 @@ class AdmobInterstitialAd(
 
     override fun clean() {
         mInterstitialAd = null
+        adDelegate = null
     }
 
     private fun showAdNow(controller: UIViewController?) {
         if (isAdAvailable) {
-            mInterstitialAd!!.fullScreenContentDelegate = fullScreenContentCallback(adStateManager, adScreenContentCallback, ::clean)
+            val delegate = fullScreenContentCallback(adStateManager, adScreenContentCallback, ::clean)
+            adDelegate = delegate
+            mInterstitialAd!!.fullScreenContentDelegate = delegate
             mInterstitialAd!!.presentFromRootViewController(controller)
         }
     }

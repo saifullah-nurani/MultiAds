@@ -55,6 +55,7 @@ class AdmobBannerUIView : UIView(frame = CGRectZero.readValue()) {
     var isTestModeEnabled = false
     var adListener: BannerAdListener? = null
     private var requestTag: String? = null
+    private var adDelegate: NSObject? = null
 
     fun setAdUnitId(id: String) {
         adUnitId = id
@@ -111,7 +112,7 @@ class AdmobBannerUIView : UIView(frame = CGRectZero.readValue()) {
 
             bannerView!!.translatesAutoresizingMaskIntoConstraints = false
 
-            bannerView!!.delegate = object : NSObject(), GADBannerViewDelegateProtocol {
+            val delegate = object : NSObject(), GADBannerViewDelegateProtocol {
 
                 override fun bannerViewDidReceiveAd(bannerView: GADBannerView) {
                     log("Banner loaded")
@@ -137,6 +138,10 @@ class AdmobBannerUIView : UIView(frame = CGRectZero.readValue()) {
                     if (!keepAdSlot) hidden = true
                 }
 
+                override fun bannerViewWillDismissScreen(bannerView: GADBannerView) {
+                    log("Will dismiss screen")
+                }
+
                 override fun bannerViewDidRecordImpression(bannerView: GADBannerView) {
                     log("Ad impression")
 
@@ -151,7 +156,8 @@ class AdmobBannerUIView : UIView(frame = CGRectZero.readValue()) {
                     adListener?.onAdClicked()
                 }
             }
-
+            adDelegate = delegate
+            bannerView!!.delegate = delegate
             addSubview(bannerView!!)
             currentAdSize.useContents {
                 NSLayoutConstraint.activateConstraints(
@@ -200,6 +206,7 @@ class AdmobBannerUIView : UIView(frame = CGRectZero.readValue()) {
     fun destroy() {
         bannerView?.removeFromSuperview()
         bannerView = null
+        adDelegate = null
         adStateManager?.onDestroy()
         adStateManager = null
     }

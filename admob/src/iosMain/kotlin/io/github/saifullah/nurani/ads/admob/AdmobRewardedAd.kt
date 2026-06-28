@@ -18,6 +18,7 @@ class AdmobRewardedAd(
     adRequest: GADRequest?,
 ) : RewardedAdState(uIViewController, Scheduler(), adConfig, TAG) {
     private var mRewardedAd: GADRewardedAd? = null
+    private var adDelegate: GoogleMobileAds.GADFullScreenContentDelegateProtocol? = null
     private val adUnitId: String =
         if (this.adConfig.isTestModeEnabled) TEST_AD_UNIT_ID else adUnitId
     private val adRequest = adRequest ?: GADRequest()
@@ -52,6 +53,7 @@ class AdmobRewardedAd(
 
     override fun clean() {
         mRewardedAd = null
+        adDelegate = null
     }
 
     override fun showAd(owner: UIViewController) {
@@ -62,7 +64,9 @@ class AdmobRewardedAd(
     private fun showAd(controller: UIViewController?, onUserRewarded: () -> Unit = {}) {
         if (isAdAvailable) {
             println("AdmobRewardedAd [iOS]: showAd called, userRewardedCallback is $userRewardedCallback")
-            mRewardedAd!!.fullScreenContentDelegate = fullScreenContentCallback(adStateManager, adScreenContentCallback, ::clean)
+            val delegate = fullScreenContentCallback(adStateManager, adScreenContentCallback, ::clean)
+            adDelegate = delegate
+            mRewardedAd!!.fullScreenContentDelegate = delegate
             mRewardedAd!!.presentFromRootViewController(controller) {
                 println("AdmobRewardedAd [iOS]: presentFromRootViewController reward handler triggered")
                 onUserRewarded()

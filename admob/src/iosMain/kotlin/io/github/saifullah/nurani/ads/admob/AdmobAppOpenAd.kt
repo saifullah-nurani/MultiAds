@@ -19,6 +19,7 @@ class AdmobAppOpenAd(
 ) : FullScreenAdState(uIViewController, Scheduler(), adConfig, TAG), AppOpenAd {
 
     private var mAppOpenAd: GADAppOpenAd? = null
+    private var adDelegate: GoogleMobileAds.GADFullScreenContentDelegateProtocol? = null
     private val adUnitId: String = if (this.adConfig.isTestModeEnabled) TEST_AD_UNIT_ID else adUnitId
     private val adRequest: GADRequest = adRequest ?: GADRequest()
 
@@ -51,11 +52,14 @@ class AdmobAppOpenAd(
 
     override fun clean() {
         mAppOpenAd = null
+        adDelegate = null
     }
 
     private fun showAdNow(controller: UIViewController?) {
         if (isAdAvailable) {
-            mAppOpenAd!!.fullScreenContentDelegate = fullScreenContentCallback(adStateManager, adScreenContentCallback, ::clean)
+            val delegate = fullScreenContentCallback(adStateManager, adScreenContentCallback, ::clean)
+            adDelegate = delegate
+            mAppOpenAd!!.fullScreenContentDelegate = delegate
             mAppOpenAd!!.presentFromRootViewController(controller)
         }
     }

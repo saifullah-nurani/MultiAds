@@ -17,6 +17,7 @@ class AdmobRewardedInterstitialAd(
     adRequest: GADRequest?,
 ) : RewardedAdState(activity = uIViewController, Scheduler(), adConfig, TAG) {
     private var mRewardedInterstitialAd: GADRewardedInterstitialAd? = null
+    private var adDelegate: GoogleMobileAds.GADFullScreenContentDelegateProtocol? = null
     private val adUnitId: String =
         if (this.adConfig.isTestModeEnabled) TEST_AD_UNIT_ID else adUnitId
     private val adRequest = adRequest ?: GADRequest()
@@ -51,6 +52,7 @@ class AdmobRewardedInterstitialAd(
 
     override fun clean() {
         mRewardedInterstitialAd = null
+        adDelegate = null
     }
 
     override fun showAd(owner: UIViewController) {
@@ -63,8 +65,9 @@ class AdmobRewardedInterstitialAd(
 
     private fun showAd(controller: UIViewController?, onUserRewarded: () -> Unit = {}) {
         if (isAdAvailable) {
-            mRewardedInterstitialAd!!.fullScreenContentDelegate =
-                fullScreenContentCallback(adStateManager, adScreenContentCallback, ::clean)
+            val delegate = fullScreenContentCallback(adStateManager, adScreenContentCallback, ::clean)
+            adDelegate = delegate
+            mRewardedInterstitialAd!!.fullScreenContentDelegate = delegate
             mRewardedInterstitialAd!!.presentFromRootViewController(controller) {
                 onUserRewarded()
                 userRewardedCallback?.invoke()
