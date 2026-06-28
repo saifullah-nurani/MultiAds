@@ -192,7 +192,7 @@ fun BannerAdSection(bannerType: String, onBannerTypeChange: (String) -> Unit) {
                     adSize = bannerAdSize,
                     testModeEnabled = true, // Force test mode for sample
                     adLogger = null,
-                    adListener = null
+                    adListener = createBannerListener("AdMob")
                 )
             }
         }
@@ -208,19 +208,25 @@ fun FullScreenAdsSection() {
     val interstitialAd = rememberAdmobInterstitialAd(
         properties = PlaceHolderAdmobProperties,
         testModeEnabled = true,
-        adLogger = DefaultAdLogger()
+        adLogger = DefaultAdLogger(),
+        adLoadCallback = createLoadCallback("AdMob", "Interstitial"),
+        adContentCallback = createContentCallback("AdMob", "Interstitial")
     )
 
     val rewardedAd = rememberAdmobRewardedAd(
         properties = PlaceHolderAdmobProperties,
         testModeEnabled = true,
-        adLogger = DefaultAdLogger()
+        adLogger = DefaultAdLogger(),
+        adLoadCallback = createLoadCallback("AdMob", "Rewarded"),
+        adContentCallback = createContentCallback("AdMob", "Rewarded")
     )
 
     val rewardedInterstitialAd = rememberAdmobRewardedInterstitialAd(
         properties = PlaceHolderAdmobProperties,
         testModeEnabled = true,
-        adLogger = DefaultAdLogger()
+        adLogger = DefaultAdLogger(),
+        adLoadCallback = createLoadCallback("AdMob", "RewardedInterstitial"),
+        adContentCallback = createContentCallback("AdMob", "RewardedInterstitial")
     )
 
     Card(

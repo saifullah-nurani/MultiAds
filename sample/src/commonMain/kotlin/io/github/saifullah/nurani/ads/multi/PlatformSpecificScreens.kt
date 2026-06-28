@@ -32,6 +32,9 @@ import androidx.compose.ui.unit.dp
 import io.github.saifullah.nurani.ads.core.AdSize
 import io.github.saifullah.nurani.ads.core.BannerAd
 import io.github.saifullah.nurani.ads.core.compose.LocalPlatformActivity
+import io.github.saifullah.nurani.ads.core.AdLoadCallback
+import io.github.saifullah.nurani.ads.core.AdContentCallback
+import io.github.saifullah.nurani.ads.core.BannerAdListener
 
 // Meta (MAN) Imports
 import io.github.saifullah.nurani.ads.man.compose.MetaBannerAd
@@ -137,12 +140,16 @@ fun MetaTestScreen(onBack: () -> Unit) {
 
     val interstitialAd = rememberMetaInterstitialAd(
         properties = metaProperties,
-        testModeEnabled = false
+        testModeEnabled = false,
+        adLoadCallback = createLoadCallback("Meta", "Interstitial"),
+        adContentCallback = createContentCallback("Meta", "Interstitial")
     )
 
     val rewardedAd = rememberMetaRewardedAd(
         properties = metaRewardedProperties,
-        testModeEnabled = false
+        testModeEnabled = false,
+        adLoadCallback = createLoadCallback("Meta", "Rewarded"),
+        adContentCallback = createContentCallback("Meta", "Rewarded")
     )
 
     Scaffold(
@@ -163,7 +170,8 @@ fun MetaTestScreen(onBack: () -> Unit) {
                     properties = metaProperties,
                     adSize = BannerAd.Fixed(AdSize.BANNER),
                     testModeEnabled = true,
-                    expandWhenReady = true
+                    expandWhenReady = true,
+                    adListener = createBannerListener("Meta")
                 )
             }
 
@@ -207,12 +215,16 @@ fun AppLovinTestScreen(onBack: () -> Unit) {
 
     val interstitialAd = rememberAppLovinInterstitialAd(
         properties = appLovinProperties,
-        testModeEnabled = false
+        testModeEnabled = false,
+        adLoadCallback = createLoadCallback("AppLovin", "Interstitial"),
+        adContentCallback = createContentCallback("AppLovin", "Interstitial")
     )
 
     val rewardedAd = rememberAppLovinRewardedAd(
         properties = appLovinProperties,
-        testModeEnabled = false
+        testModeEnabled = false,
+        adLoadCallback = createLoadCallback("AppLovin", "Rewarded"),
+        adContentCallback = createContentCallback("AppLovin", "Rewarded")
     )
 
     Scaffold(
@@ -233,7 +245,8 @@ fun AppLovinTestScreen(onBack: () -> Unit) {
                     properties = appLovinProperties,
                     adSize = BannerAd.Fixed(AdSize.BANNER),
                     testModeEnabled = true,
-                    expandWhenReady = true
+                    expandWhenReady = true,
+                    adListener = createBannerListener("AppLovin")
                 )
             }
 
@@ -287,12 +300,16 @@ fun InMobiTestScreen(onBack: () -> Unit) {
 
     val interstitialAd = rememberInMobiInterstitialAd(
         properties = inmobiInterstitialProperties,
-        testModeEnabled = false
+        testModeEnabled = false,
+        adLoadCallback = createLoadCallback("InMobi", "Interstitial"),
+        adContentCallback = createContentCallback("InMobi", "Interstitial")
     )
 
     val rewardedAd = rememberInMobiRewardedAd(
         properties = inmobiRewardedProperties,
-        testModeEnabled = false
+        testModeEnabled = false,
+        adLoadCallback = createLoadCallback("InMobi", "Rewarded"),
+        adContentCallback = createContentCallback("InMobi", "Rewarded")
     )
 
     Scaffold(
@@ -313,7 +330,8 @@ fun InMobiTestScreen(onBack: () -> Unit) {
                     properties = inmobiProperties,
                     adSize = BannerAd.Fixed(AdSize.BANNER),
                     testModeEnabled = true,
-                    expandWhenReady = true
+                    expandWhenReady = true,
+                    adListener = createBannerListener("InMobi")
                 )
             }
 
@@ -367,12 +385,16 @@ fun VungleTestScreen(onBack: () -> Unit) {
 
     val interstitialAd = rememberVungleInterstitialAd(
         properties = vungleInterstitialProperties,
-        testModeEnabled = false
+        testModeEnabled = false,
+        adLoadCallback = createLoadCallback("Vungle", "Interstitial"),
+        adContentCallback = createContentCallback("Vungle", "Interstitial")
     )
 
     val rewardedAd = rememberVungleRewardedAd(
         properties = vungleRewardedProperties,
-        testModeEnabled = false
+        testModeEnabled = false,
+        adLoadCallback = createLoadCallback("Vungle", "Rewarded"),
+        adContentCallback = createContentCallback("Vungle", "Rewarded")
     )
 
     Scaffold(
@@ -393,7 +415,8 @@ fun VungleTestScreen(onBack: () -> Unit) {
                     properties = vungleProperties,
                     adSize = BannerAd.Fixed(AdSize.BANNER),
                     testModeEnabled = true,
-                    expandWhenReady = true
+                    expandWhenReady = true,
+                    adListener = createBannerListener("Vungle")
                 )
             }
 
@@ -447,12 +470,16 @@ fun PangleTestScreen(onBack: () -> Unit) {
 
     val interstitialAd = rememberPangleInterstitialAd(
         properties = pangleInterstitialProperties,
-        testModeEnabled = false
+        testModeEnabled = false,
+        adLoadCallback = createLoadCallback("Pangle", "Interstitial"),
+        adContentCallback = createContentCallback("Pangle", "Interstitial")
     )
 
     val rewardedAd = rememberPangleRewardedAd(
         properties = pangleRewardedProperties,
-        testModeEnabled = false
+        testModeEnabled = false,
+        adLoadCallback = createLoadCallback("Pangle", "Rewarded"),
+        adContentCallback = createContentCallback("Pangle", "Rewarded")
     )
 
     Scaffold(
@@ -473,7 +500,8 @@ fun PangleTestScreen(onBack: () -> Unit) {
                     properties = pangleProperties,
                     adSize = BannerAd.Fixed(AdSize.BANNER),
                     testModeEnabled = true,
-                    expandWhenReady = true
+                    expandWhenReady = true,
+                    adListener = createBannerListener("Pangle")
                 )
             }
 
@@ -527,12 +555,16 @@ fun IronSourceTestScreen(onBack: () -> Unit) {
 
     val interstitialAd = rememberIronSourceInterstitialAd(
         properties = ironsourceInterstitialProperties,
-        testModeEnabled = true
+        testModeEnabled = true,
+        adLoadCallback = createLoadCallback("IronSource", "Interstitial"),
+        adContentCallback = createContentCallback("IronSource", "Interstitial")
     )
 
     val rewardedAd = rememberIronSourceRewardedAd(
         properties = ironsourceRewardedProperties,
-        testModeEnabled = true
+        testModeEnabled = true,
+        adLoadCallback = createLoadCallback("IronSource", "Rewarded"),
+        adContentCallback = createContentCallback("IronSource", "Rewarded")
     )
 
     Scaffold(
@@ -553,7 +585,8 @@ fun IronSourceTestScreen(onBack: () -> Unit) {
                     properties = ironsourceProperties,
                     adSize = BannerAd.Fixed(AdSize.BANNER),
                     testModeEnabled = true,
-                    expandWhenReady = true
+                    expandWhenReady = true,
+                    adListener = createBannerListener("IronSource")
                 )
             }
 
