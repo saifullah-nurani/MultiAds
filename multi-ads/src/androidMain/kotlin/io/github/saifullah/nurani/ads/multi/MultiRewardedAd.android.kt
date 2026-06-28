@@ -118,15 +118,21 @@ actual class MultiRewardedAd actual constructor(
     }
 
     actual fun setOnUserRewarded(callback: () -> Unit) {
+        println("MultiRewardedAd [Android]: setOnUserRewarded called with callback: $callback")
         this.userRewardedCallback = callback
     }
 
     actual fun showAd(activity: PlatformActivity) {
+        println("MultiRewardedAd [Android]: showAd(activity) called")
         showAd(activity) {}
     }
 
     actual fun showAd(activity: PlatformActivity, onUserRewarded: () -> Unit) {
-        val ad = activeAd ?: return
+        println("MultiRewardedAd [Android]: showAd(activity, onUserRewarded) called")
+        val ad = activeAd ?: run {
+            println("MultiRewardedAd [Android]: activeAd is null, cannot show")
+            return
+        }
 
         ad.setAdContentCallback(object : AdContentCallback {
             override fun onAdFailedToShow(error: AdError?) {
@@ -316,9 +322,16 @@ actual class MultiRewardedAd actual constructor(
     }
 
     private fun showRewardedAdNetwork(ad: AdState, activity: Activity, onUserRewarded: () -> Unit) {
+        println("MultiRewardedAd [Android]: showRewardedAdNetwork starting for network class: ${ad::class.simpleName}")
         val finalOnUserRewarded = {
+            println("MultiRewardedAd [Android]: finalOnUserRewarded triggered")
             onUserRewarded()
-            userRewardedCallback?.invoke()
+            if (userRewardedCallback != null) {
+                println("MultiRewardedAd [Android]: invoking userRewardedCallback")
+                userRewardedCallback?.invoke()
+            } else {
+                println("MultiRewardedAd [Android]: userRewardedCallback is null!")
+            }
             Unit
         }
         when (ad) {
