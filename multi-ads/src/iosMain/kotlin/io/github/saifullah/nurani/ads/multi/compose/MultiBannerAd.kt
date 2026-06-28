@@ -88,6 +88,7 @@ actual fun MultiBannerAd(
 
     UIKitView(
         modifier = modifier,
+        background = androidx.compose.ui.graphics.Color.Transparent,
         factory = {
             MultiBannerUIView().apply {
                 setWaterfallConfig(waterfallConfig)

@@ -8,7 +8,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.viewinterop.UIKitView
+import androidx.compose.ui.interop.UIKitView
 import io.github.saifullah.nurani.ads.ironsource.IronSourceBannerUIView
 import io.github.saifullah.nurani.ads.core.AdFailedRetryRule
 import io.github.saifullah.nurani.ads.core.AdLogger
@@ -43,7 +43,7 @@ actual fun IronSourceBannerAd(
         modifier = Modifier
             .fillMaxWidth()
             .height(heightController.animatedHeight()),
-
+        background = androidx.compose.ui.graphics.Color.Transparent,
         factory = {
             IronSourceBannerUIView().apply {
                 logger = adLogger
