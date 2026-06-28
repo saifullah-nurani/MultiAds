@@ -17,17 +17,20 @@ fun fullScreenContentCallback(
 ): GADFullScreenContentDelegateProtocol =
     object : NSObject(), GADFullScreenContentDelegateProtocol {
         override fun adDidDismissFullScreenContent(ad: GADFullScreenPresentingAdProtocol) {
+            println("FullScreenContentCallback [iOS]: adDidDismissFullScreenContent")
             cleanUp()
             adStateManager.onAdDismissed()
             adContentCallback?.onAdDismissed()
         }
 
         override fun adDidRecordClick(ad: GADFullScreenPresentingAdProtocol) {
+            println("FullScreenContentCallback [iOS]: adDidRecordClick")
             adStateManager.onAdClicked()
             adContentCallback?.onAdClicked()
         }
 
         override fun adDidRecordImpression(ad: GADFullScreenPresentingAdProtocol) {
+            println("FullScreenContentCallback [iOS]: adDidRecordImpression")
             adStateManager.onAdDisplayed()
             adContentCallback?.onAdDisplayed()
         }
@@ -36,15 +39,20 @@ fun fullScreenContentCallback(
             ad: GADFullScreenPresentingAdProtocol,
             didFailToPresentFullScreenContentWithError: NSError
         ) {
+            println("FullScreenContentCallback [iOS]: didFailToPresentFullScreenContentWithError: $didFailToPresentFullScreenContentWithError")
             cleanUp()
             val error = didFailToPresentFullScreenContentWithError.adErrorFrom()
             adStateManager.onAdFailedToShow(error)
             adContentCallback?.onAdFailedToShow(error)
         }
 
-        override fun adWillDismissFullScreenContent(ad: GADFullScreenPresentingAdProtocol) {
+        override fun adWillPresentFullScreenContent(ad: GADFullScreenPresentingAdProtocol) {
+            println("FullScreenContentCallback [iOS]: adWillPresentFullScreenContent")
             adStateManager.onAdShowed()
             adContentCallback?.onAdShowed()
         }
 
+        override fun adWillDismissFullScreenContent(ad: GADFullScreenPresentingAdProtocol) {
+            println("FullScreenContentCallback [iOS]: adWillDismissFullScreenContent")
+        }
     }

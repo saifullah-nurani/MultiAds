@@ -63,11 +63,16 @@ class AdmobRewardedAd(
 
     private fun showAd(controller: UIViewController?, onUserRewarded: () -> Unit = {}) {
         if (isAdAvailable) {
+            val viewController = controller ?: platform.UIKit.UIApplication.sharedApplication.keyWindow?.rootViewController
+            if (viewController == null) {
+                println("AdmobRewardedAd [iOS]: Cannot present ad, rootViewController is null.")
+                return
+            }
             println("AdmobRewardedAd [iOS]: showAd called, userRewardedCallback is $userRewardedCallback")
             val delegate = fullScreenContentCallback(adStateManager, adScreenContentCallback, ::clean)
             adDelegate = delegate
             mRewardedAd!!.fullScreenContentDelegate = delegate
-            mRewardedAd!!.presentFromRootViewController(controller) {
+            mRewardedAd!!.presentFromRootViewController(viewController) {
                 println("AdmobRewardedAd [iOS]: presentFromRootViewController reward handler triggered")
                 onUserRewarded()
                 userRewardedCallback?.invoke()
@@ -80,7 +85,7 @@ class AdmobRewardedAd(
     }
 
     override fun showAd(onUserRewarded: () -> Unit) {
-        showAd(controller = null, onUserRewarded = {})
+        showAd(controller = null, onUserRewarded = onUserRewarded)
     }
 
     override fun showAd(

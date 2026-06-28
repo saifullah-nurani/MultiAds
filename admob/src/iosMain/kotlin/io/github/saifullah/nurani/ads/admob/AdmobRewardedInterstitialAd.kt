@@ -65,10 +65,15 @@ class AdmobRewardedInterstitialAd(
 
     private fun showAd(controller: UIViewController?, onUserRewarded: () -> Unit = {}) {
         if (isAdAvailable) {
+            val viewController = controller ?: platform.UIKit.UIApplication.sharedApplication.keyWindow?.rootViewController
+            if (viewController == null) {
+                println("AdmobRewardedInterstitialAd [iOS]: Cannot present ad, rootViewController is null.")
+                return
+            }
             val delegate = fullScreenContentCallback(adStateManager, adScreenContentCallback, ::clean)
             adDelegate = delegate
             mRewardedInterstitialAd!!.fullScreenContentDelegate = delegate
-            mRewardedInterstitialAd!!.presentFromRootViewController(controller) {
+            mRewardedInterstitialAd!!.presentFromRootViewController(viewController) {
                 onUserRewarded()
                 userRewardedCallback?.invoke()
             }

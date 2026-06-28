@@ -102,7 +102,10 @@ class InMobiRewardedAd(
     }
 
     override fun showAd(onUserRewarded: () -> Unit) {
-        // Must use showAd(owner) instead
+        val root = platform.UIKit.UIApplication.sharedApplication.keyWindow?.rootViewController
+        if (root != null && isAdAvailable) {
+            showAd(root, onUserRewarded)
+        }
     }
 
     override fun showAd(owner: UIViewController, onUserRewarded: () -> Unit) {
@@ -113,6 +116,11 @@ class InMobiRewardedAd(
     }
 
     override fun tryShowAd(): Boolean {
+        val root = platform.UIKit.UIApplication.sharedApplication.keyWindow?.rootViewController
+        if (root != null && isAdAvailable) {
+            showAd(root, {})
+            return true
+        }
         return false
     }
 

@@ -150,6 +150,30 @@ actual class MultiInterstitialAd actual constructor(
     actual fun tryShowAd(): Boolean {
         if (!isAdAvailable) return false
         val ad = activeAd ?: return false
+        
+        ad.setAdContentCallback(object : AdContentCallback {
+            override fun onAdFailedToShow(error: AdError?) {
+                adContentListener?.onAdFailedToShow(error)
+                activeNetwork?.let { multiAdContentListener?.onAdFailedToShow(it, error) }
+            }
+            override fun onAdShowed() {
+                adContentListener?.onAdShowed()
+                activeNetwork?.let { multiAdContentListener?.onAdShowed(it) }
+            }
+            override fun onAdDisplayed() {
+                adContentListener?.onAdDisplayed()
+                activeNetwork?.let { multiAdContentListener?.onAdDisplayed(it) }
+            }
+            override fun onAdDismissed() {
+                adContentListener?.onAdDismissed()
+                activeNetwork?.let { multiAdContentListener?.onAdDismissed(it) }
+            }
+            override fun onAdClicked() {
+                adContentListener?.onAdClicked()
+                activeNetwork?.let { multiAdContentListener?.onAdClicked(it) }
+            }
+        })
+
         return tryShowAdNetwork(ad)
     }
 

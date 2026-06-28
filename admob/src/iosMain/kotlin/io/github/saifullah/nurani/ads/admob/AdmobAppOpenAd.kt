@@ -57,10 +57,15 @@ class AdmobAppOpenAd(
 
     private fun showAdNow(controller: UIViewController?) {
         if (isAdAvailable) {
+            val viewController = controller ?: platform.UIKit.UIApplication.sharedApplication.keyWindow?.rootViewController
+            if (viewController == null) {
+                println("AdmobAppOpenAd [iOS]: Cannot present ad, rootViewController is null.")
+                return
+            }
             val delegate = fullScreenContentCallback(adStateManager, adScreenContentCallback, ::clean)
             adDelegate = delegate
             mAppOpenAd!!.fullScreenContentDelegate = delegate
-            mAppOpenAd!!.presentFromRootViewController(controller)
+            mAppOpenAd!!.presentFromRootViewController(viewController)
         }
     }
 

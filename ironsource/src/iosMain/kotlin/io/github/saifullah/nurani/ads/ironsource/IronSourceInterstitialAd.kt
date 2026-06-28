@@ -95,6 +95,11 @@ class IronSourceInterstitialAd(
     }
 
     override fun tryShowAd(): Boolean {
+        val root = platform.UIKit.UIApplication.sharedApplication.keyWindow?.rootViewController
+        if (root != null && isAdAvailable) {
+            showAd(root)
+            return true
+        }
         return false
     }
 

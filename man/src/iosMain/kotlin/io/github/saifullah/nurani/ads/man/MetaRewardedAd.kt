@@ -86,6 +86,10 @@ class MetaRewardedAd(
     }
 
     override fun showAd(onUserRewarded: () -> Unit) {
+        val root = platform.UIKit.UIApplication.sharedApplication.keyWindow?.rootViewController
+        if (root != null && isAdAvailable) {
+            showAd(root, onUserRewarded)
+        }
     }
 
     override fun showAd(owner: UIViewController, onUserRewarded: () -> Unit) {
@@ -96,6 +100,11 @@ class MetaRewardedAd(
     }
 
     override fun tryShowAd(): Boolean {
+        val root = platform.UIKit.UIApplication.sharedApplication.keyWindow?.rootViewController
+        if (root != null && isAdAvailable) {
+            showAd(root, {})
+            return true
+        }
         return false
     }
 

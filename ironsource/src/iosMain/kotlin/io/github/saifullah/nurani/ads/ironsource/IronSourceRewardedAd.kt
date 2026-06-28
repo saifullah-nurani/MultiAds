@@ -101,7 +101,12 @@ class IronSourceRewardedAd(
         showAd(owner, onUserRewarded = {})
     }
 
-    override fun showAd(onUserRewarded: () -> Unit) {}
+    override fun showAd(onUserRewarded: () -> Unit) {
+        val root = platform.UIKit.UIApplication.sharedApplication.keyWindow?.rootViewController
+        if (root != null && isAdAvailable) {
+            showAd(root, onUserRewarded)
+        }
+    }
 
     override fun showAd(owner: UIViewController, onUserRewarded: () -> Unit) {
         if (isAdAvailable) {
@@ -111,6 +116,11 @@ class IronSourceRewardedAd(
     }
 
     override fun tryShowAd(): Boolean {
+        val root = platform.UIKit.UIApplication.sharedApplication.keyWindow?.rootViewController
+        if (root != null && isAdAvailable) {
+            showAd(root, {})
+            return true
+        }
         return false
     }
 
