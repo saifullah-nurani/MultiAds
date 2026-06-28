@@ -18,6 +18,7 @@ import io.github.saifullah.nurani.ads.core.adConfig
 import io.github.saifullah.nurani.ads.core.AdLifecycleObserver
 import io.github.saifullah.nurani.ads.core.compose.PlatformContext
 import io.github.saifullah.nurani.ads.core.compose.PlatformActivity
+import io.github.saifullah.nurani.ads.core.utils.DefaultAdLogger
 import io.github.saifullah.nurani.ads.core.utils.ContextUtils
 import io.github.saifullah.nurani.ads.multi.models.AdNetwork
 import io.github.saifullah.nurani.ads.multi.models.AdNetworkConfig
@@ -178,7 +179,7 @@ actual class MultiAppOpenAd actual constructor(
         val adConfigObj = adConfig {
             isTestModeEnabled = testModeEnabled
             tag = this@MultiAppOpenAd.tag ?: config.network.name
-            adLogger = io.github.saifullah.nurani.ads.core.utils.DefaultAdLogger(config.network.name)
+            adLogger = DefaultAdLogger(config.network.name)
         }
 
         val ad = createAd(config, adConfigObj) ?: run {

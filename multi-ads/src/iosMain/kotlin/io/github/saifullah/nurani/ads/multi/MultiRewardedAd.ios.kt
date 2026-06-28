@@ -18,6 +18,7 @@ import io.github.saifullah.nurani.ads.core.adConfig
 import io.github.saifullah.nurani.ads.core.AdLifecycleObserver
 import io.github.saifullah.nurani.ads.core.compose.PlatformContext
 import io.github.saifullah.nurani.ads.core.compose.PlatformActivity
+import io.github.saifullah.nurani.ads.core.utils.DefaultAdLogger
 import io.github.saifullah.nurani.ads.inmobi.InMobiRewardedAd
 import io.github.saifullah.nurani.ads.inmobi.InMobiAds
 import io.github.saifullah.nurani.ads.ironsource.IronSourceRewardedAd
@@ -205,7 +206,7 @@ actual class MultiRewardedAd actual constructor(
         val adConfigObj = adConfig {
             isTestModeEnabled = testModeEnabled
             tag = this@MultiRewardedAd.tag ?: config.network.name
-            adLogger = io.github.saifullah.nurani.ads.core.utils.DefaultAdLogger(config.network.name)
+            adLogger = DefaultAdLogger(config.network.name)
         }
 
         val ad = createAd(config, adConfigObj) ?: run {

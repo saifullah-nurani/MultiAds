@@ -18,6 +18,7 @@ import io.github.saifullah.nurani.ads.core.AdLifecycleObserver
 import io.github.saifullah.nurani.ads.core.compose.PlatformContext
 import io.github.saifullah.nurani.ads.core.compose.PlatformActivity
 import io.github.saifullah.nurani.ads.core.utils.ContextUtils
+import io.github.saifullah.nurani.ads.core.utils.DefaultAdLogger
 import io.github.saifullah.nurani.ads.inmobi.InMobiInterstitialAd
 import io.github.saifullah.nurani.ads.inmobi.InMobiAds
 import io.github.saifullah.nurani.ads.ironsource.IronSourceInterstitialAd
@@ -187,7 +188,7 @@ actual class MultiInterstitialAd actual constructor(
         val adConfigObj = adConfig {
             isTestModeEnabled = testModeEnabled
             tag = this@MultiInterstitialAd.tag ?: config.network.name
-            adLogger = io.github.saifullah.nurani.ads.core.utils.DefaultAdLogger(config.network.name)
+            adLogger = DefaultAdLogger(config.network.name)
         }
 
         val ad = createAd(config, adConfigObj) ?: run {
