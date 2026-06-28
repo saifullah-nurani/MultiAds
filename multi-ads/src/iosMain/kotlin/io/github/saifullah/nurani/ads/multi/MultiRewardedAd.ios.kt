@@ -204,7 +204,8 @@ actual class MultiRewardedAd actual constructor(
 
         val adConfigObj = adConfig {
             isTestModeEnabled = testModeEnabled
-            tag = this@MultiRewardedAd.tag
+            tag = this@MultiRewardedAd.tag ?: config.network.name
+            adLogger = io.github.saifullah.nurani.ads.core.utils.DefaultAdLogger(config.network.name)
         }
 
         val ad = createAd(config, adConfigObj) ?: run {

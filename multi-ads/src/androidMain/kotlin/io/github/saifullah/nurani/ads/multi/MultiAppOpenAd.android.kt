@@ -177,7 +177,8 @@ actual class MultiAppOpenAd actual constructor(
 
         val adConfigObj = adConfig {
             isTestModeEnabled = testModeEnabled
-            tag = this@MultiAppOpenAd.tag
+            tag = this@MultiAppOpenAd.tag ?: config.network.name
+            adLogger = io.github.saifullah.nurani.ads.core.utils.DefaultAdLogger(config.network.name)
         }
 
         val ad = createAd(config, adConfigObj) ?: run {

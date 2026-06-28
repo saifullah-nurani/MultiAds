@@ -27,9 +27,9 @@ class AdmobInterstitialAd(
     private val interstitialAdLoadCallback: InterstitialAdLoadCallback =
         object : InterstitialAdLoadCallback() {
             override fun onAdLoaded(interstitialAd: InterstitialAd) {
+                mInterstitialAd = interstitialAd
                 adStateManager.onAdLoaded()
                 adLoadListener?.onAdLoaded()
-                mInterstitialAd = interstitialAd
             }
 
             override fun onAdFailedToLoad(loadAdError: LoadAdError) {

@@ -32,9 +32,9 @@ class AdmobRewardedAd(
     private val rewardedAdLoadCallback: RewardedAdLoadCallback =
         object : RewardedAdLoadCallback() {
             override fun onAdLoaded(rewardedAd: RewardedAd) {
+                mRewarded = rewardedAd
                 adStateManager.onAdLoaded()
                 adLoadListener?.onAdLoaded()
-                mRewarded = rewardedAd
             }
 
             override fun onAdFailedToLoad(loadAdError: LoadAdError) {

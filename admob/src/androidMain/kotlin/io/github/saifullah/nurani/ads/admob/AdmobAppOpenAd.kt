@@ -26,9 +26,9 @@ class AdmobAppOpenAd(
 
     private val appOpenAdLoadCallback = object : GmsAppOpenAd.AppOpenAdLoadCallback() {
         override fun onAdLoaded(appOpenAd: GmsAppOpenAd) {
+            mAppOpenAd = appOpenAd
             adStateManager.onAdLoaded()
             adLoadListener?.onAdLoaded()
-            mAppOpenAd = appOpenAd
         }
 
         override fun onAdFailedToLoad(loadAdError: LoadAdError) {
