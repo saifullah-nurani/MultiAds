@@ -297,7 +297,7 @@ class IronSourceBannerView @JvmOverloads constructor(
     }
 
     companion object {
-        const val TEST_AD_UNIT_ID: String = "ch132493tceqkqsg"
+        const val TEST_AD_UNIT_ID: String = "ll7laet2x8ilqdee"
         const val TAG: String = "IronSourceBannerView"
     }
 }

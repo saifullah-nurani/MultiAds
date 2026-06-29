@@ -62,7 +62,7 @@ fun MultiAdsWaterfallScreen(onBack: () -> Unit) {
     val inmobiInterstitialId = if (isIos) 10000718549L else 10000718282L
     val inmobiRewardedId = if (isIos) 10000718552L else 10000718283L
 
-    val ironSourceBannerId = if (isIos) "24965124" else "ch132493tceqkqsg"
+    val ironSourceBannerId = if (isIos) "ch132493tceqkqsg" else "ll7laet2x8ilqdee"
     val ironSourceInterstitialId = if (isIos) "re3gip7b41tqb2tm" else "i51skyerg3iiyyaq"
     val ironSourceRewardedId = if (isIos) "1hv15us4p1j74q7j" else "2452nmjt1t4g9z33"
 

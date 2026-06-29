@@ -90,7 +90,7 @@ class IronSourceBannerUIView : UIView(frame = CGRectZero.readValue()) {
         adStateManager!!.loadAd()
     }
 
-    private val testAdUnitId = "24965124"
+    private val testAdUnitId = "ch132493tceqkqsg"
 
     private fun loadAdInternally() {
         if (!IronSourceAds.isInitialized()) {

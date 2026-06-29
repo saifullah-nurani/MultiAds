@@ -46,6 +46,8 @@ class VungleBannerUIView : UIView(frame = CGRectZero.readValue()) {
     private var adDelegate: NSObject? = null
     private val bannerTag = "VungleBannerUIView"
     private var requestTag: String? = null
+    private var isBannerReadyToPresent = false
+    private var isBannerPresented = false
 
     fun setPlacementId(id: String) {
         placementId = id
@@ -104,8 +106,10 @@ class VungleBannerUIView : UIView(frame = CGRectZero.readValue()) {
             val delegate = object : NSObject(), VungleBannerDelegateProtocol {
                 override fun bannerAdDidLoad(banner: VungleBanner) {
                     log("Banner loaded")
+                    isBannerReadyToPresent = true
                     adStateManager?.onAdLoaded()
                     adListener?.onAdLoaded()
+                    presentBannerIfPossible()
                     fadeIn()
                 }
 
@@ -119,28 +123,9 @@ class VungleBannerUIView : UIView(frame = CGRectZero.readValue()) {
                 override fun bannerAdWillPresent(banner: VungleBanner) {}
 
                 override fun bannerAdDidPresent(banner: VungleBanner) {
+                    isBannerPresented = true
                     adStateManager?.onAdDisplayed()
-                    subviews.forEach { 
-                        val view = it as? UIView
-                        if (view != null && view.translatesAutoresizingMaskIntoConstraints) {
-                            view.translatesAutoresizingMaskIntoConstraints = false
-                            val constraints = mutableListOf(
-                                view.bottomAnchor.constraintEqualToAnchor(safeAreaLayoutGuide.bottomAnchor),
-                                view.centerXAnchor.constraintEqualToAnchor(centerXAnchor)
-                            )
-                            if (currentAdSize.width > 0) {
-                                constraints.add(view.widthAnchor.constraintEqualToConstant(currentAdSize.width.toDouble()))
-                            } else {
-                                constraints.add(view.widthAnchor.constraintEqualToAnchor(widthAnchor))
-                            }
-                            if (currentAdSize.height > 0) {
-                                constraints.add(view.heightAnchor.constraintEqualToConstant(currentAdSize.height.toDouble()))
-                            } else {
-                                constraints.add(view.heightAnchor.constraintEqualToConstant(50.0))
-                            }
-                            NSLayoutConstraint.activateConstraints(constraints)
-                        }
-                    }
+                    layoutEmbeddedBannerViews()
                 }
 
                 override fun bannerAdDidFailToPresent(banner: VungleBanner, withError: NSError) {
@@ -161,14 +146,19 @@ class VungleBannerUIView : UIView(frame = CGRectZero.readValue()) {
             }
             adDelegate = delegate
             bannerView!!.setDelegate(delegate)
-            
-            bannerView!!.presentOn(this)
         }
         bannerView!!.load(null)
     }
 
     override fun didMoveToWindow() {
         super.didMoveToWindow()
+        presentBannerIfPossible()
+    }
+
+    override fun layoutSubviews() {
+        super.layoutSubviews()
+        layoutEmbeddedBannerViews()
+        presentBannerIfPossible()
     }
 
     private fun fadeIn() {
@@ -183,7 +173,12 @@ class VungleBannerUIView : UIView(frame = CGRectZero.readValue()) {
     }
 
     fun destroy() {
+        subviews.forEach { child ->
+            (child as? UIView)?.removeFromSuperview()
+        }
         bannerView = null
+        isBannerReadyToPresent = false
+        isBannerPresented = false
         adDelegate = null
         adStateManager?.onDestroy()
         adStateManager = null
@@ -191,5 +186,21 @@ class VungleBannerUIView : UIView(frame = CGRectZero.readValue()) {
 
     private fun log(msg: String) {
         logger?.d("$bannerTag : $msg")
+    }
+
+    private fun layoutEmbeddedBannerViews() {
+        subviews.forEach { child ->
+            val view = child as? UIView ?: return@forEach
+            view.translatesAutoresizingMaskIntoConstraints = true
+            view.setFrame(bounds)
+        }
+    }
+
+    private fun presentBannerIfPossible() {
+        val banner = bannerView ?: return
+        if (!isBannerReadyToPresent || isBannerPresented) return
+        if (window == null) return
+        banner.presentOn(this)
+        layoutEmbeddedBannerViews()
     }
 }

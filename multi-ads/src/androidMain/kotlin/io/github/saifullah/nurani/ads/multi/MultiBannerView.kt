@@ -162,6 +162,7 @@ class MultiBannerView @JvmOverloads constructor(
             is InMobiBannerView -> {
                 view.setPlacementId(config.adUnitId.toLong())
                 bannerAdSize?.let { view.setBannerAd(it) }
+                view.setTestModeEnabled(testMode)
                 view.retryRule = adFailedAdRetryRule
                 view.setAdLogger(adLogger)
                 view.setRequestTag(requestTag)
@@ -170,6 +171,7 @@ class MultiBannerView @JvmOverloads constructor(
             is PangleBannerView -> {
                 view.setAdUnitId(config.adUnitId)
                 bannerAdSize?.let { view.setBannerAd(it) }
+                view.setTestModeEnabled(testMode)
                 view.retryRule = adFailedAdRetryRule
                 view.setAdLogger(adLogger)
                 view.setRequestTag(requestTag)

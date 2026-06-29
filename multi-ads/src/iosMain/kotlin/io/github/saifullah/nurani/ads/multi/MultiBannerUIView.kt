@@ -90,7 +90,10 @@ class MultiBannerUIView : UIView(frame = CGRectZero.readValue()) {
         val config = waterfallConfig ?: return
         
         destroyAllLoadingViews()
-        activeAdView?.removeFromSuperview()
+        activeAdView?.let { view ->
+            view.removeFromSuperview()
+            destroyAdView(view)
+        }
         activeAdView = null
         
         pendingNetworks.clear()
@@ -124,6 +127,7 @@ class MultiBannerUIView : UIView(frame = CGRectZero.readValue()) {
             is AdmobBannerUIView -> {
                 view.setAdUnitId(config.adUnitId)
                 bannerAdSize?.let { view.setBannerAd(it) }
+                view.isTestModeEnabled = testMode
                 view.setRequestTag(requestTag)
                 view.adListener = createChildListener(config, view)
                 view.retryRule = adFailedAdRetryRule
@@ -132,6 +136,7 @@ class MultiBannerUIView : UIView(frame = CGRectZero.readValue()) {
             is AppLovinBannerUIView -> {
                 view.setAdUnitId(config.adUnitId)
                 bannerAdSize?.let { view.setBannerAd(it) }
+                view.isTestModeEnabled = testMode
                 view.setRequestTag(requestTag)
                 view.adListener = createChildListener(config, view)
                 view.retryRule = adFailedAdRetryRule
@@ -140,6 +145,7 @@ class MultiBannerUIView : UIView(frame = CGRectZero.readValue()) {
             is MetaBannerUIView -> {
                 view.setPlacementId(config.adUnitId)
                 bannerAdSize?.let { view.setBannerAd(it) }
+                view.isTestModeEnabled = testMode
                 view.setRequestTag(requestTag)
                 view.adListener = createChildListener(config, view)
                 view.retryRule = adFailedAdRetryRule
@@ -148,6 +154,7 @@ class MultiBannerUIView : UIView(frame = CGRectZero.readValue()) {
             is VungleBannerUIView -> {
                 view.setPlacementId(config.adUnitId)
                 bannerAdSize?.let { view.setBannerAd(it) }
+                view.isTestModeEnabled = testMode
                 view.setRequestTag(requestTag)
                 view.adListener = createChildListener(config, view)
                 view.retryRule = adFailedAdRetryRule
@@ -156,6 +163,7 @@ class MultiBannerUIView : UIView(frame = CGRectZero.readValue()) {
             is InMobiBannerUIView -> {
                 view.setPlacementId(config.adUnitId.toLongOrNull() ?: 0L)
                 bannerAdSize?.let { view.setBannerAd(it) }
+                view.isTestModeEnabled = testMode
                 view.setRequestTag(requestTag)
                 view.adListener = createChildListener(config, view)
                 view.retryRule = adFailedAdRetryRule
@@ -164,6 +172,7 @@ class MultiBannerUIView : UIView(frame = CGRectZero.readValue()) {
             is PangleBannerUIView -> {
                 view.setAdUnitId(config.adUnitId)
                 bannerAdSize?.let { view.setBannerAd(it) }
+                view.isTestModeEnabled = testMode
                 view.setRequestTag(requestTag)
                 view.adListener = createChildListener(config, view)
                 view.retryRule = adFailedAdRetryRule
@@ -172,6 +181,7 @@ class MultiBannerUIView : UIView(frame = CGRectZero.readValue()) {
             is IronSourceBannerUIView -> {
                 view.setPlacementId(config.adUnitId)
                 bannerAdSize?.let { view.setBannerAd(it) }
+                view.isTestModeEnabled = testMode
                 view.setRequestTag(requestTag)
                 view.adListener = createChildListener(config, view)
                 view.retryRule = adFailedAdRetryRule
@@ -182,6 +192,7 @@ class MultiBannerUIView : UIView(frame = CGRectZero.readValue()) {
         loadingViews[config] = view
         view.hidden = true
         addSubview(view)
+        layoutChildView(view)
         
         when (view) {
             is AdmobBannerUIView -> view.loadAd()
@@ -200,6 +211,7 @@ class MultiBannerUIView : UIView(frame = CGRectZero.readValue()) {
                 multiAdListener?.onAdLoaded(config)
                 if (isDestroyed.value || activeAdView != null) {
                     view.removeFromSuperview()
+                    destroyAdView(view)
                     return
                 }
                 
@@ -223,6 +235,7 @@ class MultiBannerUIView : UIView(frame = CGRectZero.readValue()) {
                 
                 loadingViews.remove(config)
                 view.removeFromSuperview()
+                destroyAdView(view)
                 
                 if (activeAdView == null) {
                     val loadedLowerPriority = loadingViews.entries
@@ -298,14 +311,42 @@ class MultiBannerUIView : UIView(frame = CGRectZero.readValue()) {
     }
 
     private fun destroyAllLoadingViews() {
-        loadingViews.values.forEach { it.removeFromSuperview() }
+        loadingViews.values.forEach { view ->
+            view.removeFromSuperview()
+            destroyAdView(view)
+        }
         loadingViews.clear()
+    }
+
+    private fun destroyAdView(view: UIView) {
+        when (view) {
+            is AdmobBannerUIView -> view.destroy()
+            is AppLovinBannerUIView -> view.destroy()
+            is MetaBannerUIView -> view.destroy()
+            is VungleBannerUIView -> view.destroy()
+            is InMobiBannerUIView -> view.destroy()
+            is PangleBannerUIView -> view.destroy()
+            is IronSourceBannerUIView -> view.destroy()
+        }
+    }
+
+    private fun layoutChildView(view: UIView) {
+        view.setFrame(bounds)
+    }
+
+    override fun layoutSubviews() {
+        super.layoutSubviews()
+        activeAdView?.let(::layoutChildView)
+        loadingViews.values.forEach(::layoutChildView)
     }
 
     fun destroy() {
         isDestroyed.value = true
         destroyAllLoadingViews()
-        activeAdView?.removeFromSuperview()
+        activeAdView?.let { view ->
+            view.removeFromSuperview()
+            destroyAdView(view)
+        }
         activeAdView = null
         pendingNetworks.clear()
     }
