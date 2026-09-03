@@ -93,7 +93,8 @@ sealed class AdRefreshStrategy {
      * @param intervalMillis refresh interval in milliseconds
      * @param preserveOnFailure whether refresh continues after failure
      */
-    class Periodic internal constructor(
+    @ConsistentCopyVisibility
+    data class Periodic internal constructor(
         val intervalMillis: Long,
         val preserveOnFailure: Boolean
     ) : AdRefreshStrategy()

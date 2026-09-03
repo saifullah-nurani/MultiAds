@@ -168,7 +168,8 @@ sealed class AdFailedRetryRule {
      * delay → delay → delay
      * ```
      */
-    internal class Linear internal constructor(
+    @ConsistentCopyVisibility
+    internal data class Linear internal constructor(
         override val delayMillis: Long,
         override val maxRetry: Int
     ) : AdFailedRetryRule() {
@@ -189,7 +190,8 @@ sealed class AdFailedRetryRule {
      * delay * multiplier^(attempt-1)
      * ```
      */
-    internal class Exponential internal constructor(
+    @ConsistentCopyVisibility
+    internal data class Exponential internal constructor(
         override val delayMillis: Long,
         override val maxRetry: Int,
         val multiplier: Float = DEFAULT_MULTIPLIER,

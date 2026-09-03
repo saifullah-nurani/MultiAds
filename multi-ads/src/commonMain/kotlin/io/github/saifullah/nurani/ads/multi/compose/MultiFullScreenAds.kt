@@ -8,7 +8,6 @@ import androidx.lifecycle.compose.LifecycleStartEffect
 import io.github.saifullah.nurani.ads.core.AdConfig
 import io.github.saifullah.nurani.ads.core.AdLoadCallback
 import io.github.saifullah.nurani.ads.core.AdContentCallback
-import io.github.saifullah.nurani.ads.core.adConfig
 import io.github.saifullah.nurani.ads.core.compose.LocalPlatformContext
 import io.github.saifullah.nurani.ads.multi.MultiInterstitialAd
 import io.github.saifullah.nurani.ads.multi.MultiRewardedAd
@@ -22,10 +21,7 @@ fun rememberMultiInterstitialAd(
     waterfallConfig: WaterfallConfig,
     testModeEnabled: Boolean = false,
     tag: String? = null,
-    requestConfig: AdConfig = adConfig {
-        isTestModeEnabled = testModeEnabled
-        this.tag = tag
-    },
+    requestConfig: AdConfig = AdConfig.default,
     initialLoad: Boolean = true,
     immersiveModeEnabled: Boolean = true,
     adLoadCallback: AdLoadCallback? = null,
@@ -101,10 +97,7 @@ fun rememberMultiRewardedAd(
     waterfallConfig: WaterfallConfig,
     testModeEnabled: Boolean = false,
     tag: String? = null,
-    requestConfig: AdConfig = adConfig {
-        isTestModeEnabled = testModeEnabled
-        this.tag = tag
-    },
+    requestConfig: AdConfig = AdConfig.default,
     initialLoad: Boolean = true,
     immersiveModeEnabled: Boolean = true,
     adLoadCallback: AdLoadCallback? = null,
