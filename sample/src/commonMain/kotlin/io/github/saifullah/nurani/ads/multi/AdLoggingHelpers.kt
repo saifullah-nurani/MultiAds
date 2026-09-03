@@ -1,6 +1,8 @@
 package io.github.saifullah.nurani.ads.multi
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -34,7 +36,7 @@ fun logAdEvent(tag: String, message: String) {
 fun createLoadCallback(network: String, format: String): AdLoadCallback {
     return AdLoadCallback(
         onAdLoaded = { logAdEvent(network, "$format loaded successfully") },
-        onAdFailedToLoad = { error -> logAdEvent(network, "$format failed to load: ${error?.message ?: "Unknown"}") }
+        onAdFailedToLoad = { error -> logAdEvent(network, "$format failed to load (code: ${error?.code}): ${error?.message ?: "Unknown"}") }
     )
 }
 
@@ -44,14 +46,14 @@ fun createContentCallback(network: String, format: String): AdContentCallback {
         onAdDisplayed = { logAdEvent(network, "$format displayed") },
         onAdDismissed = { logAdEvent(network, "$format dismissed") },
         onAdClicked = { logAdEvent(network, "$format clicked") },
-        onAdFailedToShow = { error -> logAdEvent(network, "$format failed to show: ${error?.message ?: "Unknown"}") }
+        onAdFailedToShow = { error -> logAdEvent(network, "$format failed to show (code: ${error?.code}): ${error?.message ?: "Unknown"}") }
     )
 }
 
 fun createBannerListener(network: String): BannerAdListener {
     return BannerAdListener(
         onAdLoaded = { logAdEvent(network, "Banner loaded successfully") },
-        onAdFailedToLoad = { error -> logAdEvent(network, "Banner failed to load: ${error?.message ?: "Unknown"}") },
+        onAdFailedToLoad = { error -> logAdEvent(network, "Banner failed to load (code: ${error?.code}): ${error?.message ?: "Unknown"}") },
         onAdClicked = { logAdEvent(network, "Banner clicked") },
         onAdDisplayed = { logAdEvent(network, "Banner displayed") },
         onAdDismissed = { logAdEvent(network, "Banner dismissed") }
@@ -60,6 +62,14 @@ fun createBannerListener(network: String): BannerAdListener {
 
 @Composable
 fun AdConsoleCard(modifier: Modifier = Modifier) {
+    val isDark = isSystemInDarkTheme()
+    val consoleBg = if (isDark) Color(0xFF14151B) else Color(0xFFF8FAFC)
+    val consoleBorder = if (isDark) Color(0xFF2D3142) else Color(0xFFE2E8F0)
+    val errorColor = if (isDark) Color(0xFFFF6B6B) else Color(0xFFDC2626)
+    val successColor = if (isDark) Color(0xFF4ADE80) else Color(0xFF16A34A)
+    val infoColor = if (isDark) Color(0xFF38BDF8) else Color(0xFF0284C7)
+    val emptyTextColor = if (isDark) Color(0xFF94A3B8) else Color(0xFF64748B)
+
     Card(
         modifier = modifier
             .fillMaxWidth()
@@ -92,15 +102,17 @@ fun AdConsoleCard(modifier: Modifier = Modifier) {
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(150.dp)
-                    .background(Color.Black.copy(alpha = 0.05f))
-                    .padding(8.dp),
+                    .height(160.dp)
+                    .clip(RoundedCornerShape(8.dp))
+                    .background(consoleBg)
+                    .border(1.dp, consoleBorder, RoundedCornerShape(8.dp))
+                    .padding(10.dp),
                 contentAlignment = Alignment.Center
             ) {
                 if (globalAdLogs.isEmpty()) {
                     Text(
                         text = "Console is empty. Click buttons above to trigger ad events.",
-                        color = Color.Green.copy(alpha = 0.6f),
+                        color = emptyTextColor,
                         fontSize = 12.sp,
                         fontFamily = FontFamily.Monospace,
                         modifier = Modifier.align(Alignment.Center)
@@ -113,10 +125,11 @@ fun AdConsoleCard(modifier: Modifier = Modifier) {
                         items(globalAdLogs) { log ->
                             Text(
                                 text = log,
-                                color = if (log.contains("Failed") || log.contains("failed")) Color.Red 
-                                        else if (log.contains("success") || log.contains("Loaded") || log.contains("Showed") || log.contains("User rewarded")) Color.Green 
-                                        else Color.Cyan,
-                                fontSize = 11.sp,
+                                color = if (log.contains("Failed") || log.contains("failed") || log.contains("Error") || log.contains("error")) errorColor 
+                                        else if (log.contains("success") || log.contains("Loaded") || log.contains("Showed") || log.contains("User rewarded") || log.contains("displayed")) successColor 
+                                        else infoColor,
+                                fontSize = 11.5.sp,
+                                fontWeight = FontWeight.Medium,
                                 fontFamily = FontFamily.Monospace
                             )
                         }

@@ -1,10 +1,12 @@
 package io.github.saifullah.nurani.ads.multi
 
 import io.github.saifullah.nurani.ads.core.AdContentCallback
+import io.github.saifullah.nurani.ads.core.AdConfig
 import io.github.saifullah.nurani.ads.core.AdLoadCallback
 import io.github.saifullah.nurani.ads.core.IosAppOpenAutoShowBuilder
 import io.github.saifullah.nurani.ads.core.IosAppOpenAutoShowHandle
 import io.github.saifullah.nurani.ads.core.bindToIosAppOpenAutoShow
+import io.github.saifullah.nurani.ads.core.adConfig
 import io.github.saifullah.nurani.ads.core.compose.PlatformContext
 import io.github.saifullah.nurani.ads.multi.models.MultiAdsConfig
 import io.github.saifullah.nurani.ads.multi.models.WaterfallConfig
@@ -33,6 +35,10 @@ object MultiNativeAppOpen {
         immersiveModeEnabled: Boolean = true,
         testModeEnabled: Boolean = false,
         tag: String? = null,
+        requestConfig: AdConfig = adConfig {
+            this.isTestModeEnabled = testModeEnabled
+            this.tag = tag
+        },
         adLoadCallback: AdLoadCallback? = null,
         adContentCallback: AdContentCallback? = null,
         configure: IosAppOpenAutoShowBuilder.() -> Unit = { appDidBecomeActive() }
@@ -42,6 +48,7 @@ object MultiNativeAppOpen {
             this.testModeEnabled = testModeEnabled
             this.isImmersiveModeEnabled = immersiveModeEnabled
             this.tag = tag
+            this.requestConfig = requestConfig
             setAdLoadCallback(adLoadCallback)
             setAdContentCallback(adContentCallback)
         }
@@ -63,6 +70,7 @@ object MultiNativeAppOpen {
             immersiveModeEnabled = immersiveModeEnabled,
             testModeEnabled = multiAdsConfig.adConfig.isTestModeEnabled,
             tag = multiAdsConfig.adConfig.tag,
+            requestConfig = multiAdsConfig.adConfig,
             adLoadCallback = adLoadCallback,
             adContentCallback = adContentCallback,
             configure = configure

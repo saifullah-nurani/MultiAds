@@ -51,7 +51,7 @@ class WaterfallConfigBuilder {
     fun vungle(placementId: String, priority: Int) = network(AdNetwork.VUNGLE, placementId, priority)
     fun inmobi(placementId: Long, priority: Int) = network(AdNetwork.INMOBI, placementId.toString(), priority)
     fun pangle(adUnitId: String, priority: Int) = network(AdNetwork.PANGLE, adUnitId, priority)
-    fun ironsource(placementName: String, priority: Int) = network(AdNetwork.IRONSOURCE, placementName, priority)
+    fun ironsource(adUnitId: String, priority: Int) = network(AdNetwork.IRONSOURCE, adUnitId, priority)
 
     internal fun build(): WaterfallConfig {
         return WaterfallConfig(

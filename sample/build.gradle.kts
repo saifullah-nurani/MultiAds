@@ -23,6 +23,17 @@ kotlin {
             baseName = "SampleKit"
             binaryOption("bundleId","com.filesplay.share.FilesPlay")
             isStatic = true
+
+            val pangleFrameworkPath = rootProject.projectDir
+                .resolve("pangle/frameworks/PAGAdSDK.xcframework")
+                .resolve(
+                    when (target.name) {
+                        "iosArm64" -> "ios-arm64"
+                        "iosX64", "iosSimulatorArm64" -> "ios-arm64_x86_64-simulator"
+                        else -> error("Unsupported target: ${target.name}")
+                    }
+                )
+            linkerOpts("-framework", "PAGAdSDK", "-F$pangleFrameworkPath")
         }
     }
 

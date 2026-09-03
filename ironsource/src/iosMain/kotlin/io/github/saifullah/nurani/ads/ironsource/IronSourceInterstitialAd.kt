@@ -61,6 +61,7 @@ class IronSourceInterstitialAd(
 
             override fun didFailToDisplayAdWithAdInfo(adInfo: LPMAdInfo, error: NSError) {
                 val adError = AdError(0, error.localizedDescription ?: "Unknown error")
+                clean()
                 adStateManager.onAdFailedToShow(adError)
                 adScreenContentCallback?.onAdFailedToShow(adError)
             }
@@ -71,9 +72,9 @@ class IronSourceInterstitialAd(
             }
 
             override fun didCloseAdWithAdInfo(adInfo: LPMAdInfo) {
+                clean()
                 adStateManager.onAdDismissed()
                 adScreenContentCallback?.onAdDismissed()
-                clean()
             }
             
             override fun didChangeAdInfo(adInfo: LPMAdInfo) {}

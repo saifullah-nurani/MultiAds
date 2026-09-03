@@ -32,8 +32,8 @@ actual fun rememberIronSourceInterstitialAd(
     adLogger: AdLogger?,
     adLoadCallback: AdLoadCallback?,
     adContentCallback: AdContentCallback?
-): FullScreenAdState = rememberIronSourceInterstitialAd(
-    placementName = properties.androidPlacementName,
+	): FullScreenAdState = rememberIronSourceInterstitialAd(
+    adUnitId = properties.androidAdUnitId,
     tag = properties.tag,
     initialLoad = initialLoad,
     immersiveModeEnabled = immersiveModeEnabled,
@@ -54,7 +54,7 @@ actual fun rememberIronSourceInterstitialAd(
  */
 @Composable
 fun rememberIronSourceInterstitialAd(
-    placementName: String? = null,
+    adUnitId: String? = null,
     tag: String? = null,
     initialLoad: Boolean = true,
     immersiveModeEnabled: Boolean = true,
@@ -68,10 +68,10 @@ fun rememberIronSourceInterstitialAd(
     adLoadCallback: AdLoadCallback? = null,
     adContentCallback: AdContentCallback? = null,
 ): FullScreenAdState {
-    val adState = remember(placementName) {
+    val adState = remember(adUnitId) {
         IronSourceInterstitialAd(
             context = context,
-            placementName = placementName,
+            placementName = adUnitId,
             handler = handler,
             adConfig = adConfig {
                 this.adLogger = adLogger
@@ -88,7 +88,7 @@ fun rememberIronSourceInterstitialAd(
      * Connect ad lifecycle with Compose lifecycle.
      */
     AdStateLifecycleManage(
-        placementName = placementName,
+        placementName = adUnitId,
         initialLoad = initialLoad,
         immersiveModeEnabled = immersiveModeEnabled,
         adState = adState,

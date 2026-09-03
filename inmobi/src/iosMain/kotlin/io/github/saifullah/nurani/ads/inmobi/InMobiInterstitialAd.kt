@@ -24,18 +24,15 @@ class InMobiInterstitialAd(
     override val isAdAvailable: Boolean get() = mInterstitialAd?.isReady() ?: false
 
     override fun loadAd() {
-        if (mInterstitialAd != null) return
+        if (isAdAvailable) return
         reloadAd()
     }
 
     override fun onAdLoad() {
         if (!InMobiAds.isInitialized()) {
-            val adError = AdError(
-                code = 0,
-                message = "InMobi SDK is not initialized yet."
-            )
-            adStateManager.onAdFailedToLoad(adError)
-            adLoadListener?.onAdFailedToLoad(adError)
+            InMobiAds.runWhenInitialized {
+                onAdLoad()
+            }
             return
         }
         val delegate = object : NSObject(), IMInterstitialDelegateProtocol {
@@ -48,7 +45,7 @@ class InMobiInterstitialAd(
             override fun interstitial(interstitial: IMInterstitial, didFailToLoadWithError: IMRequestStatus) {
                 adStateManager.onAdFailedToLoad(AdError(0, didFailToLoadWithError.toString()))
                 adLoadListener?.onAdFailedToLoad(AdError(0, didFailToLoadWithError.toString()))
-                if (adStateManager.shouldPreserveOnFailure) {
+            if (!adStateManager.shouldPreserveOnFailure) {
                     mInterstitialAd = null
                 }
             }
@@ -60,14 +57,15 @@ class InMobiInterstitialAd(
             }
 
             override fun interstitialDidDismiss(interstitial: IMInterstitial) {
+                clean()
                 adStateManager.onAdDismissed()
                 adScreenContentCallback?.onAdDismissed()
-                clean()
             }
 
             @kotlinx.cinterop.ObjCSignatureOverride
             override fun interstitial(interstitial: IMInterstitial, didFailToPresentWithError: IMRequestStatus) {
                 val adError = AdError(0, didFailToPresentWithError.toString())
+                clean()
                 adStateManager.onAdFailedToShow(adError)
                 adScreenContentCallback?.onAdFailedToShow(adError)
             }
@@ -117,7 +115,7 @@ class InMobiInterstitialAd(
             return InMobiInterstitialAd(placementId, null, adConfig)
         }
 
-        const val TEST_AD_UNIT_ID: Long = 1234567890L
+        const val TEST_AD_UNIT_ID: Long = 10000718549L
         const val TAG: String = "InMobiInterstitialAd"
     }
 }

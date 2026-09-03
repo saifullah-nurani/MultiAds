@@ -26,7 +26,7 @@ class PangleInterstitialAd(
     override val isAdAvailable: Boolean get() = mInterstitialAd != null
 
     override fun loadAd() {
-        if (mInterstitialAd != null) return
+        if (isAdAvailable) return
         reloadAd()
     }
 
@@ -48,7 +48,7 @@ class PangleInterstitialAd(
             if (error != null || interstitialAd == null) {
                 adStateManager.onAdFailedToLoad(AdError(0, error?.localizedDescription ?: "Unknown error"))
                 adLoadListener?.onAdFailedToLoad(AdError(0, error?.localizedDescription ?: "Unknown error"))
-                if (adStateManager.shouldPreserveOnFailure) {
+                if (!adStateManager.shouldPreserveOnFailure) {
                     mInterstitialAd = null
                 }
             } else {
@@ -64,9 +64,9 @@ class PangleInterstitialAd(
                         adScreenContentCallback?.onAdClicked()
                     }
                     override fun adDidDismiss(ad: PAGAdProtocolProtocol) {
+                        clean()
                         adStateManager.onAdDismissed()
                         adScreenContentCallback?.onAdDismissed()
-                        clean()
                     }
                 }
                 adDelegate = delegate
@@ -107,7 +107,7 @@ class PangleInterstitialAd(
             return PangleInterstitialAd(adUnitId, null, adConfig)
         }
 
-        const val TEST_AD_UNIT_ID: String = "980088188"
+        const val TEST_AD_UNIT_ID: String = "983581648"
         const val TAG: String = "PangleInterstitialAd"
     }
 }

@@ -2,6 +2,7 @@ package io.github.saifullah.nurani.ads.multi
 
 import io.github.saifullah.nurani.ads.core.AdLoadCallback
 import io.github.saifullah.nurani.ads.core.AdContentCallback
+import io.github.saifullah.nurani.ads.core.AdConfig
 import io.github.saifullah.nurani.ads.core.AdState
 import io.github.saifullah.nurani.ads.core.compose.PlatformContext
 import io.github.saifullah.nurani.ads.core.compose.PlatformActivity
@@ -14,10 +15,13 @@ expect class MultiInterstitialAd(context: PlatformContext) : AdState {
     var testModeEnabled: Boolean
     var isImmersiveModeEnabled: Boolean
     var tag: String?
+    var requestConfig: AdConfig
 
     fun showAd(activity: PlatformActivity)
     fun tryShowAd(): Boolean
     fun destroy()
+    fun onStart()
+    fun onStop()
 
     override val isAdAvailable: Boolean
     override val isAdLoading: Boolean

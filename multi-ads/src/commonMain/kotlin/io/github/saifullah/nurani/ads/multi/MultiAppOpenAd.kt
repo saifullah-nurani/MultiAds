@@ -2,6 +2,7 @@ package io.github.saifullah.nurani.ads.multi
 
 import io.github.saifullah.nurani.ads.core.AdLoadCallback
 import io.github.saifullah.nurani.ads.core.AdContentCallback
+import io.github.saifullah.nurani.ads.core.AdConfig
 import io.github.saifullah.nurani.ads.core.AppOpenAd
 import io.github.saifullah.nurani.ads.core.compose.PlatformContext
 import io.github.saifullah.nurani.ads.core.compose.PlatformActivity
@@ -14,10 +15,14 @@ expect class MultiAppOpenAd(context: PlatformContext) : AppOpenAd {
     var testModeEnabled: Boolean
     var isImmersiveModeEnabled: Boolean
     var tag: String?
+    var requestConfig: AdConfig
 
     override fun showAd(activity: PlatformActivity)
     override fun tryShowAd(): Boolean
     fun destroy()
+    override fun onStart()
+    override fun onStop()
+    override fun onDestroy()
 
     override val isAdAvailable: Boolean
     override val isAdLoading: Boolean

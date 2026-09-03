@@ -34,7 +34,7 @@ class AppLovinRewardedAd(
             val adError = AppLovinUtils.adErrorFrom(error)
             adStateManager.onAdFailedToLoad(adError)
             adLoadListener?.onAdFailedToLoad(adError)
-            if (adStateManager.shouldPreserveOnFailure) {
+            if (!adStateManager.shouldPreserveOnFailure) {
                 mRewarded = null
             }
         }
@@ -57,8 +57,9 @@ class AppLovinRewardedAd(
 
         override fun onAdDisplayFailed(ad: MaxAd, error: MaxError) {
             val adError = AppLovinUtils.adErrorFrom(error)
-            adScreenContentCallback?.onAdFailedToShow(adError)
             clean()
+            adStateManager.onAdFailedToShow(adError)
+            adScreenContentCallback?.onAdFailedToShow(adError)
         }
 
         override fun onUserRewarded(ad: MaxAd, reward: MaxReward) {
@@ -153,7 +154,7 @@ class AppLovinRewardedAd(
     }
 
     override fun addLifecycleOwner(owner: LifecycleOwner) {
-        owner.lifecycle.addObserver(adStateManager)
+        adStateManager.addLifecycleOwner(owner)
     }
 
     companion object {

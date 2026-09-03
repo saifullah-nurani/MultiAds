@@ -88,6 +88,9 @@ kotlin {
             dependencies {
                 implementation(libs.androidx.lifecycle.runtime.ktx)
                 implementation(libs.androidx.fragment.ktx)
+                api(libs.ads.identifier)
+                api(libs.play.services.appset)
+                api(libs.play.services.basement)
             }
         }
 

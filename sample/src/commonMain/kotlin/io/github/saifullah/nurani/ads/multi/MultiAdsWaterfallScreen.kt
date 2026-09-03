@@ -2,6 +2,7 @@ package io.github.saifullah.nurani.ads.multi
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
@@ -39,8 +40,7 @@ import io.github.saifullah.nurani.ads.multi.models.MultiAdContentCallback
 import io.github.saifullah.nurani.ads.multi.models.WaterfallConfig
 import io.github.saifullah.nurani.ads.multi.models.multiBannerAdConfig
 import io.github.saifullah.nurani.ads.multi.models.waterfallConfig
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Refresh
+import androidx.lifecycle.compose.LifecycleStartEffect
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -54,9 +54,10 @@ fun MultiAdsWaterfallScreen(onBack: () -> Unit) {
     val admobRewardedId = if (isIos) "ca-app-pub-3940256099942544/1712485313" else "ca-app-pub-3940256099942544/5224354917"
     val admobAppOpenId = if (isIos) "ca-app-pub-3940256099942544/5575461041" else "ca-app-pub-3940256099942544/9257395921"
 
-    val pangleBannerId = if (isIos) "983240210" else "983238454"
-    val pangleInterstitialId = if (isIos) "980088188" else "983238463"
-    val pangleRewardedId = if (isIos) "980088192" else "983067077"
+    val pangleBannerId = "983586240"
+    val pangleInterstitialId = "983581648"
+    val pangleRewardedId = "983586223"
+    val pangleAppOpenId = "983581648"
 
     val inmobiBannerId = if (isIos) 10000718551L else 10000718284L
     val inmobiInterstitialId = if (isIos) 10000718549L else 10000718282L
@@ -81,7 +82,6 @@ fun MultiAdsWaterfallScreen(onBack: () -> Unit) {
     var selectedAdSizeName by remember { mutableStateOf("BANNER") }
     var maxConcurrentLoads by remember { mutableStateOf(2) }
 
-    var loadKey by remember { mutableStateOf(0) }
     val logs = remember { mutableStateListOf<String>() }
 
     fun logEvent(tag: String, message: String) {
@@ -133,6 +133,7 @@ fun MultiAdsWaterfallScreen(onBack: () -> Unit) {
                         val adUnitId = when (format) {
                             "banner" -> pangleBannerId
                             "interstitial" -> pangleInterstitialId
+                            "appopen" -> pangleAppOpenId
                             else -> pangleRewardedId
                         }
                         pangle(adUnitId = adUnitId, priority = priority)
@@ -146,12 +147,12 @@ fun MultiAdsWaterfallScreen(onBack: () -> Unit) {
                         inmobi(placementId = placementId, priority = priority)
                     }
                     AdNetwork.IRONSOURCE -> {
-                        val placementName = when (format) {
+                        val adUnitId = when (format) {
                             "banner" -> ironSourceBannerId
                             "interstitial" -> ironSourceInterstitialId
                             else -> ironSourceRewardedId
                         }
-                        ironsource(placementName = placementName, priority = priority)
+                        ironsource(adUnitId = adUnitId, priority = priority)
                     }
                     AdNetwork.VUNGLE -> {
                         val placementId = when (format) {
@@ -338,7 +339,7 @@ fun MultiAdsWaterfallScreen(onBack: () -> Unit) {
 
     val interstitialAd = rememberMultiInterstitialAd(
         waterfallConfig = waterfallInterstitial,
-        testModeEnabled = true,
+        testModeEnabled = false,
         initialLoad = false,
         adLoadCallback = interstitialLoadCallback,
         adContentCallback = interstitialContentCallback,
@@ -348,7 +349,7 @@ fun MultiAdsWaterfallScreen(onBack: () -> Unit) {
 
     val rewardedAd = rememberMultiRewardedAd(
         waterfallConfig = waterfallRewarded,
-        testModeEnabled = true,
+        testModeEnabled = false,
         initialLoad = false,
         adLoadCallback = rewardedLoadCallback,
         adContentCallback = rewardedContentCallback,
@@ -378,7 +379,7 @@ fun MultiAdsWaterfallScreen(onBack: () -> Unit) {
     val appOpenAd = remember(waterfallAppOpen, appOpenContext) {
         MultiAppOpenAd(appOpenContext).apply {
             waterfallConfig = waterfallAppOpen
-            testModeEnabled = true
+            testModeEnabled = false
             isImmersiveModeEnabled = true
             setAdLoadCallback(appOpenAdLoadCallback)
             setAdContentCallback(appOpenAdContentCallback)
@@ -387,9 +388,14 @@ fun MultiAdsWaterfallScreen(onBack: () -> Unit) {
         }
     }
 
+    LifecycleStartEffect(appOpenAd) {
+        appOpenAd.onStart()
+        onStopOrDispose { appOpenAd.onStop() }
+    }
+
     DisposableEffect(appOpenAd, waterfallAppOpen) {
         appOpenAd.waterfallConfig = waterfallAppOpen
-        appOpenAd.testModeEnabled = true
+        appOpenAd.testModeEnabled = false
         appOpenAd.setAdLoadCallback(appOpenAdLoadCallback)
         appOpenAd.setAdContentCallback(appOpenAdContentCallback)
         appOpenAd.setMultiAdLoadCallback(multiAppOpenLoadCallback)
@@ -473,7 +479,6 @@ fun MultiAdsWaterfallScreen(onBack: () -> Unit) {
                                     onClick = {
                                         primaryNetwork = network
                                         logEvent("Config", "Primary priority updated to: ${network.name}")
-                                        loadKey++ // Force reload banner
                                     },
                                     label = { Text(label) },
                                     colors = FilterChipDefaults.filterChipColors(
@@ -503,7 +508,6 @@ fun MultiAdsWaterfallScreen(onBack: () -> Unit) {
                                     onClick = {
                                         selectedAdSizeName = sizeName
                                         logEvent("Config", "Banner size updated to: $sizeName")
-                                        loadKey++
                                     },
                                     modifier = Modifier.weight(1f),
                                     shape = RoundedCornerShape(8.dp),
@@ -540,7 +544,6 @@ fun MultiAdsWaterfallScreen(onBack: () -> Unit) {
                                     onClick = {
                                         maxConcurrentLoads = concurrency
                                         logEvent("Config", "Max concurrent loads updated to: $concurrency")
-                                        loadKey++
                                     },
                                     modifier = Modifier.weight(1f),
                                     shape = RoundedCornerShape(8.dp),
@@ -570,23 +573,11 @@ fun MultiAdsWaterfallScreen(onBack: () -> Unit) {
                     modifier = Modifier.padding(16.dp),
                     verticalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Text(
-                            text = "2. Unified Banner Waterfall",
-                            style = MaterialTheme.typography.titleMedium,
-                            fontWeight = FontWeight.Bold
-                        )
-                        IconButton(onClick = { loadKey++ }) {
-                            Icon(
-                                imageVector = Icons.Default.Refresh,
-                                contentDescription = "Reload Banner"
-                            )
-                        }
-                    }
+                    Text(
+                        text = "2. Unified Banner Waterfall",
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.Bold
+                    )
 
                     Text(
                         text = "Mediation starting with: ${primaryNetwork.name}",
@@ -602,16 +593,16 @@ fun MultiAdsWaterfallScreen(onBack: () -> Unit) {
                             .padding(8.dp),
                         contentAlignment = Alignment.Center
                     ) {
-                        key(loadKey) {
+                        key(waterfallBanner, selectedAdSize) {
                             MultiBannerAd(
                                 waterfallConfig = waterfallBanner,
                                 config = multiBannerAdConfig {
-                                    testModeEnabled = true
+                                    testModeEnabled = false
                                     expandWhenReady = false
                                     animateExpansion = true
                                     adSize = selectedAdSize
                                     adListener = bannerListener
-                                    tag = "waterfall_banner_${loadKey}"
+                                    tag = "waterfall_banner"
                                 },
                                 adListener = multiBannerListener
                             )
@@ -738,19 +729,27 @@ fun MultiAdsWaterfallScreen(onBack: () -> Unit) {
                         }
                     }
 
+                    val isDark = isSystemInDarkTheme()
+                    val consoleBg = if (isDark) Color(0xFF14151B) else Color(0xFFF8FAFC)
+                    val consoleBorder = if (isDark) Color(0xFF2D3142) else Color(0xFFCBD5E1)
+                    val errorColor = if (isDark) Color(0xFFFF6B6B) else Color(0xFFDC2626)
+                    val successColor = if (isDark) Color(0xFF4ADE80) else Color(0xFF16A34A)
+                    val infoColor = if (isDark) Color(0xFF38BDF8) else Color(0xFF0284C7)
+                    val emptyTextColor = if (isDark) Color(0xFF94A3B8) else Color(0xFF64748B)
+
                     Box(
                         modifier = Modifier
                             .fillMaxWidth()
                             .height(180.dp)
                             .clip(RoundedCornerShape(8.dp))
-                            .background(Color.Black)
-                            .border(1.dp, Color.Gray.copy(alpha = 0.5f), RoundedCornerShape(8.dp))
-                            .padding(8.dp)
+                            .background(consoleBg)
+                            .border(1.dp, consoleBorder, RoundedCornerShape(8.dp))
+                            .padding(10.dp)
                     ) {
                         if (logs.isEmpty()) {
                             Text(
                                 text = "Console is empty. Click actions above to trigger waterfall mediation.",
-                                color = Color.Green.copy(alpha = 0.6f),
+                                color = emptyTextColor,
                                 fontSize = 12.sp,
                                 fontFamily = FontFamily.Monospace,
                                 modifier = Modifier.align(Alignment.Center)
@@ -763,8 +762,11 @@ fun MultiAdsWaterfallScreen(onBack: () -> Unit) {
                                 items(logs) { log ->
                                     Text(
                                         text = log,
-                                        color = if (log.contains("Failed") || log.contains("failed")) Color.Red else if (log.contains("success") || log.contains("Rewarded")) Color.Green else Color.Cyan,
-                                        fontSize = 11.sp,
+                                        color = if (log.contains("Failed") || log.contains("failed") || log.contains("Error") || log.contains("error")) errorColor 
+                                                else if (log.contains("success") || log.contains("Rewarded") || log.contains("Loaded") || log.contains("Showed")) successColor 
+                                                else infoColor,
+                                        fontSize = 11.5.sp,
+                                        fontWeight = FontWeight.Medium,
                                         fontFamily = FontFamily.Monospace
                                     )
                                 }

@@ -31,6 +31,7 @@ actual open class DefaultAdLifecycleManager : DefaultLifecycleObserver, AdLifecy
      * @param owner Activity or Fragment lifecycle owner.
      */
     override fun addLifecycleOwner(owner: LifecycleOwner) {
+        lifecycle?.removeObserver(this)
         lifecycle = owner.lifecycle
         lifecycle?.addObserver(this)
     }

@@ -48,6 +48,7 @@ import io.github.saifullah.nurani.ads.applovin.compose.appLovinAdProperties
 import io.github.saifullah.nurani.ads.applovin.compose.AppLovinAdProperties
 import io.github.saifullah.nurani.ads.applovin.compose.rememberAppLovinInterstitialAd
 import io.github.saifullah.nurani.ads.applovin.compose.rememberAppLovinRewardedAd
+import io.github.saifullah.nurani.ads.core.AdFailedRetryRule
 
 // InMobi Imports
 import io.github.saifullah.nurani.ads.inmobi.compose.InMobiBannerAd
@@ -462,18 +463,18 @@ fun PangleTestScreen(onBack: () -> Unit) {
     val scrollState = rememberScrollState()
 
     val pangleProperties = pangleAdProperties(
-        androidAdUnitId = "983238489",
-        iosAdUnitId = "980099802"
+        androidAdUnitId = "983586240",
+        iosAdUnitId = "983586240"
     )
 
     val pangleInterstitialProperties = pangleAdProperties(
-        androidAdUnitId = "983238463",
-        iosAdUnitId = "980088188"
+        androidAdUnitId = "983581648",
+        iosAdUnitId = "983581648"
     )
 
     val pangleRewardedProperties = pangleAdProperties(
-        androidAdUnitId = "983067077",
-        iosAdUnitId = "980088192"
+        androidAdUnitId = "983586223",
+        iosAdUnitId = "983586223"
     )
 
     val interstitialAd = rememberPangleInterstitialAd(
@@ -507,7 +508,7 @@ fun PangleTestScreen(onBack: () -> Unit) {
                 PangleBannerAd(
                     properties = pangleProperties,
                     adSize = BannerAd.Fixed(AdSize.BANNER),
-                    testModeEnabled = true,
+                    testModeEnabled = false,
                     expandWhenReady = true,
                     adListener = createBannerListener("Pangle")
                 )
@@ -549,30 +550,30 @@ fun IronSourceTestScreen(onBack: () -> Unit) {
     val scrollState = rememberScrollState()
 
     val ironsourceProperties = ironSourceAdProperties(
-        androidPlacementName = "ll7laet2x8ilqdee",
-        iosPlacementName = "ch132493tceqkqsg"
+        androidAdUnitId = "ll7laet2x8ilqdee",
+        iosAdUnitId = "ch132493tceqkqsg"
     )
 
     val ironsourceInterstitialProperties = ironSourceAdProperties(
-        androidPlacementName = "i51skyerg3iiyyaq",
-        iosPlacementName = "re3gip7b41tqb2tm"
+        androidAdUnitId = "i51skyerg3iiyyaq",
+        iosAdUnitId = "re3gip7b41tqb2tm"
     )
 
     val ironsourceRewardedProperties = ironSourceAdProperties(
-        androidPlacementName = "2452nmjt1t4g9z33",
-        iosPlacementName = "1hv15us4p1j74q7j"
+        androidAdUnitId = "2452nmjt1t4g9z33",
+        iosAdUnitId = "1hv15us4p1j74q7j"
     )
 
     val interstitialAd = rememberIronSourceInterstitialAd(
         properties = ironsourceInterstitialProperties,
-        testModeEnabled = true,
+        testModeEnabled = false,
         adLoadCallback = createLoadCallback("IronSource", "Interstitial"),
         adContentCallback = createContentCallback("IronSource", "Interstitial")
     )
 
     val rewardedAd = rememberIronSourceRewardedAd(
         properties = ironsourceRewardedProperties,
-        testModeEnabled = true,
+        testModeEnabled = false,
         adLoadCallback = createLoadCallback("IronSource", "Rewarded"),
         adContentCallback = createContentCallback("IronSource", "Rewarded")
     )
@@ -594,8 +595,9 @@ fun IronSourceTestScreen(onBack: () -> Unit) {
                 IronSourceBannerAd(
                     properties = ironsourceProperties,
                     adSize = BannerAd.Fixed(AdSize.BANNER),
-                    testModeEnabled = true,
+                    testModeEnabled = false,
                     expandWhenReady = true,
+                    adFailedAdRetryRule = AdFailedRetryRule.exponentialDefault(),
                     adListener = createBannerListener("IronSource")
                 )
             }

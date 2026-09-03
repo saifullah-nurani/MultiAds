@@ -5,10 +5,11 @@ import android.content.Context
 import android.os.Handler
 import androidx.annotation.StringRes
 import androidx.lifecycle.LifecycleOwner
-import com.ironsource.mediationsdk.IronSource
-import com.ironsource.mediationsdk.adunit.adapter.utility.AdInfo
-import com.ironsource.mediationsdk.logger.IronSourceError
-import com.ironsource.mediationsdk.sdk.LevelPlayInterstitialListener
+import com.unity3d.mediation.LevelPlay
+import com.unity3d.mediation.LevelPlayAdError
+import com.unity3d.mediation.LevelPlayAdInfo
+import com.unity3d.mediation.interstitial.LevelPlayInterstitialAd
+import com.unity3d.mediation.interstitial.LevelPlayInterstitialAdListener
 import io.github.saifullah.nurani.ads.core.AdConfig
 import io.github.saifullah.nurani.ads.core.Scheduler
 import io.github.saifullah.nurani.ads.core.utils.ContextUtils.Companion.findActivity
@@ -20,72 +21,79 @@ class IronSourceInterstitialAd(
     handler: Handler?
 ) : FullScreenAdState(context, Scheduler(handler), adConfig, TAG) {
 
-    private val interstitialAdListener = object : LevelPlayInterstitialListener {
-        override fun onAdReady(adInfo: AdInfo) {
+    private var interstitialAd: LevelPlayInterstitialAd? = null
+
+    private val interstitialAdListener = object : LevelPlayInterstitialAdListener {
+        override fun onAdLoaded(adInfo: LevelPlayAdInfo) {
             adStateManager.onAdLoaded()
             adLoadListener?.onAdLoaded()
         }
 
-        override fun onAdLoadFailed(error: IronSourceError) {
+        override fun onAdLoadFailed(error: LevelPlayAdError) {
             val adError = IronSourceUtils.adErrorFrom(error)
             adStateManager.onAdFailedToLoad(adError)
             adLoadListener?.onAdFailedToLoad(adError)
         }
 
-        override fun onAdOpened(adInfo: AdInfo) {
+        override fun onAdDisplayed(adInfo: LevelPlayAdInfo) {
             adStateManager.onAdShowed()
             adScreenContentCallback?.onAdShowed()
         }
 
-        override fun onAdShowSucceeded(adInfo: AdInfo) {
-        }
-
-        override fun onAdShowFailed(error: IronSourceError, adInfo: AdInfo) {
+        override fun onAdDisplayFailed(error: LevelPlayAdError, adInfo: LevelPlayAdInfo) {
             val adError = IronSourceUtils.adErrorFrom(error)
-            adScreenContentCallback?.onAdFailedToShow(adError)
             clean()
+            adStateManager.onAdFailedToShow(adError)
+            adScreenContentCallback?.onAdFailedToShow(adError)
         }
 
-        override fun onAdClicked(adInfo: AdInfo) {
+        override fun onAdClicked(adInfo: LevelPlayAdInfo) {
             adStateManager.onAdClicked()
             adScreenContentCallback?.onAdClicked()
         }
 
-        override fun onAdClosed(adInfo: AdInfo) {
+        override fun onAdClosed(adInfo: LevelPlayAdInfo) {
             clean()
             adStateManager.onAdDismissed()
             adScreenContentCallback?.onAdDismissed()
         }
     }
 
-    override val isAdAvailable: Boolean get() = IronSource.isInterstitialReady()
+    override val isAdAvailable: Boolean get() = interstitialAd?.isAdReady() ?: false
 
     override fun loadAd() {
+        if (isAdAvailable) return
         reloadAd()
     }
 
     override fun onAdLoad() {
-        if (!adConfig.isTestModeEnabled) {
-            checkNotNull(placementName) { "placementName must be set." }
-            require(placementName.isNotEmpty()) { "placementName must not be empty." }
+        if (!IronSourceAds.isInitialized()) {
+            IronSourceAds.runWhenInitialized {
+                onAdLoad()
+            }
+            return
         }
-        IronSource.setLevelPlayInterstitialListener(interstitialAdListener)
-        IronSource.loadInterstitial()
+        if (adConfig.isTestModeEnabled) {
+            LevelPlay.setAdaptersDebug(true)
+        } else {
+            checkNotNull(placementName) { "placementName / adUnitId must be set." }
+            require(placementName.isNotEmpty()) { "placementName / adUnitId must not be empty." }
+        }
+        val finalAdUnitId = if (adConfig.isTestModeEnabled) TEST_AD_UNIT_ID else placementName!!
+        val ad = LevelPlayInterstitialAd(finalAdUnitId)
+        ad.setListener(interstitialAdListener)
+        interstitialAd = ad
+        ad.loadAd()
     }
 
     override fun clean() {
-        // No explicit destroy needed, global SDK caching handles instances
+        // Handled per instance
     }
 
     override fun showAd(owner: Activity) {
-        if (isAdAvailable) {
-            IronSource.setLevelPlayInterstitialListener(interstitialAdListener)
-            val finalPlacement = if (adConfig.isTestModeEnabled) TEST_AD_UNIT_ID else placementName
-            if (finalPlacement != null) {
-                IronSource.showInterstitial(finalPlacement)
-            } else {
-                IronSource.showInterstitial()
-            }
+        val ad = interstitialAd
+        if (ad != null && ad.isAdReady()) {
+            ad.showAd(owner)
         }
     }
 
@@ -109,7 +117,7 @@ class IronSourceInterstitialAd(
     }
 
     override fun addLifecycleOwner(owner: LifecycleOwner) {
-        owner.lifecycle.addObserver(adStateManager)
+        adStateManager.addLifecycleOwner(owner)
     }
 
     companion object {
@@ -123,7 +131,7 @@ class IronSourceInterstitialAd(
             return with(context, context.getString(placementNameRes))
         }
 
-        const val TEST_AD_UNIT_ID: String = "re3gip7b41tqb2tm"
+        const val TEST_AD_UNIT_ID: String = "i51skyerg3iiyyaq"
         const val TAG: String = "IronSourceInterstitialAd"
     }
 }

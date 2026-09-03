@@ -27,7 +27,7 @@ class PangleInterstitialAd(
             val adError = PangleUtils.adErrorFrom(code, message)
             adStateManager.onAdFailedToLoad(adError)
             adLoadListener?.onAdFailedToLoad(adError)
-            if (adStateManager.shouldPreserveOnFailure) {
+            if (!adStateManager.shouldPreserveOnFailure) {
                 mInterstitialAd = null
             }
         }
@@ -78,6 +78,7 @@ class PangleInterstitialAd(
         }
         val finalAdUnitId = if (adConfig.isTestModeEnabled) TEST_AD_UNIT_ID else adUnitId
         val request = PAGInterstitialRequest()
+        adLogger?.d("Loading Pangle interstitial slot=$finalAdUnitId testMode=${adConfig.isTestModeEnabled}")
         PAGInterstitialAd.loadAd(finalAdUnitId, request, interstitialAdLoadListener)
     }
 
@@ -111,7 +112,7 @@ class PangleInterstitialAd(
     }
 
     override fun addLifecycleOwner(owner: LifecycleOwner) {
-        owner.lifecycle.addObserver(adStateManager)
+        adStateManager.addLifecycleOwner(owner)
     }
 
     companion object {
@@ -125,7 +126,7 @@ class PangleInterstitialAd(
             return with(context, context.getString(adUnitIdRes))
         }
 
-        const val TEST_AD_UNIT_ID: String = "980088186"
+        const val TEST_AD_UNIT_ID: String = "983581648"
         const val TAG: String = "PangleInterstitialAd"
     }
 }

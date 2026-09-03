@@ -4,24 +4,21 @@ import androidx.compose.runtime.Immutable
 
 @Immutable
 data class IronSourceAdProperties internal constructor(
-    val androidPlacementName: String?,
-    val iosPlacementName: String?,
+    val androidAdUnitId: String?,
+    val iosAdUnitId: String?,
     val tag: String? = null,
 )
 
-val IronSourceAdProperties.iosAdUnitId: String?
-    get() = iosPlacementName
+val IronSourceAdProperties.adUnitId: String?
+    get() = androidAdUnitId ?: iosAdUnitId
 
 /**
- * Creates IronSource ad properties.
- *
- * Android uses the legacy placement name API. iOS uses the LevelPlay ad unit ID API.
+ * Creates IronSource ad properties for LevelPlay Ad Unit APIs.
  */
 fun ironSourceAdProperties(
-    androidPlacementName: String? = null,
-    iosPlacementName: String? = null,
+    androidAdUnitId: String? = null,
     iosAdUnitId: String? = null,
-    tag: String? = null
+    tag: String? = null,
 ): IronSourceAdProperties {
-    return IronSourceAdProperties(androidPlacementName, iosAdUnitId ?: iosPlacementName, tag)
+    return IronSourceAdProperties(androidAdUnitId, iosAdUnitId, tag)
 }

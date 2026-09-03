@@ -29,10 +29,10 @@ actual fun rememberIronSourceRewardedAd(
     adLoadCallback: AdLoadCallback?,
     adContentCallback: AdContentCallback?
 ): RewardedAdState {
-    val adState = remember(properties.iosPlacementName) {
+    val adState = remember(properties.iosAdUnitId) {
         @OptIn(ExperimentalForeignApi::class)
         IronSourceRewardedAd(
-            placementName = properties.iosPlacementName,
+            placementName = properties.iosAdUnitId,
             uIViewController = null,
             adConfig = adConfig {
                 this.adLogger = adLogger
@@ -45,7 +45,7 @@ actual fun rememberIronSourceRewardedAd(
     }
 
     AdStateLifecycleManage(
-        placementName = properties.iosPlacementName,
+        placementName = properties.iosAdUnitId,
         initialLoad = initialLoad,
         immersiveModeEnabled = immersiveModeEnabled,
         adState = adState,

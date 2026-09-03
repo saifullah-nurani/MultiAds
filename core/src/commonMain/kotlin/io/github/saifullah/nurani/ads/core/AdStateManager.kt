@@ -37,6 +37,8 @@ class AdStateManager(
     val isAdLoadScheduled: Boolean get() = _isAdLoadScheduled
     private var _attemptCount by mutableIntStateOf(0)
     val attemptCount: Int get() = _attemptCount
+    private var resumeScheduledLoadOnStart = false
+    private var isLifecycleStarted = true
 
     private val adLoadRunnable: () -> Unit = {
         _isAdLoadScheduled = false
@@ -54,6 +56,7 @@ class AdStateManager(
 
     fun loadAd() {
         _attemptCount = 0
+        resumeScheduledLoadOnStart = false
         adLoadType = LoadType.Usual
         cancelSchedule("Manual Load")
         loadAdIfNotLoading()
@@ -97,6 +100,7 @@ class AdStateManager(
     override fun onAdLoaded() {
         resetLoadState()
         _attemptCount = 0
+        resumeScheduledLoadOnStart = false
         _isAdAvailable = true
 
         logDebug("loaded successfully")
@@ -114,10 +118,32 @@ class AdStateManager(
         logError("load failed attempt ${_attemptCount}/$maxAttempt error: $error")
         if (maxAttempt > 0 && _attemptCount < maxAttempt) {
             val delay = failedAdRetryRule.getDelayMillis(_attemptCount)
-            logDebug("retry scheduled in $delay")
-            scheduleAdLoad(delay, "Retry Attempt ${_attemptCount + 1}", LoadType.FailedAd)
+            if (isLifecycleStarted) {
+                logDebug("retry scheduled in $delay")
+                scheduleAdLoad(delay, "Retry Attempt ${_attemptCount + 1}", LoadType.FailedAd)
+            } else {
+                adLoadType = LoadType.FailedAd
+                resumeScheduledLoadOnStart = true
+                _isRetryingAdFailedLoad = true
+                logDebug("retry deferred until lifecycle start")
+            }
         } else {
+            resumeScheduledLoadOnStart = false
             logError("max retry attempts reached")
+        }
+    }
+
+    fun finalFailureCallback(callback: AdLoadCallback?): AdLoadCallback? = callback?.let { delegate ->
+        object : AdLoadCallback {
+            override fun onAdLoaded() {
+                delegate.onAdLoaded()
+            }
+
+            override fun onAdFailedToLoad(error: AdError?) {
+                if (!isRetryingAdFailedLoad) {
+                    delegate.onAdFailedToLoad(error)
+                }
+            }
         }
     }
 
@@ -160,15 +186,26 @@ class AdStateManager(
     // -----------------------------
 
     override fun onDestroy() {
+        isLifecycleStarted = false
+        resumeScheduledLoadOnStart = false
         cancelSchedule("Lifecycle Destroy")
+        resetLoadState()
+        _isAdAvailable = false
+        super.onDestroy()
     }
 
     override fun onStop() {
+        isLifecycleStarted = false
+        resumeScheduledLoadOnStart = resumeScheduledLoadOnStart || isAdLoadScheduled
         cancelSchedule("Lifecycle Stop")
     }
 
     override fun onStart() {
-        if (isRefreshingEnabled && !isAdLoading) {
+        isLifecycleStarted = true
+        if (resumeScheduledLoadOnStart && !isAdLoading) {
+            resumeScheduledLoadOnStart = false
+            loadAdIfNotLoading()
+        } else if (isRefreshingEnabled && !isAdLoading) {
             scheduleAdLoad(refreshIntervalMillis, "Lifecycle Start", LoadType.Refreshing)
         }
     }

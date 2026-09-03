@@ -32,7 +32,7 @@ class VungleInterstitialAd(
             val adError = VungleUtils.adErrorFrom(adError)
             adStateManager.onAdFailedToLoad(adError)
             adLoadListener?.onAdFailedToLoad(adError)
-            if (adStateManager.shouldPreserveOnFailure) {
+            if (!adStateManager.shouldPreserveOnFailure) {
                 mInterstitialAd = null
             }
         }
@@ -55,8 +55,9 @@ class VungleInterstitialAd(
 
         override fun onAdFailedToPlay(baseAd: BaseAd, adError: VungleError) {
             val adError = VungleUtils.adErrorFrom(adError)
-            adScreenContentCallback?.onAdFailedToShow(adError)
             clean()
+            adStateManager.onAdFailedToShow(adError)
+            adScreenContentCallback?.onAdFailedToShow(adError)
         }
 
         override fun onAdLeftApplication(baseAd: BaseAd) {}
@@ -123,7 +124,7 @@ class VungleInterstitialAd(
     }
 
     override fun addLifecycleOwner(owner: LifecycleOwner) {
-        owner.lifecycle.addObserver(adStateManager)
+        adStateManager.addLifecycleOwner(owner)
     }
 
     companion object {

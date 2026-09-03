@@ -30,7 +30,7 @@ class PangleRewardedAd(
             val adError = PangleUtils.adErrorFrom(code, message)
             adStateManager.onAdFailedToLoad(adError)
             adLoadListener?.onAdFailedToLoad(adError)
-            if (adStateManager.shouldPreserveOnFailure) {
+            if (!adStateManager.shouldPreserveOnFailure) {
                 mRewarded = null
             }
         }
@@ -152,7 +152,7 @@ class PangleRewardedAd(
     }
 
     override fun addLifecycleOwner(owner: LifecycleOwner) {
-        owner.lifecycle.addObserver(adStateManager)
+        adStateManager.addLifecycleOwner(owner)
     }
 
     companion object {
@@ -166,7 +166,7 @@ class PangleRewardedAd(
             return with(context, context.getString(adUnitIdRes))
         }
 
-        const val TEST_AD_UNIT_ID: String = "980088190"
+        const val TEST_AD_UNIT_ID: String = "983586223"
         const val TAG: String = "PangleRewardedAd"
     }
 }

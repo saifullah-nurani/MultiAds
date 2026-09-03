@@ -163,7 +163,7 @@ class MetaBannerView @JvmOverloads constructor(
         if (!keepAdSlot) {
             visibility = GONE
         }
-        destroyAd()
+        destroyAd(resetStateManager = false)
         currentAdSize = bannerAd?.getSize() ?: AdSize.BANNER_HEIGHT_50
 
         val finalPlacementId = if (testMode) TEST_AD_UNIT_ID else placementId
@@ -180,7 +180,9 @@ class MetaBannerView @JvmOverloads constructor(
                         "Unknown error"
                     )
                 stateManager?.onAdFailedToLoad(error)
-                adListener?.onAdFailedToLoad(error)
+                if (stateManager?.isRetryingAdFailedLoad != true) {
+                    adListener?.onAdFailedToLoad(error)
+                }
                 if (!keepAdSlot) visibility = GONE
             }
 
@@ -225,13 +227,15 @@ class MetaBannerView @JvmOverloads constructor(
         }
     }
 
-    private fun destroyAd() {
+    private fun destroyAd(resetStateManager: Boolean = true) {
         if (adView != null) {
             removeView(adView)
-            stateManager?.onDestroy()
             adView!!.destroy()
-            stateManager = null
             adView = null
+        }
+        if (resetStateManager) {
+            stateManager?.onDestroy()
+            stateManager = null
         }
     }
 
@@ -275,11 +279,12 @@ class MetaBannerView @JvmOverloads constructor(
 
     override fun onAttachedToWindow() {
         super.onAttachedToWindow()
+        resume()
     }
 
     override fun onDetachedFromWindow() {
         super.onDetachedFromWindow()
-        destroyAd()
+        pause()
     }
 
     override fun onVisibilityChanged(changedView: View, visibility: Int) {
@@ -287,13 +292,15 @@ class MetaBannerView @JvmOverloads constructor(
     }
 
     fun pause() {
+        stateManager?.onStop()
     }
 
     fun resume() {
+        stateManager?.onStart()
     }
 
     fun destroy() {
-        destroyAd()
+        destroyAd(resetStateManager = true)
     }
 
     companion object {

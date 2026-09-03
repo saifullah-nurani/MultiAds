@@ -4,10 +4,16 @@ import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Context
 import com.ironsource.mediationsdk.IronSource
+import com.unity3d.mediation.LevelPlay
+import com.unity3d.mediation.LevelPlayConfiguration
+import com.unity3d.mediation.LevelPlayInitError
+import com.unity3d.mediation.LevelPlayInitListener
+import com.unity3d.mediation.LevelPlayInitRequest
 import io.github.saifullah.nurani.ads.core.AdInitResult
 import io.github.saifullah.nurani.ads.core.AdConfig
 import io.github.saifullah.nurani.ads.core.AdLogger
 import io.github.saifullah.nurani.ads.core.OnUserRewardedListener
+import io.github.saifullah.nurani.ads.core.utils.DefaultAdLogger
 import java.lang.ref.WeakReference
 import java.util.concurrent.ConcurrentHashMap
 
@@ -18,6 +24,7 @@ actual object IronSourceAds {
 
     private var applicationContext: WeakReference<Context>? = null
     private var currentConfig: Config? = null
+    private val fallbackLogger: AdLogger = DefaultAdLogger(TAG)
 
     private val mInterstitialAds = ConcurrentHashMap<String, WeakReference<IronSourceInterstitialAd>>()
     private val mRewardedAds = ConcurrentHashMap<String, WeakReference<IronSourceRewardedAd>>()
@@ -80,6 +87,10 @@ actual object IronSourceAds {
         }
     }
 
+    private var isInitialized = false
+    private var isInitializing = false
+    private val pendingActions = mutableListOf<() -> Unit>()
+
     /**
      * MUST be called in Application class or at start of the app with a specific
      * configuration and App Key.
@@ -87,9 +98,34 @@ actual object IronSourceAds {
     @SuppressLint("MissingPermission")
     @JvmStatic
     fun init(appContext: Context, appKey: String, config: Config) {
-        applicationContext = WeakReference(appContext)
+        applicationContext = WeakReference(appContext.applicationContext)
         currentConfig = config
-        IronSource.init(appContext, appKey)
+        if (isInitialized) {
+            logDebug("LevelPlay already initialized")
+            flushPendingActions()
+            return
+        }
+        if (isInitializing) {
+            logDebug("LevelPlay initialization already in progress")
+            return
+        }
+        isInitializing = true
+        logDebug("Initializing LevelPlay appKey=$appKey package=${appContext.packageName}")
+        val initRequest = LevelPlayInitRequest.Builder(appKey).build()
+        LevelPlay.init(appContext, initRequest, object : LevelPlayInitListener {
+            override fun onInitSuccess(configuration: LevelPlayConfiguration) {
+                logDebug("LevelPlay initialized successfully")
+                isInitialized = true
+                isInitializing = false
+                flushPendingActions()
+            }
+
+            override fun onInitFailed(error: LevelPlayInitError) {
+                logError("LevelPlay init failed: ${error.errorMessage} (${error.errorCode})")
+                isInitialized = false
+                isInitializing = false
+            }
+        })
     }
 
     /**
@@ -98,9 +134,7 @@ actual object IronSourceAds {
     @SuppressLint("MissingPermission")
     @JvmStatic
     fun init(activity: Activity, appKey: String, config: Config) {
-        applicationContext = WeakReference(activity.applicationContext)
-        currentConfig = config
-        IronSource.init(activity, appKey)
+        init(activity as Context, appKey, config)
     }
 
     /**
@@ -123,21 +157,55 @@ actual object IronSourceAds {
         iosAppKey: String,
         onComplete: ((AdInitResult) -> Unit)?
     ) {
-        init(context as Context, androidAppKey)
-        onComplete?.invoke(AdInitResult(true))
+        applicationContext = WeakReference(context.applicationContext)
+        val config = currentConfig ?: Config.Builder().build()
+        currentConfig = config
+        if (isInitialized) {
+            logDebug("LevelPlay already initialized")
+            onComplete?.invoke(AdInitResult(true))
+            flushPendingActions()
+            return
+        }
+        if (isInitializing) {
+            logDebug("LevelPlay initialization already in progress")
+            return
+        }
+        val initRequest = LevelPlayInitRequest.Builder(androidAppKey).build()
+        isInitializing = true
+        logDebug("Initializing LevelPlay appKey=$androidAppKey package=${context.packageName}")
+        LevelPlay.init(context, initRequest, object : LevelPlayInitListener {
+            override fun onInitSuccess(configuration: LevelPlayConfiguration) {
+                logDebug("LevelPlay initialized successfully")
+                isInitialized = true
+                isInitializing = false
+                onComplete?.invoke(AdInitResult(true))
+                flushPendingActions()
+            }
+
+            override fun onInitFailed(error: LevelPlayInitError) {
+                logError("LevelPlay init failed: ${error.errorMessage} (${error.errorCode})")
+                isInitialized = false
+                isInitializing = false
+                onComplete?.invoke(AdInitResult(false))
+            }
+        })
     }
 
     @JvmStatic
-    actual fun isInitialized(): Boolean = applicationContext?.get() != null
+    actual fun isInitialized(): Boolean = isInitialized
 
-    @JvmStatic
-    fun onResume(activity: Activity) {
-        IronSource.onResume(activity)
+    internal fun runWhenInitialized(action: () -> Unit) {
+        if (isInitialized) {
+            action()
+        } else {
+            pendingActions += action
+        }
     }
 
-    @JvmStatic
-    fun onPause(activity: Activity) {
-        IronSource.onPause(activity)
+    private fun flushPendingActions() {
+        val actions = pendingActions.toList()
+        pendingActions.clear()
+        actions.forEach { it() }
     }
 
     private fun checkInitialized() {
@@ -224,10 +292,10 @@ actual object IronSourceAds {
     // --------------------------------------------------------
 
     private fun logDebug(message: String) {
-        currentConfig?.adLogger?.d("$TAG: $message")
+        (currentConfig?.adLogger ?: fallbackLogger).d("$TAG: $message")
     }
 
     private fun logError(message: String) {
-        currentConfig?.adLogger?.e("$TAG: $message")
+        (currentConfig?.adLogger ?: fallbackLogger).e("$TAG: $message")
     }
 }

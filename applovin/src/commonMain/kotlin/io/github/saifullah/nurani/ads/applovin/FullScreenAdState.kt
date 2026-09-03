@@ -78,7 +78,7 @@ abstract class FullScreenAdState internal constructor(
     }
 
     override fun setAdLoadCallback(callback: AdLoadCallback?) {
-        this.adLoadListener = callback
+        this.adLoadListener = adStateManager.finalFailureCallback(callback)
     }
 
     override fun setAdContentCallback(callback: AdContentCallback?) {
@@ -86,6 +86,7 @@ abstract class FullScreenAdState internal constructor(
     }
 
     override fun onDestroy() {
+        clean()
         adStateManager.onDestroy()
     }
 

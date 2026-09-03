@@ -7,6 +7,12 @@ import io.github.saifullah.nurani.ads.core.compose.PlatformActivity
  * Extends [AdState] and provides methods for displaying the ad.
  */
 interface AppOpenAd : AdState {
+    fun onStart()
+
+    fun onStop()
+
+    fun onDestroy()
+
     /**
      * Shows the App Open Ad using the given platform activity.
      */

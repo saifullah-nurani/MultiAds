@@ -5,3 +5,4 @@
 # IronSource SDK
 -keep class com.ironsource.** { *; }
 -dontwarn com.ironsource.**
+

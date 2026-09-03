@@ -24,18 +24,15 @@ class InMobiRewardedAd(
     override val isAdAvailable: Boolean get() = mRewardedAd?.isReady() ?: false
 
     override fun loadAd() {
-        if (mRewardedAd != null) return
+        if (isAdAvailable) return
         reloadAd()
     }
 
     override fun onAdLoad() {
         if (!InMobiAds.isInitialized()) {
-            val adError = AdError(
-                code = 0,
-                message = "InMobi SDK is not initialized yet."
-            )
-            adStateManager.onAdFailedToLoad(adError)
-            adLoadListener?.onAdFailedToLoad(adError)
+            InMobiAds.runWhenInitialized {
+                onAdLoad()
+            }
             return
         }
         val delegate = object : NSObject(), IMInterstitialDelegateProtocol {
@@ -48,7 +45,7 @@ class InMobiRewardedAd(
             override fun interstitial(interstitial: IMInterstitial, didFailToLoadWithError: IMRequestStatus) {
                 adStateManager.onAdFailedToLoad(AdError(0, didFailToLoadWithError.toString()))
                 adLoadListener?.onAdFailedToLoad(AdError(0, didFailToLoadWithError.toString()))
-                if (adStateManager.shouldPreserveOnFailure) {
+            if (!adStateManager.shouldPreserveOnFailure) {
                     mRewardedAd = null
                 }
             }
@@ -60,14 +57,15 @@ class InMobiRewardedAd(
             }
 
             override fun interstitialDidDismiss(interstitial: IMInterstitial) {
+                clean()
                 adStateManager.onAdDismissed()
                 adScreenContentCallback?.onAdDismissed()
-                clean()
             }
 
             @kotlinx.cinterop.ObjCSignatureOverride
             override fun interstitial(interstitial: IMInterstitial, didFailToPresentWithError: IMRequestStatus) {
                 val adError = AdError(0, didFailToPresentWithError.toString())
+                clean()
                 adStateManager.onAdFailedToShow(adError)
                 adScreenContentCallback?.onAdFailedToShow(adError)
             }

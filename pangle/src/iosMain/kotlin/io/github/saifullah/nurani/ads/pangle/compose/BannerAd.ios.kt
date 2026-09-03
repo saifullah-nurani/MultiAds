@@ -16,6 +16,7 @@ import io.github.saifullah.nurani.ads.core.AdSize
 import io.github.saifullah.nurani.ads.core.BannerAd
 import io.github.saifullah.nurani.ads.core.BannerAdListener
 import io.github.saifullah.nurani.ads.core.rememberBannerHeightController
+import io.github.saifullah.nurani.ads.core.rememberBannerLifecycleBinding
 import kotlinx.cinterop.ExperimentalForeignApi
 
 @OptIn(ExperimentalForeignApi::class)
@@ -39,6 +40,10 @@ actual fun PangleBannerAd(
         mutableStateOf(properties.iosAdUnitId)
     }
     val initialLoadRequested = remember { booleanArrayOf(false) }
+    val lifecycleBinding = rememberBannerLifecycleBinding<PangleBannerUIView>(
+        onStart = { it.resume() },
+        onStop = { it.pause() }
+    )
     UIKitView(
         modifier = Modifier
             .fillMaxWidth()
@@ -51,7 +56,7 @@ actual fun PangleBannerAd(
                 this.keepAdSlot = expandWhenReady
                 setRequestTag(properties.tag)
                 setAdUnitId(adUnit)
-            }
+            }.also(lifecycleBinding::attach)
         },
 
         update = { view ->
@@ -77,6 +82,9 @@ actual fun PangleBannerAd(
             }
         },
 
-        onRelease = { it.destroy() }
+        onRelease = {
+            lifecycleBinding.detach(it)
+            it.destroy()
+        }
     )
 }

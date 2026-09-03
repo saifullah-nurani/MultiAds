@@ -44,11 +44,14 @@ actual class MultiRewardedAd actual constructor(
     actual var testModeEnabled: Boolean = false
     actual var isImmersiveModeEnabled: Boolean = false
     actual var tag: String? = null
+    actual var requestConfig: AdConfig = AdConfig.default
 
     private val pendingNetworks = mutableListOf<AdNetworkConfig>()
     private val loadingAds = mutableMapOf<AdNetworkConfig, AdState>()
+    private val failedNetworks = mutableSetOf<AdNetworkConfig>()
     private var activeAd: AdState? = null
     private var activeNetwork: AdNetworkConfig? = null
+    private var isShowingAd = false
     private var isDestroyed = AtomicBoolean(false)
     private var isAdAvailableState by mutableStateOf(false)
     private var isAdLoadingState by mutableStateOf(false)
@@ -90,6 +93,8 @@ actual class MultiRewardedAd actual constructor(
         activeAd?.let { destroyAd(it) }
         activeAd = null
         activeNetwork = null
+        isShowingAd = false
+        failedNetworks.clear()
         updateState()
 
         pendingNetworks.clear()
@@ -137,6 +142,8 @@ actual class MultiRewardedAd actual constructor(
 
         ad.setAdContentCallback(object : AdContentCallback {
             override fun onAdFailedToShow(error: AdError?) {
+                isShowingAd = false
+                updateState()
                 adContentListener?.onAdFailedToShow(error)
                 activeNetwork?.let { multiAdContentListener?.onAdFailedToShow(it, error) }
             }
@@ -149,6 +156,8 @@ actual class MultiRewardedAd actual constructor(
                 activeNetwork?.let { multiAdContentListener?.onAdDisplayed(it) }
             }
             override fun onAdDismissed() {
+                isShowingAd = false
+                updateState()
                 adContentListener?.onAdDismissed()
                 activeNetwork?.let { multiAdContentListener?.onAdDismissed(it) }
             }
@@ -158,6 +167,8 @@ actual class MultiRewardedAd actual constructor(
             }
         })
 
+        isShowingAd = true
+        updateState()
         showRewardedAdNetwork(ad, activity, onUserRewarded)
     }
 
@@ -178,7 +189,21 @@ actual class MultiRewardedAd actual constructor(
         activeAd?.let { destroyAd(it) }
         activeAd = null
         activeNetwork = null
+        isShowingAd = false
         pendingNetworks.clear()
+        failedNetworks.clear()
+        updateState()
+    }
+
+    actual fun onStart() {
+        (activeAd as? AdLifecycleObserver)?.onStart()
+        loadingAds.values.forEach { (it as? AdLifecycleObserver)?.onStart() }
+        updateState()
+    }
+
+    actual fun onStop() {
+        (activeAd as? AdLifecycleObserver)?.onStop()
+        loadingAds.values.forEach { (it as? AdLifecycleObserver)?.onStop() }
         updateState()
     }
 
@@ -207,7 +232,10 @@ actual class MultiRewardedAd actual constructor(
         val adConfigObj = adConfig {
             isTestModeEnabled = testModeEnabled
             tag = this@MultiRewardedAd.tag ?: config.network.name
-            adLogger = DefaultAdLogger(config.network.name)
+            adLogger = requestConfig.adLogger ?: DefaultAdLogger(config.network.name)
+            adReloadPolicies = requestConfig.adReloadPolicies
+            adFailedRetryRule = requestConfig.adFailedRetryRule
+            adRefreshStrategy = requestConfig.adRefreshStrategy
         }
 
         val ad = createAd(config, adConfigObj) ?: run {
@@ -217,7 +245,17 @@ actual class MultiRewardedAd actual constructor(
 
         ad.setAdLoadCallback(object : AdLoadCallback {
             override fun onAdLoaded() {
-                if (isDestroyed.get() || activeAd != null) {
+                if (isDestroyed.get()) {
+                    destroyAd(ad)
+                    return
+                }
+                if (activeAd === ad) {
+                    updateState()
+                    adLoadListener?.onAdLoaded()
+                    multiAdLoadListener?.onAdLoaded(config)
+                    return
+                }
+                if (activeAd != null) {
                     destroyAd(ad)
                     return
                 }
@@ -238,7 +276,29 @@ actual class MultiRewardedAd actual constructor(
 
             override fun onAdFailedToLoad(error: AdError?) {
                 if (isDestroyed.get()) return
+                if (activeAd === ad) {
+                    multiAdLoadListener?.onAdFailedToLoad(config, error)
+                    if (ad.isAdAvailable) {
+                        updateState()
+                        return
+                    }
+                    failedNetworks.add(config)
+                    activeAd = null
+                    activeNetwork = null
+                    destroyAd(ad)
+                    pendingNetworks.clear()
+                    pendingNetworks.addAll(
+                        waterfallConfig?.networks.orEmpty()
+                            .filter { it !in failedNetworks }
+                            .sortedBy { it.priority }
+                    )
+                    updateState()
+                    loadNextBatch()
+                    return
+                }
+                if (loadingAds[config] !== ad) return
                 loadingAds.remove(config)
+                failedNetworks.add(config)
                 destroyAd(ad)
                 multiAdLoadListener?.onAdFailedToLoad(config, error)
 
@@ -305,12 +365,13 @@ actual class MultiRewardedAd actual constructor(
     }
 
     private fun updateState() {
-        isAdAvailableState = activeAd?.isAdAvailable == true
-        isAdLoadingState = loadingAds.isNotEmpty()
-        isRetryingAdFailedLoadState = loadingAds.values.any { it.isRetryingAdFailedLoad }
-        isAdRefreshingState = loadingAds.values.any { it.isAdRefreshing }
-        isAdReloadingState = loadingAds.values.any { it.isAdReloading }
-        attemptCountState = loadingAds.values.maxOfOrNull { it.attemptCount } ?: 0
+        val managedAds = loadingAds.values + listOfNotNull(activeAd)
+        isAdAvailableState = !isShowingAd && activeAd?.isAdAvailable == true
+        isAdLoadingState = managedAds.any { it.isAdLoading }
+        isRetryingAdFailedLoadState = managedAds.any { it.isRetryingAdFailedLoad }
+        isAdRefreshingState = managedAds.any { it.isAdRefreshing }
+        isAdReloadingState = managedAds.any { it.isAdReloading }
+        attemptCountState = managedAds.maxOfOrNull { it.attemptCount } ?: 0
     }
 
     private fun destroyAd(ad: AdState) {

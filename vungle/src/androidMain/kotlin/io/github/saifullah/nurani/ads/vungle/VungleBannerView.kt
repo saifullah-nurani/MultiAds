@@ -156,7 +156,9 @@ class VungleBannerView @JvmOverloads constructor(
                 message = "Vungle SDK is not initialized yet."
             )
             stateManager?.onAdFailedToLoad(adError)
-            adListener?.onAdFailedToLoad(adError)
+            if (stateManager?.isRetryingAdFailedLoad != true) {
+                adListener?.onAdFailedToLoad(adError)
+            }
             return
         }
         if (!testMode) {
@@ -166,7 +168,7 @@ class VungleBannerView @JvmOverloads constructor(
         if (!keepAdSlot) {
             visibility = GONE
         }
-        destroyAd()
+        destroyAd(resetStateManager = false)
         currentSize = bannerAd?.getSize() ?: VungleAdSize.BANNER
 
         val finalPlacementId = if (testMode) TEST_AD_UNIT_ID else placementId!!
@@ -186,7 +188,9 @@ class VungleBannerView @JvmOverloads constructor(
                 log("Load failed: ${adError.errorMessage}")
                 val adError = VungleUtils.adErrorFrom(adError)
                 stateManager?.onAdFailedToLoad(adError)
-                adListener?.onAdFailedToLoad(adError)
+                if (stateManager?.isRetryingAdFailedLoad != true) {
+                    adListener?.onAdFailedToLoad(adError)
+                }
                 if (!keepAdSlot) visibility = GONE
             }
 
@@ -247,12 +251,14 @@ class VungleBannerView @JvmOverloads constructor(
         }
     }
 
-    private fun destroyAd() {
+    private fun destroyAd(resetStateManager: Boolean = true) {
         if (vungleSDKBanner != null) {
             removeView(vungleSDKBanner)
+            vungleSDKBanner = null
+        }
+        if (resetStateManager) {
             stateManager?.onDestroy()
             stateManager = null
-            vungleSDKBanner = null
         }
     }
 
@@ -286,19 +292,26 @@ class VungleBannerView @JvmOverloads constructor(
         this.keepAdSlot = keepAdSlot
     }
 
+    override fun onAttachedToWindow() {
+        super.onAttachedToWindow()
+        resume()
+    }
+
     override fun onDetachedFromWindow() {
         super.onDetachedFromWindow()
-        destroyAd()
+        pause()
     }
 
     fun pause() {
+        stateManager?.onStop()
     }
 
     fun resume() {
+        stateManager?.onStart()
     }
 
     fun destroy() {
-        destroyAd()
+        destroyAd(resetStateManager = true)
     }
 
     private var testMode = false

@@ -29,10 +29,10 @@ actual fun rememberIronSourceInterstitialAd(
     adLoadCallback: AdLoadCallback?,
     adContentCallback: AdContentCallback?
 ): FullScreenAdState {
-    val adState = remember(properties.iosPlacementName) {
+    val adState = remember(properties.iosAdUnitId) {
         @OptIn(ExperimentalForeignApi::class)
         IronSourceInterstitialAd(
-            adUnitId = properties.iosPlacementName ?: "",
+            adUnitId = properties.iosAdUnitId ?: "",
             uIViewController = null,
             adConfig = adConfig {
                 this.adLogger = adLogger
@@ -46,7 +46,7 @@ actual fun rememberIronSourceInterstitialAd(
     }
 
     AdStateLifecycleManage(
-        placementName = properties.iosPlacementName,
+        placementName = properties.iosAdUnitId,
         initialLoad = initialLoad,
         immersiveModeEnabled = immersiveModeEnabled,
         adState = adState,

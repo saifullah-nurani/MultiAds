@@ -65,6 +65,12 @@ class InMobiBannerUIView : UIView(frame = CGRectZero.readValue()) {
     }
 
     fun loadAd() {
+        if (!InMobiAds.isInitialized()) {
+            InMobiAds.runWhenInitialized {
+                loadAd()
+            }
+            return
+        }
         if (adStateManager == null) {
             adStateManager = AdStateManager(
                 reloadPolicies,
@@ -89,17 +95,29 @@ class InMobiBannerUIView : UIView(frame = CGRectZero.readValue()) {
                 message = "InMobi SDK is not initialized yet."
             )
             adStateManager?.onAdFailedToLoad(adError)
-            adListener?.onAdFailedToLoad(adError)
+            if (adStateManager?.isRetryingAdFailedLoad != true) {
+                adListener?.onAdFailedToLoad(adError)
+            }
             return
         }
         if (!isTestModeEnabled) {
             checkNotNull(placementId) { "placementId must be set." }
             require(placementId != 0L) { "placementId must not be 0." }
         }
-        destroy()
+        destroyBanner(resetStateManager = false)
+        val (bannerWidth, bannerHeight) = when {
+            currentAdSize.height >= 250 -> 300.0 to 250.0
+            currentAdSize.height >= 100 -> 320.0 to 100.0
+            currentAdSize.height >= 90 && currentAdSize.width >= 728 -> 728.0 to 90.0
+            currentAdSize.height >= 60 && currentAdSize.width >= 468 -> 468.0 to 60.0
+            currentAdSize.width > 0 && currentAdSize.height > 0 -> currentAdSize.width.toDouble() to currentAdSize.height.toDouble()
+            else -> 320.0 to 50.0
+        }
+        val bannerFrame = CGRectMake(0.0, 0.0, bannerWidth, bannerHeight)
+
         if (bannerView == null) {
-            val finalPlacementId = if (isTestModeEnabled) testAdUnitId else placementId ?: 0L
-            bannerView = IMBanner(frame = platform.CoreGraphics.CGRectZero.readValue(), placementId = finalPlacementId)
+            val finalPlacementId = if (isTestModeEnabled) (placementId?.takeIf { it != 0L } ?: testAdUnitId) else placementId ?: 0L
+            bannerView = IMBanner(frame = bannerFrame, placementId = finalPlacementId)
             bannerView!!.translatesAutoresizingMaskIntoConstraints = false
             val delegate = object : NSObject(), IMBannerDelegateProtocol {
                 override fun bannerDidFinishLoading(banner: IMBanner) {
@@ -111,8 +129,11 @@ class InMobiBannerUIView : UIView(frame = CGRectZero.readValue()) {
 
                 override fun banner(banner: IMBanner, didFailToLoadWithError: IMRequestStatus) {
                     log("Load failed ${didFailToLoadWithError.toString()}")
-                    adStateManager?.onAdFailedToLoad(AdError(0, didFailToLoadWithError.toString()))
-                    adListener?.onAdFailedToLoad(AdError(0, didFailToLoadWithError.toString()))
+                    val error = AdError(0, didFailToLoadWithError.toString())
+                    adStateManager?.onAdFailedToLoad(error)
+                    if (adStateManager?.isRetryingAdFailedLoad != true) {
+                        adListener?.onAdFailedToLoad(error)
+                    }
                     if (!keepAdSlot) hidden = true
                 }
 
@@ -132,22 +153,16 @@ class InMobiBannerUIView : UIView(frame = CGRectZero.readValue()) {
             bannerView!!.setDelegate(delegate)
             
             addSubview(bannerView!!)
-            val constraints = mutableListOf(
-                bannerView!!.bottomAnchor.constraintEqualToAnchor(safeAreaLayoutGuide.bottomAnchor),
-                bannerView!!.centerXAnchor.constraintEqualToAnchor(centerXAnchor)
+            NSLayoutConstraint.activateConstraints(
+                listOf(
+                    bannerView!!.centerXAnchor.constraintEqualToAnchor(centerXAnchor),
+                    bannerView!!.centerYAnchor.constraintEqualToAnchor(centerYAnchor),
+                    bannerView!!.widthAnchor.constraintEqualToConstant(bannerWidth),
+                    bannerView!!.heightAnchor.constraintEqualToConstant(bannerHeight)
+                )
             )
-            if (currentAdSize.width > 0) {
-                constraints.add(bannerView!!.widthAnchor.constraintEqualToConstant(currentAdSize.width.toDouble()))
-            } else {
-                constraints.add(bannerView!!.widthAnchor.constraintEqualToAnchor(widthAnchor))
-            }
-            if (currentAdSize.height > 0) {
-                constraints.add(bannerView!!.heightAnchor.constraintEqualToConstant(currentAdSize.height.toDouble()))
-            } else {
-                constraints.add(bannerView!!.heightAnchor.constraintEqualToConstant(50.0))
-            }
-            NSLayoutConstraint.activateConstraints(constraints)
         }
+        bannerView!!.setFrame(bannerFrame)
         bannerView!!.load()
     }
 
@@ -166,12 +181,26 @@ class InMobiBannerUIView : UIView(frame = CGRectZero.readValue()) {
         }
     }
 
+    fun resume() {
+        adStateManager?.onStart()
+    }
+
+    fun pause() {
+        adStateManager?.onStop()
+    }
+
     fun destroy() {
+        destroyBanner(resetStateManager = true)
+    }
+
+    private fun destroyBanner(resetStateManager: Boolean) {
         bannerView?.removeFromSuperview()
         bannerView = null
         adDelegate = null
-        adStateManager?.onDestroy()
-        adStateManager = null
+        if (resetStateManager) {
+            adStateManager?.onDestroy()
+            adStateManager = null
+        }
     }
 
     private fun log(msg: String) {

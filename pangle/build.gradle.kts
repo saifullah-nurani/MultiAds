@@ -123,7 +123,7 @@ kotlin {
 
         androidMain {
             dependencies {
-                api(libs.pangle.sdk)
+                implementation(libs.pangle.sdk)
             }
         }
 

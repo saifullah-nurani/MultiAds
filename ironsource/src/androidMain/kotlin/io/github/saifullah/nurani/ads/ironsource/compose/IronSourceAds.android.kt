@@ -20,7 +20,7 @@ actual fun rememberIronSourceAdsInit(
     val appKey = if (testModeEnabled) IronSourceAds.TEST_APP_KEY else androidAppKey
     var isInitialized by remember(appKey) { mutableStateOf(false) }
     LaunchedEffect(appKey, context) {
-        IronSourceAds.init(context, androidAppKey, iosAppKey) { result: AdInitResult ->
+        IronSourceAds.init(context, appKey, iosAppKey) { result: AdInitResult ->
             isInitialized = result.success
         }
     }

@@ -27,7 +27,7 @@ class AppLovinRewardedAd(
     override val isAdAvailable: Boolean get() = mRewardedAd?.isReady() ?: false
 
     override fun loadAd() {
-        if (mRewardedAd != null) return
+        if (isAdAvailable) return
         reloadAd()
     }
 
@@ -46,7 +46,7 @@ class AppLovinRewardedAd(
             override fun didFailToLoadAdForAdUnitIdentifier(adUnitIdentifier: String, withError: MAError) {
                 adStateManager.onAdFailedToLoad(AdError(0, withError.toString()))
                 adLoadListener?.onAdFailedToLoad(AdError(0, withError.toString()))
-                if (adStateManager.shouldPreserveOnFailure) {
+            if (!adStateManager.shouldPreserveOnFailure) {
                     mRewardedAd = null
                 }
             }
@@ -58,9 +58,9 @@ class AppLovinRewardedAd(
             }
 
             override fun didHideAd(ad: MAAd) {
+                clean()
                 adStateManager.onAdDismissed()
                 adScreenContentCallback?.onAdDismissed()
-                clean()
             }
 
             override fun didClickAd(ad: MAAd) {
@@ -70,6 +70,7 @@ class AppLovinRewardedAd(
 
             override fun didFailToDisplayAd(ad: MAAd, withError: MAError) {
                 val adError = AdError(0, withError.toString())
+                clean()
                 adStateManager.onAdFailedToShow(adError)
                 adScreenContentCallback?.onAdFailedToShow(adError)
             }

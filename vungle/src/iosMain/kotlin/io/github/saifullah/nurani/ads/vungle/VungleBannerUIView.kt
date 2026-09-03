@@ -87,14 +87,16 @@ class VungleBannerUIView : UIView(frame = CGRectZero.readValue()) {
                 message = "Vungle SDK is not initialized yet."
             )
             adStateManager?.onAdFailedToLoad(adError)
-            adListener?.onAdFailedToLoad(adError)
+            if (adStateManager?.isRetryingAdFailedLoad != true) {
+                adListener?.onAdFailedToLoad(adError)
+            }
             return
         }
         if (!isTestModeEnabled) {
             checkNotNull(placementId) { "placementId must be set." }
             require(placementId!!.isNotEmpty()) { "placementId must not be empty." }
         }
-        destroy()
+        destroyBanner(resetStateManager = false)
         if (bannerView == null) {
             val vSize = when {
                 currentAdSize.height >= 250 -> VungleAdSize.VungleAdSizeMREC()
@@ -115,8 +117,11 @@ class VungleBannerUIView : UIView(frame = CGRectZero.readValue()) {
 
                 override fun bannerAdDidFailToLoad(banner: VungleBanner, withError: NSError) {
                     log("Load failed ${withError.localizedDescription}")
-                    adStateManager?.onAdFailedToLoad(AdError(0, withError.localizedDescription ?: "Unknown error"))
-                    adListener?.onAdFailedToLoad(AdError(0, withError.localizedDescription ?: "Unknown error"))
+                    val error = AdError(0, withError.localizedDescription ?: "Unknown error")
+                    adStateManager?.onAdFailedToLoad(error)
+                    if (adStateManager?.isRetryingAdFailedLoad != true) {
+                        adListener?.onAdFailedToLoad(error)
+                    }
                     if (!keepAdSlot) hidden = true
                 }
 
@@ -172,7 +177,19 @@ class VungleBannerUIView : UIView(frame = CGRectZero.readValue()) {
         }
     }
 
+    fun resume() {
+        adStateManager?.onStart()
+    }
+
+    fun pause() {
+        adStateManager?.onStop()
+    }
+
     fun destroy() {
+        destroyBanner(resetStateManager = true)
+    }
+
+    private fun destroyBanner(resetStateManager: Boolean) {
         subviews.forEach { child ->
             (child as? UIView)?.removeFromSuperview()
         }
@@ -180,8 +197,10 @@ class VungleBannerUIView : UIView(frame = CGRectZero.readValue()) {
         isBannerReadyToPresent = false
         isBannerPresented = false
         adDelegate = null
-        adStateManager?.onDestroy()
-        adStateManager = null
+        if (resetStateManager) {
+            adStateManager?.onDestroy()
+            adStateManager = null
+        }
     }
 
     private fun log(msg: String) {

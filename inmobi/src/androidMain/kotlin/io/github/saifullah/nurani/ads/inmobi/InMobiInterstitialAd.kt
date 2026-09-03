@@ -32,7 +32,7 @@ class InMobiInterstitialAd(
             val adError = InMobiUtils.adErrorFrom(status)
             adStateManager.onAdFailedToLoad(adError)
             adLoadListener?.onAdFailedToLoad(adError)
-            if (adStateManager.shouldPreserveOnFailure) {
+            if (!adStateManager.shouldPreserveOnFailure) {
                 mInterstitialAd = null
             }
         }
@@ -55,8 +55,9 @@ class InMobiInterstitialAd(
 
         override fun onAdDisplayFailed(ad: InMobiInterstitial) {
             val adError = AdError(-1, "Ad Display Failed")
-            adScreenContentCallback?.onAdFailedToShow(adError)
             clean()
+            adStateManager.onAdFailedToShow(adError)
+            adScreenContentCallback?.onAdFailedToShow(adError)
         }
     }
 
@@ -118,7 +119,7 @@ class InMobiInterstitialAd(
     }
 
     override fun addLifecycleOwner(owner: LifecycleOwner) {
-        owner.lifecycle.addObserver(adStateManager)
+        adStateManager.addLifecycleOwner(owner)
     }
 
     companion object {
@@ -126,7 +127,7 @@ class InMobiInterstitialAd(
         fun with(context: Context, placementId: Long): InMobiInterstitialAd {
             return InMobiInterstitialAd(context, placementId, null, null)
         }
-        const val TEST_AD_UNIT_ID: Long = 1234567890L
+        const val TEST_AD_UNIT_ID: Long = 10000718282L
         const val TAG: String = "InMobiInterstitialAd"
     }
 }

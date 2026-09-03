@@ -25,7 +25,7 @@ class AdmobInterstitialAd(
     override val isAdAvailable: Boolean get() = mInterstitialAd != null
 
     override fun loadAd() {
-        if (mInterstitialAd != null) return
+        if (isAdAvailable) return
         reloadAd()
     }
 
@@ -38,7 +38,7 @@ class AdmobInterstitialAd(
             if (error != null) {
                 adStateManager.onAdFailedToLoad(error.adErrorFrom())
                 adLoadListener?.onAdFailedToLoad(error.adErrorFrom())
-                if (adStateManager.shouldPreserveOnFailure) {
+            if (!adStateManager.shouldPreserveOnFailure) {
                     mInterstitialAd = null
                 }
                 return@loadWithAdUnitID

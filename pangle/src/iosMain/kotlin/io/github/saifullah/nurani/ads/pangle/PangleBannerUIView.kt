@@ -83,8 +83,8 @@ class PangleBannerUIView : UIView(frame = CGRectZero.readValue()) {
         adStateManager!!.loadAd()
     }
 
-    private val testAdUnitId = "980099802"
-    private val testAdUnitId300x250 = "983240210"
+    private val testAdUnitId = "983586240"
+    private val testAdUnitId300x250 = "980088196"
 
     private fun loadAdInternally() {
         if (!PangleAds.isInitialized()) {
@@ -93,14 +93,16 @@ class PangleBannerUIView : UIView(frame = CGRectZero.readValue()) {
                 message = "Pangle SDK is not initialized yet."
             )
             adStateManager?.onAdFailedToLoad(adError)
-            adListener?.onAdFailedToLoad(adError)
+            if (adStateManager?.isRetryingAdFailedLoad != true) {
+                adListener?.onAdFailedToLoad(adError)
+            }
             return
         }
         if (!isTestModeEnabled) {
             checkNotNull(adUnitId) { "adUnitId must be set." }
             require(adUnitId!!.isNotEmpty()) { "adUnitId must not be empty." }
         }
-        destroy()
+        destroyBanner(resetStateManager = false)
         
         val isMediumRectangle = currentAdSize.height >= 250
         val bannerSize = if (isMediumRectangle) {
@@ -120,8 +122,11 @@ class PangleBannerUIView : UIView(frame = CGRectZero.readValue()) {
             dispatch_async(dispatch_get_main_queue()) {
                 if (error != null || ad == null) {
                     log("Load failed ${error?.localizedDescription}")
-                    adStateManager?.onAdFailedToLoad(AdError(0, error?.localizedDescription ?: "Unknown error"))
-                    adListener?.onAdFailedToLoad(AdError(0, error?.localizedDescription ?: "Unknown error"))
+                    val adError = AdError(0, error?.localizedDescription ?: "Unknown error")
+                    adStateManager?.onAdFailedToLoad(adError)
+                    if (adStateManager?.isRetryingAdFailedLoad != true) {
+                        adListener?.onAdFailedToLoad(adError)
+                    }
                     if (!keepAdSlot) hidden = true
                 } else {
                     log("Banner loaded")
@@ -185,12 +190,26 @@ class PangleBannerUIView : UIView(frame = CGRectZero.readValue()) {
         alpha = 1.0
     }
 
+    fun resume() {
+        adStateManager?.onStart()
+    }
+
+    fun pause() {
+        adStateManager?.onStop()
+    }
+
     fun destroy() {
+        destroyBanner(resetStateManager = true)
+    }
+
+    private fun destroyBanner(resetStateManager: Boolean) {
         bannerAd?.bannerView?.removeFromSuperview()
         bannerAd = null
         adDelegate = null
-        adStateManager?.onDestroy()
-        adStateManager = null
+        if (resetStateManager) {
+            adStateManager?.onDestroy()
+            adStateManager = null
+        }
     }
 
     private fun log(msg: String) {

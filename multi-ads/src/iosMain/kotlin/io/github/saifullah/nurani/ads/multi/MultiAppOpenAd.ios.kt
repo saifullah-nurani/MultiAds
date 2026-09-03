@@ -25,6 +25,8 @@ import io.github.saifullah.nurani.ads.multi.models.AdNetworkConfig
 import io.github.saifullah.nurani.ads.multi.models.MultiAdContentCallback
 import io.github.saifullah.nurani.ads.multi.models.MultiAdLoadCallback
 import io.github.saifullah.nurani.ads.multi.models.WaterfallConfig
+import io.github.saifullah.nurani.ads.pangle.PangleAds
+import io.github.saifullah.nurani.ads.pangle.PangleAppOpenAd
 import platform.UIKit.UIViewController
 import kotlin.concurrent.AtomicReference
 
@@ -36,11 +38,14 @@ actual class MultiAppOpenAd actual constructor(
     actual var testModeEnabled: Boolean = false
     actual var isImmersiveModeEnabled: Boolean = false
     actual var tag: String? = null
+    actual var requestConfig: AdConfig = AdConfig.default
 
     private val pendingNetworks = mutableListOf<AdNetworkConfig>()
     private val loadingAds = mutableMapOf<AdNetworkConfig, AdState>()
+    private val failedNetworks = mutableSetOf<AdNetworkConfig>()
     private var activeAd: AdState? = null
     private var activeNetwork: AdNetworkConfig? = null
+    private var isShowingAd = false
     private var isDestroyed = AtomicReference(false)
     private var isAdAvailableState by mutableStateOf(false)
     private var isAdLoadingState by mutableStateOf(false)
@@ -81,10 +86,16 @@ actual class MultiAppOpenAd actual constructor(
         activeAd?.let { destroyAd(it) }
         activeAd = null
         activeNetwork = null
+        isShowingAd = false
+        failedNetworks.clear()
         updateState()
 
         pendingNetworks.clear()
-        pendingNetworks.addAll(config.networks.filter { it.network == AdNetwork.ADMOB || it.network == AdNetwork.APPLOVIN }.sortedBy { it.priority })
+        pendingNetworks.addAll(
+            config.networks
+                .filter { it.network in SUPPORTED_NETWORKS }
+                .sortedBy { it.priority }
+        )
 
         loadNextBatch()
     }
@@ -114,6 +125,8 @@ actual class MultiAppOpenAd actual constructor(
 
         ad.setAdContentCallback(object : AdContentCallback {
             override fun onAdFailedToShow(error: AdError?) {
+                isShowingAd = false
+                updateState()
                 adContentListener?.onAdFailedToShow(error)
                 activeNetwork?.let { multiAdContentListener?.onAdFailedToShow(it, error) }
             }
@@ -126,6 +139,8 @@ actual class MultiAppOpenAd actual constructor(
                 activeNetwork?.let { multiAdContentListener?.onAdDisplayed(it) }
             }
             override fun onAdDismissed() {
+                isShowingAd = false
+                updateState()
                 adContentListener?.onAdDismissed()
                 activeNetwork?.let { multiAdContentListener?.onAdDismissed(it) }
             }
@@ -135,13 +150,48 @@ actual class MultiAppOpenAd actual constructor(
             }
         })
 
+        isShowingAd = true
+        updateState()
         showAdNetwork(ad, activity)
     }
 
     actual override fun tryShowAd(): Boolean {
         if (!isAdAvailable) return false
         val ad = activeAd ?: return false
-        return tryShowAdNetwork(ad)
+        ad.setAdContentCallback(object : AdContentCallback {
+            override fun onAdFailedToShow(error: AdError?) {
+                isShowingAd = false
+                updateState()
+                adContentListener?.onAdFailedToShow(error)
+                activeNetwork?.let { multiAdContentListener?.onAdFailedToShow(it, error) }
+            }
+
+            override fun onAdShowed() {
+                adContentListener?.onAdShowed()
+                activeNetwork?.let { multiAdContentListener?.onAdShowed(it) }
+            }
+
+            override fun onAdDisplayed() {
+                adContentListener?.onAdDisplayed()
+                activeNetwork?.let { multiAdContentListener?.onAdDisplayed(it) }
+            }
+
+            override fun onAdDismissed() {
+                isShowingAd = false
+                updateState()
+                adContentListener?.onAdDismissed()
+                activeNetwork?.let { multiAdContentListener?.onAdDismissed(it) }
+            }
+
+            override fun onAdClicked() {
+                adContentListener?.onAdClicked()
+                activeNetwork?.let { multiAdContentListener?.onAdClicked(it) }
+            }
+        })
+        val shown = tryShowAdNetwork(ad)
+        isShowingAd = shown
+        updateState()
+        return shown
     }
 
     actual fun destroy() {
@@ -150,8 +200,26 @@ actual class MultiAppOpenAd actual constructor(
         activeAd?.let { destroyAd(it) }
         activeAd = null
         activeNetwork = null
+        isShowingAd = false
         pendingNetworks.clear()
+        failedNetworks.clear()
         updateState()
+    }
+
+    actual override fun onStart() {
+        (activeAd as? AdLifecycleObserver)?.onStart()
+        loadingAds.values.forEach { (it as? AdLifecycleObserver)?.onStart() }
+        updateState()
+    }
+
+    actual override fun onStop() {
+        (activeAd as? AdLifecycleObserver)?.onStop()
+        loadingAds.values.forEach { (it as? AdLifecycleObserver)?.onStop() }
+        updateState()
+    }
+
+    actual override fun onDestroy() {
+        destroy()
     }
 
     private fun loadNextBatch() {
@@ -178,7 +246,10 @@ actual class MultiAppOpenAd actual constructor(
         val adConfigObj = adConfig {
             isTestModeEnabled = testModeEnabled
             tag = this@MultiAppOpenAd.tag ?: config.network.name
-            adLogger = DefaultAdLogger(config.network.name)
+            adLogger = requestConfig.adLogger ?: DefaultAdLogger(config.network.name)
+            adReloadPolicies = requestConfig.adReloadPolicies
+            adFailedRetryRule = requestConfig.adFailedRetryRule
+            adRefreshStrategy = requestConfig.adRefreshStrategy
         }
 
         val ad = createAd(config, adConfigObj) ?: run {
@@ -188,7 +259,17 @@ actual class MultiAppOpenAd actual constructor(
 
         ad.setAdLoadCallback(object : AdLoadCallback {
             override fun onAdLoaded() {
-                if (isDestroyed.value || activeAd != null) {
+                if (isDestroyed.value) {
+                    destroyAd(ad)
+                    return
+                }
+                if (activeAd === ad) {
+                    updateState()
+                    adLoadListener?.onAdLoaded()
+                    multiAdLoadListener?.onAdLoaded(config)
+                    return
+                }
+                if (activeAd != null) {
                     destroyAd(ad)
                     return
                 }
@@ -209,7 +290,29 @@ actual class MultiAppOpenAd actual constructor(
 
             override fun onAdFailedToLoad(error: AdError?) {
                 if (isDestroyed.value) return
+                if (activeAd === ad) {
+                    multiAdLoadListener?.onAdFailedToLoad(config, error)
+                    if (ad.isAdAvailable) {
+                        updateState()
+                        return
+                    }
+                    failedNetworks.add(config)
+                    activeAd = null
+                    activeNetwork = null
+                    destroyAd(ad)
+                    pendingNetworks.clear()
+                    pendingNetworks.addAll(
+                        waterfallConfig?.networks.orEmpty()
+                            .filter { it !in failedNetworks }
+                            .sortedBy { it.priority }
+                    )
+                    updateState()
+                    loadNextBatch()
+                    return
+                }
+                if (loadingAds[config] !== ad) return
                 loadingAds.remove(config)
+                failedNetworks.add(config)
                 destroyAd(ad)
                 multiAdLoadListener?.onAdFailedToLoad(config, error)
 
@@ -245,6 +348,7 @@ actual class MultiAppOpenAd actual constructor(
             when (config.network) {
                 AdNetwork.ADMOB -> AdmobAppOpenAd(config.adUnitId, null, adConfigObj, null)
                 AdNetwork.APPLOVIN -> AppLovinAppOpenAd(config.adUnitId, null, adConfigObj)
+                AdNetwork.PANGLE -> PangleAppOpenAd(config.adUnitId, null, adConfigObj)
                 else -> null
             }
         } catch (e: Exception) {
@@ -257,6 +361,7 @@ actual class MultiAppOpenAd actual constructor(
         return when (network) {
             AdNetwork.ADMOB -> true
             AdNetwork.APPLOVIN -> AppLovinAds.isInitialized()
+            AdNetwork.PANGLE -> PangleAds.isInitialized()
             else -> false
         }
     }
@@ -268,12 +373,13 @@ actual class MultiAppOpenAd actual constructor(
     }
 
     private fun updateState() {
-        isAdAvailableState = activeAd?.isAdAvailable == true
-        isAdLoadingState = loadingAds.isNotEmpty()
-        isRetryingAdFailedLoadState = loadingAds.values.any { it.isRetryingAdFailedLoad }
-        isAdRefreshingState = loadingAds.values.any { it.isAdRefreshing }
-        isAdReloadingState = loadingAds.values.any { it.isAdReloading }
-        attemptCountState = loadingAds.values.maxOfOrNull { it.attemptCount } ?: 0
+        val managedAds = loadingAds.values + listOfNotNull(activeAd)
+        isAdAvailableState = !isShowingAd && activeAd?.isAdAvailable == true
+        isAdLoadingState = managedAds.any { it.isAdLoading }
+        isRetryingAdFailedLoadState = managedAds.any { it.isRetryingAdFailedLoad }
+        isAdRefreshingState = managedAds.any { it.isAdRefreshing }
+        isAdReloadingState = managedAds.any { it.isAdReloading }
+        attemptCountState = managedAds.maxOfOrNull { it.attemptCount } ?: 0
     }
 
     private fun destroyAd(ad: AdState) {
@@ -290,6 +396,7 @@ actual class MultiAppOpenAd actual constructor(
         when (ad) {
             is AdmobAppOpenAd -> ad.showAd(viewController)
             is AppLovinAppOpenAd -> ad.showAd(viewController)
+            is PangleAppOpenAd -> ad.showAd(viewController)
         }
     }
 
@@ -297,7 +404,12 @@ actual class MultiAppOpenAd actual constructor(
         return when (ad) {
             is AdmobAppOpenAd -> ad.tryShowAd()
             is AppLovinAppOpenAd -> ad.tryShowAd()
+            is PangleAppOpenAd -> ad.tryShowAd()
             else -> false
         }
+    }
+
+    private companion object {
+        val SUPPORTED_NETWORKS = setOf(AdNetwork.ADMOB, AdNetwork.APPLOVIN, AdNetwork.PANGLE)
     }
 }

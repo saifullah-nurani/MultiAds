@@ -116,6 +116,11 @@ object AppOpenAdLifecycleManager {
 
     private fun handleActivityLifecycleEvent(activity: Activity, event: Lifecycle.Event) {
         val ad = appOpenAd ?: return
+        when (event) {
+            Lifecycle.Event.ON_START -> ad.onStart()
+            Lifecycle.Event.ON_STOP -> ad.onStop()
+            else -> Unit
+        }
         val matches = activityRules.any { rule ->
             rule.activityClass.isInstance(activity) && rule.event == event && rule.condition(activity)
         }

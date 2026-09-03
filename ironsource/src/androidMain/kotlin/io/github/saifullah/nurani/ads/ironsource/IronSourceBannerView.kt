@@ -4,37 +4,41 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.util.AttributeSet
 import android.widget.FrameLayout
-import com.ironsource.mediationsdk.ISBannerSize
-import com.ironsource.mediationsdk.IronSource
-import com.ironsource.mediationsdk.IronSourceBannerLayout
-import com.ironsource.mediationsdk.adunit.adapter.utility.AdInfo
-import com.ironsource.mediationsdk.logger.IronSourceError
-import com.ironsource.mediationsdk.sdk.LevelPlayBannerListener
+import com.unity3d.mediation.LevelPlay
+import com.unity3d.mediation.LevelPlayAdError
+import com.unity3d.mediation.LevelPlayAdInfo
+import com.unity3d.mediation.LevelPlayAdSize
+import com.unity3d.mediation.banner.LevelPlayBannerAdView
+import com.unity3d.mediation.banner.LevelPlayBannerAdViewListener
+import io.github.saifullah.nurani.ads.core.utils.ContextUtils.Companion.findActivity
 import io.github.saifullah.nurani.ads.core.AdFailedRetryRule
 import io.github.saifullah.nurani.ads.core.AdFailedRetryRule.Companion.exponentialDefault
 import io.github.saifullah.nurani.ads.core.AdLogger
 import io.github.saifullah.nurani.ads.core.AdRefreshStrategy.Companion.disable
 import io.github.saifullah.nurani.ads.core.AdReloadPolicy
+import io.github.saifullah.nurani.ads.core.AdSize
 import io.github.saifullah.nurani.ads.core.AdStateManager
 import io.github.saifullah.nurani.ads.core.BannerAd
 import io.github.saifullah.nurani.ads.core.BannerAdListener
 import io.github.saifullah.nurani.ads.core.Scheduler
 import io.github.saifullah.nurani.ads.core.exponentialRetry
 import io.github.saifullah.nurani.ads.core.linearRetry
-import io.github.saifullah.nurani.ads.core.utils.ContextUtils.Companion.findActivity
+import io.github.saifullah.nurani.ads.core.utils.DefaultAdLogger
 
 class IronSourceBannerView @JvmOverloads constructor(
     context: Context,
     attrs: AttributeSet? = null,
     defStyleAttr: Int = 0
 ) : FrameLayout(context, attrs, defStyleAttr) {
-    private var bannerLayout: IronSourceBannerLayout? = null
-    private var bannerAd: BannerAd<ISBannerSize>? = null
-    private var currentSize: ISBannerSize = ISBannerSize.BANNER
+    private var bannerLayout: LevelPlayBannerAdView? = null
+    private var bannerAd: BannerAd<AdSize>? = null
+    private var currentSize: AdSize = AdSize.BANNER
 
-    val adSize: ISBannerSize get() = currentSize
+    val adSize: AdSize get() = currentSize
+    private var adUnitId: String? = null
     private var placementId: String? = null
-    private var logger: AdLogger? = null
+    private var placementName: String? = null
+    private var logger: AdLogger? = DefaultAdLogger(TAG)
     private var reloadPolicies: Set<AdReloadPolicy> = emptySet()
     var retryRule: AdFailedRetryRule = exponentialDefault()
 
@@ -78,6 +82,7 @@ class IronSourceBannerView @JvmOverloads constructor(
                 val sizeFlags = a.getInt(R.styleable.IronSourceBannerView_adFormats, 1)
                 val loadType = a.getInt(R.styleable.IronSourceBannerView_adLoadType, 1)
 
+                adUnitId = a.getString(R.styleable.IronSourceBannerView_adUnitId)
                 placementId = a.getString(R.styleable.IronSourceBannerView_placementId)
                 val sizes = parseSizes(sizeFlags)
 
@@ -90,7 +95,7 @@ class IronSourceBannerView @JvmOverloads constructor(
                 a.recycle()
             }
         }
-        if (!placementId.isNullOrEmpty()) loadAd()
+        if (!adUnitId.isNullOrEmpty() || !placementId.isNullOrEmpty()) loadAd()
     }
 
     private fun parseReloadPolicies(flags: Int): Set<AdReloadPolicy> {
@@ -126,21 +131,27 @@ class IronSourceBannerView @JvmOverloads constructor(
         }
     }
 
-    private fun parseSizes(flags: Int): List<ISBannerSize> {
-        val sizes: MutableList<ISBannerSize> = mutableListOf()
+    private fun parseSizes(flags: Int): List<AdSize> {
+        val sizes: MutableList<AdSize> = mutableListOf()
 
-        if ((flags and 1) != 0) sizes.add(ISBannerSize.BANNER)
-        if ((flags and 2) != 0) sizes.add(ISBannerSize.RECTANGLE)
-        if ((flags and 4) != 0) sizes.add(ISBannerSize.LARGE)
+        if ((flags and 1) != 0) sizes.add(AdSize.BANNER)
+        if ((flags and 2) != 0) sizes.add(AdSize.MEDIUM_RECTANGLE)
+        if ((flags and 4) != 0) sizes.add(AdSize.LARGE_BANNER)
 
         if (sizes.isEmpty()) {
-            sizes.add(ISBannerSize.BANNER)
+            sizes.add(AdSize.BANNER)
         }
 
         return sizes
     }
 
     fun loadAd() {
+        if (!IronSourceAds.isInitialized()) {
+            IronSourceAds.runWhenInitialized {
+                loadAd()
+            }
+            return
+        }
         if (stateManager == null) {
             stateManager =
                 AdStateManager(reloadPolicies, retryRule, disable(), null, Scheduler(null), requestTag ?: TAG) {
@@ -151,74 +162,107 @@ class IronSourceBannerView @JvmOverloads constructor(
         stateManager!!.loadAd()
     }
 
+    private fun mapToLevelPlayAdSize(context: Context, adSize: AdSize): LevelPlayAdSize {
+        return when {
+            adSize == AdSize.BANNER -> LevelPlayAdSize.BANNER
+            adSize.height >= 250 -> LevelPlayAdSize.MEDIUM_RECTANGLE
+            adSize.height >= 90 -> LevelPlayAdSize.LARGE
+            adSize == AdSize.SMART_BANNER || adSize == AdSize.FLUID -> LevelPlayAdSize.createAdaptiveAdSize(context) ?: LevelPlayAdSize.BANNER
+            else -> LevelPlayAdSize.createCustomSize(adSize.width, adSize.height)
+        }
+    }
+
     @SuppressLint("MissingPermission")
     private fun loadAdInternally(context: Context) {
-        if (!testMode) {
-            checkNotNull(placementId) { "placementId must be set." }
-            require(placementId!!.isNotEmpty()) { "placementId must not be empty." }
+        if (testMode) {
+            LevelPlay.setAdaptersDebug(true)
+        }
+        val finalAdUnitId = (adUnitId ?: placementId)?.takeIf { it.isNotBlank() }
+            ?: if (testMode) TEST_AD_UNIT_ID else null
+        if (!testMode && finalAdUnitId.isNullOrEmpty()) {
+            checkNotNull(finalAdUnitId) { "adUnitId or placementId must be set." }
+            require(finalAdUnitId.isNotEmpty()) { "adUnitId must not be empty." }
         }
         if (!keepAdSlot) {
             visibility = GONE
         }
-        if (!keepAdSlot) {
-            visibility = GONE
-        }
-        destroyAd()
-        currentSize = bannerAd?.getSize() ?: ISBannerSize.BANNER
+        destroyAd(resetStateManager = false)
+        currentSize = bannerAd?.getSize() ?: AdSize.BANNER
 
-        val activity = findActivity(context)
-        checkNotNull(activity) { "Context must be an Activity to load IronSource Banner." }
+        val levelPlaySize = mapToLevelPlayAdSize(context, currentSize)
+        val configBuilder = LevelPlayBannerAdView.Config.Builder()
+            .setAdSize(levelPlaySize)
+        placementName?.let { configBuilder.setPlacementName(it) }
 
-        val banner = IronSource.createBanner(activity, currentSize)
+        val activity = findActivity(context) ?: context
+        val banner = LevelPlayBannerAdView(activity, finalAdUnitId!!, configBuilder.build())
         bannerLayout = banner
 
-        banner.levelPlayBannerListener = object : LevelPlayBannerListener {
-            override fun onAdLoaded(adInfo: AdInfo) {
+        banner.setBannerListener(object : LevelPlayBannerAdViewListener {
+            override fun onAdLoaded(adInfo: LevelPlayAdInfo) {
                 log("Banner loaded")
                 stateManager?.onAdLoaded()
                 adListener?.onAdLoaded()
                 fadeIn()
             }
 
-            override fun onAdLoadFailed(error: IronSourceError) {
+            override fun onAdLoadFailed(error: LevelPlayAdError) {
                 log("Load failed: ${error.errorMessage}")
                 val adError = IronSourceUtils.adErrorFrom(error)
                 stateManager?.onAdFailedToLoad(adError)
-                adListener?.onAdFailedToLoad(adError)
+                if (stateManager?.isRetryingAdFailedLoad != true) {
+                    adListener?.onAdFailedToLoad(adError)
+                }
                 if (!keepAdSlot) visibility = GONE
             }
 
-            override fun onAdClicked(adInfo: AdInfo) {
+            override fun onAdDisplayed(adInfo: LevelPlayAdInfo) {
+                log("Ad Displayed")
+                adListener?.onAdDisplayed()
+                stateManager?.onAdDisplayed()
+            }
+
+            override fun onAdDisplayFailed(adInfo: LevelPlayAdInfo, error: LevelPlayAdError) {
+                log("Ad Display Failed: ${error.errorMessage}")
+                val adError = IronSourceUtils.adErrorFrom(error)
+                stateManager?.onAdFailedToShow(adError)
+                adListener?.onAdFailedToShow(adError)
+            }
+
+            override fun onAdClicked(adInfo: LevelPlayAdInfo) {
                 log("Ad clicked")
                 adListener?.onAdClicked()
                 stateManager?.onAdClicked()
             }
 
-            override fun onAdScreenPresented(adInfo: AdInfo) {
-                log("Ad Showed")
-                adListener?.onAdDisplayed()
-                stateManager?.onAdDisplayed()
+            override fun onAdExpanded(adInfo: LevelPlayAdInfo) {
+                log("Ad Expanded")
+                adListener?.onAdShowed()
+                stateManager?.onAdShowed()
             }
 
-            override fun onAdScreenDismissed(adInfo: AdInfo) {
-                log("Ad Dismissed")
+            override fun onAdCollapsed(adInfo: LevelPlayAdInfo) {
+                log("Ad Collapsed")
                 stateManager?.onAdDismissed()
                 adListener?.onAdDismissed()
             }
 
-            override fun onAdLeftApplication(adInfo: AdInfo) {
+            override fun onAdLeftApplication(adInfo: LevelPlayAdInfo) {
+                log("Ad Left Application")
             }
-        }
+        })
 
         val width = LayoutParams.MATCH_PARENT
-        val heightPx = (currentSize.height * context.resources.displayMetrics.density).toInt()
+        val heightPx = if (levelPlaySize.height > 0) {
+            (levelPlaySize.height * context.resources.displayMetrics.density).toInt()
+        } else {
+            (50 * context.resources.displayMetrics.density).toInt()
+        }
         banner.layoutParams = LayoutParams(width, heightPx)
 
         addView(banner)
-        val finalPlacementId = if (testMode) TEST_AD_UNIT_ID else placementId
-        IronSource.loadBanner(banner, finalPlacementId)
-
-        log("Loading banner...")
+        log("Loading banner adUnitId=$finalAdUnitId requestedSize=${currentSize.width}x${currentSize.height} levelPlaySize=${levelPlaySize.width}x${levelPlaySize.height} layout=${width}x$heightPx")
+        banner.loadAd()
     }
 
     private fun fadeIn() {
@@ -232,13 +276,15 @@ class IronSourceBannerView @JvmOverloads constructor(
         }
     }
 
-    private fun destroyAd() {
+    private fun destroyAd(resetStateManager: Boolean = true) {
         val banner = bannerLayout
         if (banner != null) {
             removeView(banner)
-            stateManager?.onDestroy()
-            IronSource.destroyBanner(banner)
+            banner.destroy()
             bannerLayout = null
+        }
+        if (resetStateManager) {
+            stateManager?.onDestroy()
             stateManager = null
         }
     }
@@ -248,25 +294,34 @@ class IronSourceBannerView @JvmOverloads constructor(
     }
 
     fun setAdLogger(logger: AdLogger?) {
-        this.logger = logger
+        this.logger = logger ?: DefaultAdLogger(TAG)
     }
 
     fun setPlacementId(id: String) {
         this.placementId = id
-    }
-
-    fun setAdSize(size: ISBannerSize) {
-        bannerAd = BannerAd.fixed(size)
-    }
-
-    fun setBannerAd(size: BannerAd<io.github.saifullah.nurani.ads.core.AdSize>) {
-        bannerAd = size.mapToBannerAd {
-            when {
-                it.height >= 250 -> ISBannerSize.RECTANGLE
-                it.height >= 90 -> ISBannerSize.LARGE
-                else -> ISBannerSize.BANNER
-            }
+        if (this.adUnitId == null) {
+            this.adUnitId = id
         }
+    }
+
+    fun setAdUnitId(id: String) {
+        this.adUnitId = id
+    }
+
+    fun setPlacementName(name: String) {
+        this.placementName = name
+    }
+
+    fun setAdSize(size: AdSize) {
+        bannerAd = BannerAd.Fixed(size)
+    }
+
+    fun setAdSize(size: LevelPlayAdSize) {
+        bannerAd = BannerAd.Fixed(AdSize(size.width, size.height))
+    }
+
+    fun setBannerAd(size: BannerAd<AdSize>) {
+        bannerAd = size
     }
 
     fun setTestModeEnabled(enabled: Boolean) {
@@ -281,19 +336,28 @@ class IronSourceBannerView @JvmOverloads constructor(
         this.keepAdSlot = keepAdSlot
     }
 
+    override fun onAttachedToWindow() {
+        super.onAttachedToWindow()
+        resume()
+    }
+
     override fun onDetachedFromWindow() {
         super.onDetachedFromWindow()
-        destroyAd()
+        pause()
     }
 
     fun pause() {
+        bannerLayout?.pauseAutoRefresh()
+        stateManager?.onStop()
     }
 
     fun resume() {
+        bannerLayout?.resumeAutoRefresh()
+        stateManager?.onStart()
     }
 
     fun destroy() {
-        destroyAd()
+        destroyAd(resetStateManager = true)
     }
 
     companion object {

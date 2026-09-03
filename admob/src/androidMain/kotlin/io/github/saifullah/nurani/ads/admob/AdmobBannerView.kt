@@ -166,7 +166,7 @@ class AdmobBannerView @JvmOverloads constructor(
                 visibility = GONE
             }
         }
-        destroyAd()
+        destroyAd(resetStateManager = false)
         currentAdSize = bannerAd?.getSize()!!
         adView = AdView(context)
         adView!!.adUnitId = (if (testMode) TEST_AD_UNIT_ID else adUnitId)!!
@@ -183,7 +183,9 @@ class AdmobBannerView @JvmOverloads constructor(
                 log("Load failed " + error.message)
                 val error = AdmobUtils.adErrorFrom(error)
                 stateManager?.onAdFailedToLoad(error)
-                adListener?.onAdFailedToLoad(error)
+                if (stateManager?.isRetryingAdFailedLoad != true) {
+                    adListener?.onAdFailedToLoad(error)
+                }
                 if (!keepAdSlot) visibility = GONE
 
             }
@@ -225,13 +227,15 @@ class AdmobBannerView @JvmOverloads constructor(
         }
     }
 
-    private fun destroyAd() {
+    private fun destroyAd(resetStateManager: Boolean = true) {
         if (adView != null) {
             removeView(adView)
-            stateManager?.onDestroy()
             adView!!.destroy()
-            stateManager = null
             adView = null
+        }
+        if (resetStateManager) {
+            stateManager?.onDestroy()
+            stateManager = null
         }
     }
 
@@ -271,15 +275,12 @@ class AdmobBannerView @JvmOverloads constructor(
 
     override fun onAttachedToWindow() {
         super.onAttachedToWindow()
-
-        if (adView != null) {
-            adView!!.resume()
-        }
+        resume()
     }
 
     override fun onDetachedFromWindow() {
         super.onDetachedFromWindow()
-        destroyAd()
+        pause()
     }
 
     override fun onVisibilityChanged(changedView: View, visibility: Int) {
@@ -295,15 +296,17 @@ class AdmobBannerView @JvmOverloads constructor(
     }
 
     fun pause() {
+        stateManager?.onStop()
         adView?.pause()
     }
 
     fun resume() {
+        stateManager?.onStart()
         adView?.resume()
     }
 
     fun destroy() {
-        adView?.destroy()
+        destroyAd(resetStateManager = true)
     }
 
     companion object {

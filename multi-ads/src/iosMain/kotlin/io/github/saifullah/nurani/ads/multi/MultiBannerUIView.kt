@@ -46,6 +46,7 @@ class MultiBannerUIView : UIView(frame = CGRectZero.readValue()) {
 
     private val pendingNetworks = mutableListOf<AdNetworkConfig>()
     private val loadingViews = mutableMapOf<AdNetworkConfig, UIView>()
+    private val failedNetworks = mutableSetOf<AdNetworkConfig>()
     private var activeAdView: UIView? = null
     private var isDestroyed = AtomicReference(false)
     private var requestTag: String? = null
@@ -97,6 +98,7 @@ class MultiBannerUIView : UIView(frame = CGRectZero.readValue()) {
         activeAdView = null
         
         pendingNetworks.clear()
+        failedNetworks.clear()
         pendingNetworks.addAll(config.networks.sortedBy { it.priority })
         
         loadNextBatch()
@@ -208,53 +210,68 @@ class MultiBannerUIView : UIView(frame = CGRectZero.readValue()) {
     private fun createChildListener(config: AdNetworkConfig, view: UIView): BannerAdListener {
         return object : BannerAdListener {
             override fun onAdLoaded() {
-                multiAdListener?.onAdLoaded(config)
-                if (isDestroyed.value || activeAdView != null) {
+                if (isDestroyed.value) {
                     view.removeFromSuperview()
                     destroyAdView(view)
                     return
                 }
-                
-                val isHighestPriority = loadingViews.keys.all { it.priority >= config.priority }
-                
-                if (isHighestPriority) {
-                    activeAdView = view
-                    view.hidden = false
-                    loadingViews.remove(config)
-                    
-                    destroyAllLoadingViews()
-                    pendingNetworks.clear()
-                    
+
+                if (activeAdView === view) {
+                    multiAdListener?.onAdLoaded(config)
                     adListener?.onAdLoaded()
+                    return
                 }
+
+                if (activeAdView != null || loadingViews[config] !== view) {
+                    view.removeFromSuperview()
+                    destroyAdView(view)
+                    return
+                }
+
+                multiAdListener?.onAdLoaded(config)
+                activeAdView = view
+                view.hidden = false
+                loadingViews.remove(config)
+
+                destroyAllLoadingViews()
+                pendingNetworks.clear()
+                adListener?.onAdLoaded()
             }
 
             override fun onAdFailedToLoad(error: AdError?) {
-                multiAdListener?.onAdFailedToLoad(config, error)
                 if (isDestroyed.value) return
-                
+                if (activeAdView === view) {
+                    failedNetworks.add(config)
+                    multiAdListener?.onAdFailedToLoad(config, error)
+                    view.removeFromSuperview()
+                    destroyAdView(view)
+                    activeAdView = null
+
+                    val waterfall = waterfallConfig
+                    if (waterfall != null) {
+                        pendingNetworks.clear()
+                        pendingNetworks.addAll(
+                            waterfall.networks
+                                .asSequence()
+                                .filter { it !in failedNetworks }
+                                .sortedBy { it.priority }
+                                .toList()
+                        )
+                        loadNextBatch()
+                    }
+                    return
+                }
+
+                if (loadingViews[config] !== view) return
+
+                failedNetworks.add(config)
+                multiAdListener?.onAdFailedToLoad(config, error)
                 loadingViews.remove(config)
                 view.removeFromSuperview()
                 destroyAdView(view)
-                
+
                 if (activeAdView == null) {
-                    val loadedLowerPriority = loadingViews.entries
-                        .filter { (k, v) -> k.priority > config.priority && v.hidden }
-                        .minByOrNull { it.key.priority }
-                    
-                    if (loadedLowerPriority != null) {
-                        val (winningConfig, winningView) = loadedLowerPriority
-                        activeAdView = winningView
-                        winningView.hidden = false
-                        loadingViews.remove(winningConfig)
-                        
-                        destroyAllLoadingViews()
-                        pendingNetworks.clear()
-                        
-                        adListener?.onAdLoaded()
-                    } else {
-                        loadNextBatch()
-                    }
+                    loadNextBatch()
                 }
             }
 
@@ -330,6 +347,40 @@ class MultiBannerUIView : UIView(frame = CGRectZero.readValue()) {
         }
     }
 
+    fun pause() {
+        loadingViews.values.forEach(::pauseAdView)
+        activeAdView?.let(::pauseAdView)
+    }
+
+    fun resume() {
+        loadingViews.values.forEach(::resumeAdView)
+        activeAdView?.let(::resumeAdView)
+    }
+
+    private fun pauseAdView(view: UIView) {
+        when (view) {
+            is AdmobBannerUIView -> view.pause()
+            is AppLovinBannerUIView -> view.pause()
+            is MetaBannerUIView -> view.pause()
+            is VungleBannerUIView -> view.pause()
+            is InMobiBannerUIView -> view.pause()
+            is PangleBannerUIView -> view.pause()
+            is IronSourceBannerUIView -> view.pause()
+        }
+    }
+
+    private fun resumeAdView(view: UIView) {
+        when (view) {
+            is AdmobBannerUIView -> view.resume()
+            is AppLovinBannerUIView -> view.resume()
+            is MetaBannerUIView -> view.resume()
+            is VungleBannerUIView -> view.resume()
+            is InMobiBannerUIView -> view.resume()
+            is PangleBannerUIView -> view.resume()
+            is IronSourceBannerUIView -> view.resume()
+        }
+    }
+
     private fun layoutChildView(view: UIView) {
         view.setFrame(bounds)
     }
@@ -349,5 +400,6 @@ class MultiBannerUIView : UIView(frame = CGRectZero.readValue()) {
         }
         activeAdView = null
         pendingNetworks.clear()
+        failedNetworks.clear()
     }
 }

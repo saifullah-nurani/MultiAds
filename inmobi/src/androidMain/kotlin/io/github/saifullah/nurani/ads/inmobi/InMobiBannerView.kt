@@ -144,7 +144,7 @@ class InMobiBannerView @JvmOverloads constructor(
     fun loadAd() {
         if (stateManager == null) {
             stateManager =
-                AdStateManager(reloadPolicies, retryRule, disable(), null, Scheduler(null), requestTag ?: TAG) {
+                AdStateManager(reloadPolicies, retryRule, disable(), logger, Scheduler(null), requestTag ?: TAG) {
                     loadAdInternally(context)
                 }
         }
@@ -160,7 +160,9 @@ class InMobiBannerView @JvmOverloads constructor(
                 message = "InMobi SDK is not initialized yet."
             )
             stateManager?.onAdFailedToLoad(adError)
-            adListener?.onAdFailedToLoad(adError)
+            if (stateManager?.isRetryingAdFailedLoad != true) {
+                adListener?.onAdFailedToLoad(adError)
+            }
             return
         }
         if (!testMode) {
@@ -169,7 +171,7 @@ class InMobiBannerView @JvmOverloads constructor(
         if (!keepAdSlot) {
             visibility = GONE
         }
-        destroyAd()
+        destroyAd(resetStateManager = false)
         currentSize = bannerAd?.getSize() ?: AdSize.BANNER
 
         val finalPlacementId = if (testMode) TEST_AD_UNIT_ID else placementId
@@ -187,7 +189,9 @@ class InMobiBannerView @JvmOverloads constructor(
                 log("Load failed: ${status.message}")
                 val adError = InMobiUtils.adErrorFrom(status)
                 stateManager?.onAdFailedToLoad(adError)
-                adListener?.onAdFailedToLoad(adError)
+                if (stateManager?.isRetryingAdFailedLoad != true) {
+                    adListener?.onAdFailedToLoad(adError)
+                }
                 if (!keepAdSlot) visibility = GONE
             }
 
@@ -209,9 +213,6 @@ class InMobiBannerView @JvmOverloads constructor(
         }
 
         inmobiBanner!!.setListener(adListenerWrapper)
-
-        // Set Banner Size
-        inmobiBanner!!.setBannerSize(currentSize.width, currentSize.height)
 
         // Set layout parameters
         val density = context.resources.displayMetrics.density
@@ -237,12 +238,14 @@ class InMobiBannerView @JvmOverloads constructor(
         }
     }
 
-    private fun destroyAd() {
+    private fun destroyAd(resetStateManager: Boolean = true) {
         if (inmobiBanner != null) {
             removeView(inmobiBanner)
+            inmobiBanner = null
+        }
+        if (resetStateManager) {
             stateManager?.onDestroy()
             stateManager = null
-            inmobiBanner = null
         }
     }
 
@@ -270,19 +273,26 @@ class InMobiBannerView @JvmOverloads constructor(
         this.keepAdSlot = keepAdSlot
     }
 
+    override fun onAttachedToWindow() {
+        super.onAttachedToWindow()
+        resume()
+    }
+
     override fun onDetachedFromWindow() {
         super.onDetachedFromWindow()
-        destroyAd()
+        pause()
     }
 
     fun pause() {
+        stateManager?.onStop()
     }
 
     fun resume() {
+        stateManager?.onStart()
     }
 
     fun destroy() {
-        destroyAd()
+        destroyAd(resetStateManager = true)
     }
 
     private var testMode = false
@@ -297,7 +307,7 @@ class InMobiBannerView @JvmOverloads constructor(
     }
 
     companion object {
-        const val TEST_AD_UNIT_ID: Long = 1234567890L
+        const val TEST_AD_UNIT_ID: Long = 10000718284L
         const val TAG: String = "InMobiBannerView"
     }
 }

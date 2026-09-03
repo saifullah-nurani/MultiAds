@@ -23,6 +23,7 @@ class MetaRewardedAd(
     handler: Handler?
 ) : MetaRewardedAdState(context, Scheduler(handler), adConfig, TAG) {
     private var mRewarded: RewardedVideoAd? = null
+    private var isShowingAd = false
 
     private val rewardedAdListener = object : RewardedVideoAdListener {
         override fun onError(ad: Ad?, adError: AdError?) {
@@ -31,9 +32,15 @@ class MetaRewardedAd(
                     -1,
                     "Unknown error"
                 )
+            if (isShowingAd) {
+                clean()
+                adStateManager.onAdFailedToShow(error)
+                adScreenContentCallback?.onAdFailedToShow(error)
+                return
+            }
             adStateManager.onAdFailedToLoad(error)
             adLoadListener?.onAdFailedToLoad(error)
-            if (adStateManager.shouldPreserveOnFailure) {
+            if (!adStateManager.shouldPreserveOnFailure) {
                 mRewarded = null
             }
         }
@@ -89,6 +96,7 @@ class MetaRewardedAd(
     }
 
     override fun clean() {
+        isShowingAd = false
         mRewarded?.destroy()
         mRewarded = null
     }
@@ -117,6 +125,7 @@ class MetaRewardedAd(
     override fun showAd(owner: PlatformActivity, onUserRewarded: () -> Unit) {
         if (isAdAvailable) {
             setOnUserRewarded(onUserRewarded)
+            isShowingAd = true
             mRewarded!!.show()
         }
     }
@@ -153,7 +162,7 @@ class MetaRewardedAd(
     }
 
     override fun addLifecycleOwner(owner: LifecycleOwner) {
-        owner.lifecycle.addObserver(adStateManager)
+        adStateManager.addLifecycleOwner(owner)
     }
 
     companion object {

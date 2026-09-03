@@ -54,7 +54,12 @@ actual class Scheduler(handler: Handler?) {
      * @param task Task to execute.
      */
     actual fun schedule(delayMillis: Long, task: () -> Unit) {
-        handler.postDelayed(task, delayMillis)
+        val runnable = Runnable {
+            runnableMap.remove(task)
+            task()
+        }
+        runnableMap.put(task, runnable)?.let(handler::removeCallbacks)
+        handler.postDelayed(runnable, delayMillis)
     }
 
     /**

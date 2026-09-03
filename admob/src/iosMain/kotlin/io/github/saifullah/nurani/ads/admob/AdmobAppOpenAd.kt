@@ -26,7 +26,7 @@ class AdmobAppOpenAd(
     override val isAdAvailable: Boolean get() = mAppOpenAd != null
 
     override fun loadAd() {
-        if (mAppOpenAd != null) return
+        if (isAdAvailable) return
         reloadAd()
     }
 
@@ -38,7 +38,7 @@ class AdmobAppOpenAd(
             if (error != null) {
                 adStateManager.onAdFailedToLoad(error.adErrorFrom())
                 adLoadListener?.onAdFailedToLoad(error.adErrorFrom())
-                if (adStateManager.shouldPreserveOnFailure) {
+            if (!adStateManager.shouldPreserveOnFailure) {
                     mAppOpenAd = null
                 }
                 return@loadWithAdUnitID

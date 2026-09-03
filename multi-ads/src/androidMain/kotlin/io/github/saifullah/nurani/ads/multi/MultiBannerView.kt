@@ -43,6 +43,7 @@ class MultiBannerView @JvmOverloads constructor(
 
     private val pendingNetworks = mutableListOf<AdNetworkConfig>()
     private val loadingViews = mutableMapOf<AdNetworkConfig, View>()
+    private val failedNetworks = mutableSetOf<AdNetworkConfig>()
     private var activeAdView: View? = null
     private var isDestroyed = AtomicBoolean(false)
     private var requestTag: String? = null
@@ -88,11 +89,15 @@ class MultiBannerView @JvmOverloads constructor(
         
         // Reset state
         destroyAllLoadingViews()
-        activeAdView?.let { removeView(it); destroyAdView(it) }
+        activeAdView?.let {
+            removeView(it)
+            destroyAdView(it)
+        }
         activeAdView = null
         
         // Sort and populate pending queue
         pendingNetworks.clear()
+        failedNetworks.clear()
         pendingNetworks.addAll(config.networks.sortedBy { it.priority })
         
         // Start initial loads
@@ -208,62 +213,68 @@ class MultiBannerView @JvmOverloads constructor(
     private fun createChildListener(config: AdNetworkConfig, view: View): BannerAdListener {
         return object : BannerAdListener {
             override fun onAdLoaded() {
-                multiAdListener?.onAdLoaded(config)
-                if (isDestroyed.get() || activeAdView != null) {
-                    // Already have an active ad, or destroyed
+                if (isDestroyed.get()) {
+                    removeView(view)
                     destroyAdView(view)
                     return
                 }
-                
-                // This ad loaded successfully!
-                // Is it the highest priority currently loading?
-                val isHighestPriority = loadingViews.keys.all { it.priority >= config.priority }
-                
-                if (isHighestPriority) {
-                    // We win!
-                    activeAdView = view
-                    view.visibility = View.VISIBLE
-                    loadingViews.remove(config)
-                    
-                    // Destroy all other loading views to save memory
-                    destroyAllLoadingViews()
-                    pendingNetworks.clear()
 
+                if (activeAdView === view) {
+                    multiAdListener?.onAdLoaded(config)
                     adListener?.onAdLoaded()
-                } else {
-                    // Keep it hidden, waiting for higher priority to fail or succeed
+                    return
                 }
+
+                if (activeAdView != null || loadingViews[config] !== view) {
+                    removeView(view)
+                    destroyAdView(view)
+                    return
+                }
+
+                multiAdListener?.onAdLoaded(config)
+                activeAdView = view
+                view.visibility = View.VISIBLE
+                loadingViews.remove(config)
+
+                destroyAllLoadingViews()
+                pendingNetworks.clear()
+                adListener?.onAdLoaded()
             }
 
             override fun onAdFailedToLoad(error: AdError?) {
-                multiAdListener?.onAdFailedToLoad(config, error)
                 if (isDestroyed.get()) return
-                
+                if (activeAdView === view) {
+                    failedNetworks.add(config)
+                    multiAdListener?.onAdFailedToLoad(config, error)
+                    removeView(view)
+                    destroyAdView(view)
+                    activeAdView = null
+
+                    val waterfall = waterfallConfig
+                    if (waterfall != null) {
+                        pendingNetworks.clear()
+                        pendingNetworks.addAll(
+                            waterfall.networks
+                                .asSequence()
+                                .filter { it !in failedNetworks }
+                                .sortedBy { it.priority }
+                                .toList()
+                        )
+                        loadNextBatch()
+                    }
+                    return
+                }
+
+                if (loadingViews[config] !== view) return
+
+                failedNetworks.add(config)
+                multiAdListener?.onAdFailedToLoad(config, error)
                 loadingViews.remove(config)
                 removeView(view)
                 destroyAdView(view)
-                
+
                 if (activeAdView == null) {
-                    // Check if a lower priority ad has already loaded
-                    val loadedLowerPriority = loadingViews.entries
-                        .filter { (k, v) -> k.priority > config.priority && v.visibility == View.INVISIBLE }
-                        .minByOrNull { it.key.priority }
-                    
-                    if (loadedLowerPriority != null) {
-                        // The higher priority failed, so let's use the waiting lower priority one
-                        val (winningConfig, winningView) = loadedLowerPriority
-                        activeAdView = winningView
-                        winningView.visibility = View.VISIBLE
-                        loadingViews.remove(winningConfig)
-                        
-                        destroyAllLoadingViews()
-                        pendingNetworks.clear()
-                        
-                        adListener?.onAdLoaded()
-                    } else {
-                        // Keep loading next
-                        loadNextBatch()
-                    }
+                    loadNextBatch()
                 }
             }
 
@@ -339,12 +350,50 @@ class MultiBannerView @JvmOverloads constructor(
         }
     }
 
+    fun pause() {
+        loadingViews.values.forEach(::pauseAdView)
+        activeAdView?.let(::pauseAdView)
+    }
+
+    fun resume() {
+        loadingViews.values.forEach(::resumeAdView)
+        activeAdView?.let(::resumeAdView)
+    }
+
+    private fun pauseAdView(view: View) {
+        when (view) {
+            is AdmobBannerView -> view.pause()
+            is AppLovinBannerView -> view.pause()
+            is MetaBannerView -> view.pause()
+            is VungleBannerView -> view.pause()
+            is InMobiBannerView -> view.pause()
+            is PangleBannerView -> view.pause()
+            is IronSourceBannerView -> view.pause()
+        }
+    }
+
+    private fun resumeAdView(view: View) {
+        when (view) {
+            is AdmobBannerView -> view.resume()
+            is AppLovinBannerView -> view.resume()
+            is MetaBannerView -> view.resume()
+            is VungleBannerView -> view.resume()
+            is InMobiBannerView -> view.resume()
+            is PangleBannerView -> view.resume()
+            is IronSourceBannerView -> view.resume()
+        }
+    }
+
     fun destroy() {
         isDestroyed.set(true)
         destroyAllLoadingViews()
-        activeAdView?.let { destroyAdView(it) }
+        activeAdView?.let {
+            removeView(it)
+            destroyAdView(it)
+        }
         activeAdView = null
         pendingNetworks.clear()
+        failedNetworks.clear()
     }
 
     override fun onDetachedFromWindow() {

@@ -156,7 +156,9 @@ class PangleBannerView @JvmOverloads constructor(
                 message = "Pangle SDK is not initialized yet."
             )
             stateManager?.onAdFailedToLoad(adError)
-            adListener?.onAdFailedToLoad(adError)
+            if (stateManager?.isRetryingAdFailedLoad != true) {
+                adListener?.onAdFailedToLoad(adError)
+            }
             return
         }
         val id = adUnitId
@@ -167,7 +169,7 @@ class PangleBannerView @JvmOverloads constructor(
         if (!keepAdSlot) {
             visibility = GONE
         }
-        destroyAd()
+        destroyAd(resetStateManager = false)
         currentSize = bannerAd?.getSize() ?: PAGBannerSize.BANNER_W_320_H_50
 
         val finalAdUnitId = if (testMode) {
@@ -183,7 +185,9 @@ class PangleBannerView @JvmOverloads constructor(
                 log("Load failed: code: $code, message: $message")
                 val adError = PangleUtils.adErrorFrom(code, message)
                 stateManager?.onAdFailedToLoad(adError)
-                adListener?.onAdFailedToLoad(adError)
+                if (stateManager?.isRetryingAdFailedLoad != true) {
+                    adListener?.onAdFailedToLoad(adError)
+                }
                 if (!keepAdSlot) visibility = GONE
             }
 
@@ -242,12 +246,14 @@ class PangleBannerView @JvmOverloads constructor(
         }
     }
 
-    private fun destroyAd() {
+    private fun destroyAd(resetStateManager: Boolean = true) {
         if (mPAGBannerAd != null) {
             removeAllViews()
+            mPAGBannerAd = null
+        }
+        if (resetStateManager) {
             stateManager?.onDestroy()
             stateManager = null
-            mPAGBannerAd = null
         }
     }
 
@@ -280,19 +286,26 @@ class PangleBannerView @JvmOverloads constructor(
         this.keepAdSlot = keepAdSlot
     }
 
+    override fun onAttachedToWindow() {
+        super.onAttachedToWindow()
+        resume()
+    }
+
     override fun onDetachedFromWindow() {
         super.onDetachedFromWindow()
-        destroyAd()
+        pause()
     }
 
     fun pause() {
+        stateManager?.onStop()
     }
 
     fun resume() {
+        stateManager?.onStart()
     }
 
     fun destroy() {
-        destroyAd()
+        destroyAd(resetStateManager = true)
     }
 
     private var testMode = false
@@ -307,8 +320,8 @@ class PangleBannerView @JvmOverloads constructor(
     }
 
     companion object {
-        const val TEST_AD_UNIT_ID: String = "980088185"
-        const val TEST_AD_UNIT_ID_300_250: String = "980088184"
+        const val TEST_AD_UNIT_ID: String = "983586240"
+        const val TEST_AD_UNIT_ID_300_250: String = "983238454"
         const val TAG: String = "PangleBannerView"
     }
 }

@@ -160,7 +160,7 @@ class AppLovinBannerView @JvmOverloads constructor(
         if (!keepAdSlot) {
             visibility = GONE
         }
-        destroyAd()
+        destroyAd(resetStateManager = false)
         currentFormat = bannerAd?.getSize() ?: MaxAdFormat.BANNER
 
         val finalAdUnitId = if (testMode) TEST_AD_UNIT_ID else adUnitId!!
@@ -179,7 +179,9 @@ class AppLovinBannerView @JvmOverloads constructor(
                 log("Load failed: $msg")
                 val adError = AppLovinUtils.adErrorFrom(error)
                 stateManager?.onAdFailedToLoad(adError)
-                adListener?.onAdFailedToLoad(adError)
+                if (stateManager?.isRetryingAdFailedLoad != true) {
+                    adListener?.onAdFailedToLoad(adError)
+                }
                 if (!keepAdSlot) visibility = GONE
             }
 
@@ -238,13 +240,15 @@ class AppLovinBannerView @JvmOverloads constructor(
         }
     }
 
-    private fun destroyAd() {
+    private fun destroyAd(resetStateManager: Boolean = true) {
         if (maxAdView != null) {
             removeView(maxAdView)
-            stateManager?.onDestroy()
             maxAdView!!.destroy()
-            stateManager = null
             maxAdView = null
+        }
+        if (resetStateManager) {
+            stateManager?.onDestroy()
+            stateManager = null
         }
     }
 
@@ -278,19 +282,26 @@ class AppLovinBannerView @JvmOverloads constructor(
         this.keepAdSlot = keepAdSlot
     }
 
+    override fun onAttachedToWindow() {
+        super.onAttachedToWindow()
+        resume()
+    }
+
     override fun onDetachedFromWindow() {
         super.onDetachedFromWindow()
-        destroyAd()
+        pause()
     }
 
     fun pause() {
+        stateManager?.onStop()
     }
 
     fun resume() {
+        stateManager?.onStart()
     }
 
     fun destroy() {
-        destroyAd()
+        destroyAd(resetStateManager = true)
     }
 
     fun setTestModeEnabled(enabled: Boolean) {

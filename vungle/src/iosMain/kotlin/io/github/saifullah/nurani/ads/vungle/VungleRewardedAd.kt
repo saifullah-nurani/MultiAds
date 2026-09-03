@@ -24,7 +24,7 @@ class VungleRewardedAd(
     override val isAdAvailable: Boolean get() = mRewardedAd?.canPlayAd() ?: false
 
     override fun loadAd() {
-        if (mRewardedAd != null) return
+        if (isAdAvailable) return
         reloadAd()
     }
 
@@ -53,7 +53,7 @@ class VungleRewardedAd(
             override fun rewardedAdDidFailToLoad(rewarded: VungleRewarded, withError: NSError) {
                 adStateManager.onAdFailedToLoad(AdError(0, withError.localizedDescription ?: "Unknown error"))
                 adLoadListener?.onAdFailedToLoad(AdError(0, withError.localizedDescription ?: "Unknown error"))
-                if (adStateManager.shouldPreserveOnFailure) {
+            if (!adStateManager.shouldPreserveOnFailure) {
                     mRewardedAd = null
                 }
             }
@@ -68,6 +68,7 @@ class VungleRewardedAd(
 
             override fun rewardedAdDidFailToPresent(rewarded: VungleRewarded, withError: NSError) {
                 val adError = AdError(0, withError.localizedDescription ?: "Unknown error")
+                clean()
                 adStateManager.onAdFailedToShow(adError)
                 adScreenContentCallback?.onAdFailedToShow(adError)
             }
@@ -78,9 +79,9 @@ class VungleRewardedAd(
             }
 
             override fun rewardedAdDidClose(rewarded: VungleRewarded) {
+                clean()
                 adStateManager.onAdDismissed()
                 adScreenContentCallback?.onAdDismissed()
-                clean()
             }
             
             override fun rewardedAdDidRewardUser(rewarded: VungleRewarded) {

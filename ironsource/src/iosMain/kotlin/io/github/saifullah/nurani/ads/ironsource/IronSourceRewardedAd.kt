@@ -64,6 +64,7 @@ class IronSourceRewardedAd(
 
                 override fun didFailToDisplayAdWithAdInfo(adInfo: LPMAdInfo, error: NSError) {
                     val adError = AdError(0, error.localizedDescription ?: "Unknown error")
+                    clean()
                     adStateManager.onAdFailedToShow(adError)
                     adScreenContentCallback?.onAdFailedToShow(adError)
                 }
@@ -74,9 +75,9 @@ class IronSourceRewardedAd(
                 }
 
                 override fun didCloseAdWithAdInfo(adInfo: LPMAdInfo) {
-                    adStateManager.onAdDismissed()
-                    adScreenContentCallback?.onAdDismissed()
-                    clean()
+                clean()
+                adStateManager.onAdDismissed()
+                adScreenContentCallback?.onAdDismissed()
                 }
                 
                 override fun didRewardAdWithAdInfo(adInfo: LPMAdInfo, reward: LPMReward) {

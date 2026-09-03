@@ -14,6 +14,7 @@ import io.github.saifullah.nurani.ads.core.AdSize
 import io.github.saifullah.nurani.ads.core.BannerAd
 import io.github.saifullah.nurani.ads.core.BannerAdListener
 import io.github.saifullah.nurani.ads.core.rememberBannerHeightController
+import io.github.saifullah.nurani.ads.core.rememberBannerLifecycleBinding
 import io.github.saifullah.nurani.ads.multi.MultiBannerUIView
 import io.github.saifullah.nurani.ads.multi.models.MultiAdListener
 import io.github.saifullah.nurani.ads.multi.models.MultiBannerAdConfig
@@ -87,6 +88,10 @@ actual fun MultiBannerAd(
         Modifier.fillMaxWidth()
     }
     val initialLoadRequested = remember { booleanArrayOf(false) }
+    val lifecycleBinding = rememberBannerLifecycleBinding<MultiBannerUIView>(
+        onStart = { it.resume() },
+        onStop = { it.pause() }
+    )
 
     UIKitView(
         modifier = modifier,
@@ -100,7 +105,7 @@ actual fun MultiBannerAd(
                 setBannerAd(config.adSize)
                 setAdListener(bannerAdListener)
                 setMultiAdListener(adListener)
-            }
+            }.also(lifecycleBinding::attach)
         },
         update = { view ->
             view.setWaterfallConfig(waterfallConfig)
@@ -117,6 +122,7 @@ actual fun MultiBannerAd(
             }
         },
         onRelease = { view ->
+            lifecycleBinding.detach(view)
             view.destroy()
         }
     )

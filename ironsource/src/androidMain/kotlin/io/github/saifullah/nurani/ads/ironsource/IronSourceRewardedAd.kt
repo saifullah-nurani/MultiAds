@@ -5,13 +5,13 @@ import android.content.Context
 import android.os.Handler
 import androidx.annotation.StringRes
 import androidx.lifecycle.LifecycleOwner
-import com.ironsource.mediationsdk.IronSource
-import com.ironsource.mediationsdk.adunit.adapter.utility.AdInfo
-import com.ironsource.mediationsdk.logger.IronSourceError
-import com.ironsource.mediationsdk.model.Placement
-import com.ironsource.mediationsdk.sdk.LevelPlayRewardedVideoListener
+import com.unity3d.mediation.LevelPlay
+import com.unity3d.mediation.LevelPlayAdError
+import com.unity3d.mediation.LevelPlayAdInfo
+import com.unity3d.mediation.rewarded.LevelPlayReward
+import com.unity3d.mediation.rewarded.LevelPlayRewardedAd
+import com.unity3d.mediation.rewarded.LevelPlayRewardedAdListener
 import io.github.saifullah.nurani.ads.core.AdConfig
-import io.github.saifullah.nurani.ads.core.AdError
 import io.github.saifullah.nurani.ads.core.OnUserRewardedListener
 import io.github.saifullah.nurani.ads.core.Scheduler
 import io.github.saifullah.nurani.ads.core.compose.PlatformActivity
@@ -24,46 +24,49 @@ class IronSourceRewardedAd(
     handler: Handler?
 ) : RewardedAdState(context, Scheduler(handler), adConfig, TAG) {
 
-    private val rewardedVideoListener = object : LevelPlayRewardedVideoListener {
-        override fun onAdAvailable(adInfo: AdInfo) {
+    private var rewardedAd: LevelPlayRewardedAd? = null
+
+    private val rewardedVideoListener = object : LevelPlayRewardedAdListener {
+        override fun onAdLoaded(adInfo: LevelPlayAdInfo) {
             adStateManager.onAdLoaded()
             adLoadListener?.onAdLoaded()
         }
 
-        override fun onAdUnavailable() {
-            val adError = AdError(-1, "Rewarded ad unavailable", null, null)
+        override fun onAdLoadFailed(error: LevelPlayAdError) {
+            val adError = IronSourceUtils.adErrorFrom(error)
             adStateManager.onAdFailedToLoad(adError)
             adLoadListener?.onAdFailedToLoad(adError)
         }
 
-        override fun onAdOpened(adInfo: AdInfo) {
+        override fun onAdDisplayed(adInfo: LevelPlayAdInfo) {
             adStateManager.onAdShowed()
             adScreenContentCallback?.onAdShowed()
         }
 
-        override fun onAdShowFailed(error: IronSourceError, adInfo: AdInfo) {
+        override fun onAdDisplayFailed(error: LevelPlayAdError, adInfo: LevelPlayAdInfo) {
             val adError = IronSourceUtils.adErrorFrom(error)
-            adScreenContentCallback?.onAdFailedToShow(adError)
             clean()
+            adStateManager.onAdFailedToShow(adError)
+            adScreenContentCallback?.onAdFailedToShow(adError)
         }
 
-        override fun onAdClicked(placement: Placement?, adInfo: AdInfo) {
+        override fun onAdClicked(adInfo: LevelPlayAdInfo) {
             adStateManager.onAdClicked()
             adScreenContentCallback?.onAdClicked()
         }
 
-        override fun onAdClosed(adInfo: AdInfo) {
+        override fun onAdClosed(adInfo: LevelPlayAdInfo) {
             clean()
             adStateManager.onAdDismissed()
             adScreenContentCallback?.onAdDismissed()
         }
 
-        override fun onAdRewarded(placement: Placement?, adInfo: AdInfo) {
+        override fun onAdRewarded(reward: LevelPlayReward, adInfo: LevelPlayAdInfo) {
             userRewardedCallback?.invoke()
         }
     }
 
-    override val isAdAvailable: Boolean get() = IronSource.isRewardedVideoAvailable()
+    override val isAdAvailable: Boolean get() = rewardedAd?.isAdReady() ?: false
 
     override fun loadAd() {
         if (isAdAvailable) return
@@ -71,16 +74,27 @@ class IronSourceRewardedAd(
     }
 
     override fun onAdLoad() {
-        if (!adConfig.isTestModeEnabled) {
-            checkNotNull(placementName) { "placementName must be set." }
-            require(placementName.isNotEmpty()) { "placementName must not be empty." }
+        if (!IronSourceAds.isInitialized()) {
+            IronSourceAds.runWhenInitialized {
+                onAdLoad()
+            }
+            return
         }
-        IronSource.setLevelPlayRewardedVideoListener(rewardedVideoListener)
-        IronSource.loadRewardedVideo()
+        if (adConfig.isTestModeEnabled) {
+            LevelPlay.setAdaptersDebug(true)
+        } else {
+            checkNotNull(placementName) { "placementName / adUnitId must be set." }
+            require(placementName.isNotEmpty()) { "placementName / adUnitId must not be empty." }
+        }
+        val finalAdUnitId = if (adConfig.isTestModeEnabled) TEST_AD_UNIT_ID else placementName!!
+        val ad = LevelPlayRewardedAd(finalAdUnitId)
+        ad.setListener(rewardedVideoListener)
+        rewardedAd = ad
+        ad.loadAd()
     }
 
     override fun clean() {
-        // No explicit destroy needed, LevelPlay handles caching
+        // Handled per instance
     }
 
     override fun showAd(owner: Activity) {
@@ -105,15 +119,10 @@ class IronSourceRewardedAd(
     }
 
     override fun showAd(owner: PlatformActivity, onUserRewarded: () -> Unit) {
-        if (isAdAvailable) {
+        val ad = rewardedAd
+        if (ad != null && ad.isAdReady()) {
             setOnUserRewarded(onUserRewarded)
-            IronSource.setLevelPlayRewardedVideoListener(rewardedVideoListener)
-            val finalPlacement = if (adConfig.isTestModeEnabled) TEST_AD_UNIT_ID else placementName
-            if (finalPlacement != null) {
-                IronSource.showRewardedVideo(finalPlacement)
-            } else {
-                IronSource.showRewardedVideo()
-            }
+            ad.showAd(owner)
         }
     }
 
@@ -145,7 +154,7 @@ class IronSourceRewardedAd(
     }
 
     override fun addLifecycleOwner(owner: LifecycleOwner) {
-        owner.lifecycle.addObserver(adStateManager)
+        adStateManager.addLifecycleOwner(owner)
     }
 
     companion object {
@@ -158,7 +167,7 @@ class IronSourceRewardedAd(
         fun with(context: Context, @StringRes placementNameRes: Int): IronSourceRewardedAd {
             return with(context, context.getString(placementNameRes))
         }
-        const val TEST_AD_UNIT_ID: String = "1hv15us4p1j74q7j"
+        const val TEST_AD_UNIT_ID: String = "2452nmjt1t4g9z33"
         const val TAG: String = "IronSourceRewardedAd"
     }
 }

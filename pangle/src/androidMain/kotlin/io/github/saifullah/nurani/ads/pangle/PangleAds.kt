@@ -88,7 +88,8 @@ actual object PangleAds {
     @SuppressLint("MissingPermission")
     @JvmStatic
     fun init(appContext: Context, appId: String, config: Config, onComplete: ((Boolean) -> Unit)?) {
-        applicationContext = WeakReference(appContext)
+        val context = appContext.applicationContext
+        applicationContext = WeakReference(context)
         currentConfig = config
         isInitialized = false
 
@@ -97,7 +98,9 @@ actual object PangleAds {
             .debugLog(config.adLogger != null)
             .build()
 
-        PAGSdk.init(appContext, pagConfig, object : PAGSdk.PAGInitCallback {
+        logDebug("Initializing Pangle SDK appId=$appId package=${context.packageName}")
+
+        PAGSdk.init(context, pagConfig, object : PAGSdk.PAGInitCallback {
             override fun success() {
                 logDebug("Pangle SDK Initialization Complete")
                 isInitialized = true

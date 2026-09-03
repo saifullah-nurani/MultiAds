@@ -34,7 +34,7 @@ class InMobiRewardedAd(
             val adError = InMobiUtils.adErrorFrom(status)
             adStateManager.onAdFailedToLoad(adError)
             adLoadListener?.onAdFailedToLoad(adError)
-            if (adStateManager.shouldPreserveOnFailure) {
+            if (!adStateManager.shouldPreserveOnFailure) {
                 mRewarded = null
             }
         }
@@ -57,8 +57,9 @@ class InMobiRewardedAd(
 
         override fun onAdDisplayFailed(ad: InMobiInterstitial) {
             val adError = AdError(-1, "Ad Display Failed")
-            adScreenContentCallback?.onAdFailedToShow(adError)
             clean()
+            adStateManager.onAdFailedToShow(adError)
+            adScreenContentCallback?.onAdFailedToShow(adError)
         }
 
         override fun onRewardsUnlocked(ad: InMobiInterstitial, rewards: Map<Any, Any>?) {
@@ -155,7 +156,7 @@ class InMobiRewardedAd(
     }
 
     override fun addLifecycleOwner(owner: LifecycleOwner) {
-        owner.lifecycle.addObserver(adStateManager)
+        adStateManager.addLifecycleOwner(owner)
     }
 
     companion object {
@@ -164,7 +165,7 @@ class InMobiRewardedAd(
             return InMobiRewardedAd(context, placementId, null, null)
         }
 
-        const val TEST_AD_UNIT_ID: Long = 1234567890L
+        const val TEST_AD_UNIT_ID: Long = 10000718283L
         const val TAG: String = "InMobiRewardedAd"
     }
 }

@@ -20,11 +20,12 @@ class MetaInterstitialAd(
     private val placementId: String = placementId
     private var mInterstitialAd: FBInterstitialAd? = null
     private var adDelegate: NSObject? = null
+    private var isShowingAd = false
 
     override val isAdAvailable: Boolean get() = mInterstitialAd?.isAdValid() ?: false
 
     override fun loadAd() {
-        if (mInterstitialAd != null) return
+        if (isAdAvailable) return
         reloadAd()
     }
 
@@ -42,9 +43,16 @@ class MetaInterstitialAd(
             }
 
             override fun interstitialAd(interstitialAd: FBInterstitialAd, didFailWithError: NSError) {
-                adStateManager.onAdFailedToLoad(AdError(0, didFailWithError.toString()))
-                adLoadListener?.onAdFailedToLoad(AdError(0, didFailWithError.toString()))
-                if (adStateManager.shouldPreserveOnFailure) {
+                val error = AdError(0, didFailWithError.toString())
+                if (isShowingAd) {
+                    clean()
+                    adStateManager.onAdFailedToShow(error)
+                    adScreenContentCallback?.onAdFailedToShow(error)
+                    return
+                }
+                adStateManager.onAdFailedToLoad(error)
+                adLoadListener?.onAdFailedToLoad(error)
+                if (!adStateManager.shouldPreserveOnFailure) {
                     mInterstitialAd = null
                 }
             }
@@ -55,9 +63,9 @@ class MetaInterstitialAd(
             }
 
             override fun interstitialAdDidClose(interstitialAd: FBInterstitialAd) {
+                clean()
                 adStateManager.onAdDismissed()
                 adScreenContentCallback?.onAdDismissed()
-                clean()
             }
 
             override fun interstitialAdWillLogImpression(interstitialAd: FBInterstitialAd) {
@@ -72,12 +80,14 @@ class MetaInterstitialAd(
     }
 
     override fun clean() {
+        isShowingAd = false
         mInterstitialAd = null
         adDelegate = null
     }
 
     override fun showAd(owner: UIViewController) {
         if (isAdAvailable) {
+            isShowingAd = true
             mInterstitialAd?.showAdFromRootViewController(owner)
         }
     }

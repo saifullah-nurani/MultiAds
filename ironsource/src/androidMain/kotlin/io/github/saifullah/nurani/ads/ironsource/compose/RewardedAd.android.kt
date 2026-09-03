@@ -33,7 +33,7 @@ actual fun rememberIronSourceRewardedAd(
     adLoadCallback: AdLoadCallback?,
     adContentCallback: AdContentCallback?
 ): RewardedAdState = rememberIronSourceRewardedAd(
-    placementName = properties.androidPlacementName,
+    adUnitId = properties.androidAdUnitId,
     initialLoad = initialLoad,
     immersiveModeEnabled = immersiveModeEnabled,
     testModeEnabled = testModeEnabled,
@@ -53,7 +53,7 @@ actual fun rememberIronSourceRewardedAd(
  */
 @Composable
 fun rememberIronSourceRewardedAd(
-    placementName: String? = null,
+    adUnitId: String? = null,
     initialLoad: Boolean = true,
     immersiveModeEnabled: Boolean = true,
     testModeEnabled: Boolean = false,
@@ -66,10 +66,10 @@ fun rememberIronSourceRewardedAd(
     adLoadCallback: AdLoadCallback? = null,
     adContentCallback: AdContentCallback? = null,
 ): RewardedAdState {
-    val adState = remember(placementName) {
+    val adState = remember(adUnitId) {
         IronSourceRewardedAd(
             context = context,
-            placementName = placementName,
+            placementName = adUnitId,
             handler = handler,
             adConfig = adConfig {
                 this.adLogger = adLogger
@@ -85,7 +85,7 @@ fun rememberIronSourceRewardedAd(
      * Connect ad lifecycle with Compose lifecycle.
      */
     AdStateLifecycleManage(
-        placementName = placementName,
+        placementName = adUnitId,
         initialLoad = initialLoad,
         immersiveModeEnabled = immersiveModeEnabled,
         adState = adState,

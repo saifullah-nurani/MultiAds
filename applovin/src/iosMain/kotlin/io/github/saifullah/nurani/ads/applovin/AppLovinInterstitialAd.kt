@@ -25,7 +25,7 @@ class AppLovinInterstitialAd(
     override val isAdAvailable: Boolean get() = mInterstitialAd?.isReady() ?: false
 
     override fun loadAd() {
-        if (mInterstitialAd != null) return
+        if (isAdAvailable) return
         reloadAd()
     }
 
@@ -44,7 +44,7 @@ class AppLovinInterstitialAd(
             override fun didFailToLoadAdForAdUnitIdentifier(adUnitIdentifier: String, withError: MAError) {
                 adStateManager.onAdFailedToLoad(AdError(0, withError.toString()))
                 adLoadListener?.onAdFailedToLoad(AdError(0, withError.toString()))
-                if (adStateManager.shouldPreserveOnFailure) {
+            if (!adStateManager.shouldPreserveOnFailure) {
                     mInterstitialAd = null
                 }
             }
@@ -56,9 +56,9 @@ class AppLovinInterstitialAd(
             }
 
             override fun didHideAd(ad: MAAd) {
+                clean()
                 adStateManager.onAdDismissed()
                 adScreenContentCallback?.onAdDismissed()
-                clean()
             }
 
             override fun didClickAd(ad: MAAd) {
@@ -68,6 +68,7 @@ class AppLovinInterstitialAd(
 
             override fun didFailToDisplayAd(ad: MAAd, withError: MAError) {
                 val adError = AdError(0, withError.toString())
+                clean()
                 adStateManager.onAdFailedToShow(adError)
                 adScreenContentCallback?.onAdFailedToShow(adError)
             }

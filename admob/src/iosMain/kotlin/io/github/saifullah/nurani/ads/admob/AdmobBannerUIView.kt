@@ -101,7 +101,7 @@ class AdmobBannerUIView : UIView(frame = CGRectZero.readValue()) {
         if (!isTestModeEnabled) {
             checkNotNull(adUnitId) { "adUnitId must be set." }
         }
-        destroy()
+        destroyBanner(resetStateManager = false)
         if (bannerView == null) {
 
             currentAdSize = bannerAd?.getSize() ?: GADAdSizeBanner.readValue()
@@ -133,7 +133,9 @@ class AdmobBannerUIView : UIView(frame = CGRectZero.readValue()) {
                     val error = didFailToReceiveAdWithError.adErrorFrom()
 
                     adStateManager?.onAdFailedToLoad(error)
-                    adListener?.onAdFailedToLoad(error)
+                    if (adStateManager?.isRetryingAdFailedLoad != true) {
+                        adListener?.onAdFailedToLoad(error)
+                    }
 
                     if (!keepAdSlot) hidden = true
                 }
@@ -203,12 +205,26 @@ class AdmobBannerUIView : UIView(frame = CGRectZero.readValue()) {
         }
     }
 
+    fun resume() {
+        adStateManager?.onStart()
+    }
+
+    fun pause() {
+        adStateManager?.onStop()
+    }
+
     fun destroy() {
+        destroyBanner(resetStateManager = true)
+    }
+
+    private fun destroyBanner(resetStateManager: Boolean) {
         bannerView?.removeFromSuperview()
         bannerView = null
         adDelegate = null
-        adStateManager?.onDestroy()
-        adStateManager = null
+        if (resetStateManager) {
+            adStateManager?.onDestroy()
+            adStateManager = null
+        }
     }
 
     private fun log(msg: String) {

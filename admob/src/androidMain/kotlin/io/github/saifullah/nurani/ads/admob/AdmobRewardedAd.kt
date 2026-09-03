@@ -41,7 +41,7 @@ class AdmobRewardedAd(
                 val adError = AdmobUtils.adErrorFrom(loadAdError)
                 adStateManager.onAdFailedToLoad(adError)
                 adLoadListener?.onAdFailedToLoad(adError)
-                if (adStateManager.shouldPreserveOnFailure) {
+            if (!adStateManager.shouldPreserveOnFailure) {
                     mRewarded = null
                 }
             }
@@ -129,7 +129,7 @@ class AdmobRewardedAd(
     }
 
     override fun addLifecycleOwner(owner: LifecycleOwner) {
-        owner.lifecycle.addObserver(adStateManager)
+        adStateManager.addLifecycleOwner(owner)
     }
 
     companion object {

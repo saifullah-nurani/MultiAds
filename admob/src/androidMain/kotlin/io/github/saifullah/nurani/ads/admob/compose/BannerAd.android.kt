@@ -16,6 +16,7 @@ import io.github.saifullah.nurani.ads.core.AdSize
 import io.github.saifullah.nurani.ads.core.BannerAd
 import io.github.saifullah.nurani.ads.core.BannerAdListener
 import io.github.saifullah.nurani.ads.core.rememberBannerHeightController
+import io.github.saifullah.nurani.ads.core.rememberBannerLifecycleBinding
 
 @Composable
 actual fun AdmobBannerAd(
@@ -71,6 +72,10 @@ fun AdmobBannerAd(
         mutableStateOf(adUnitId)
     }
     val initialLoadRequested = remember { booleanArrayOf(false) }
+    val lifecycleBinding = rememberBannerLifecycleBinding<AdmobBannerView>(
+        onStart = { it.resume() },
+        onStop = { it.pause() }
+    )
     AndroidView(
         modifier = Modifier
             .fillMaxWidth()
@@ -84,7 +89,7 @@ fun AdmobBannerAd(
                 this.retryRule = adFailedAdRetryRule
                 setKeepAdSlot(expandWhenReady)
                 setTestModeEnabled(testModeEnabled)
-            }
+            }.also(lifecycleBinding::attach)
         },
 
         update = { view ->
@@ -107,7 +112,10 @@ fun AdmobBannerAd(
             }
         },
 
-        onRelease = { it.destroy() }
+        onRelease = {
+            lifecycleBinding.detach(it)
+            it.destroy()
+        }
     )
 }
 

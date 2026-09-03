@@ -35,6 +35,14 @@ object MultiNativeAppOpen {
             this.testModeEnabled = testModeEnabled
             this.isImmersiveModeEnabled = immersiveModeEnabled
             this.tag = tag
+            this.requestConfig = adConfig {
+                this.isTestModeEnabled = testModeEnabled
+                this.tag = tag
+                this.adFailedRetryRule = adFailedAdRetryRule
+                this.adRefreshStrategy = adRefreshStrategy
+                this.adReloadPolicies = adReloadPolicies
+                this.adLogger = adLogger
+            }
             setAdLoadCallback(adLoadCallback)
             setAdContentCallback(adContentCallback)
         }

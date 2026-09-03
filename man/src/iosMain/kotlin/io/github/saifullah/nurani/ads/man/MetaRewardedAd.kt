@@ -20,11 +20,12 @@ class MetaRewardedAd(
     private val placementId: String = placementId
     private var mRewardedAd: FBRewardedVideoAd? = null
     private var adDelegate: NSObject? = null
+    private var isShowingAd = false
 
     override val isAdAvailable: Boolean get() = mRewardedAd?.isAdValid() ?: false
 
     override fun loadAd() {
-        if (mRewardedAd != null) return
+        if (isAdAvailable) return
         reloadAd()
     }
 
@@ -42,9 +43,16 @@ class MetaRewardedAd(
             }
 
             override fun rewardedVideoAd(rewardedVideoAd: FBRewardedVideoAd, didFailWithError: NSError) {
-                adStateManager.onAdFailedToLoad(AdError(0, didFailWithError.toString()))
-                adLoadListener?.onAdFailedToLoad(AdError(0, didFailWithError.toString()))
-                if (adStateManager.shouldPreserveOnFailure) {
+                val error = AdError(0, didFailWithError.toString())
+                if (isShowingAd) {
+                    clean()
+                    adStateManager.onAdFailedToShow(error)
+                    adScreenContentCallback?.onAdFailedToShow(error)
+                    return
+                }
+                adStateManager.onAdFailedToLoad(error)
+                adLoadListener?.onAdFailedToLoad(error)
+                if (!adStateManager.shouldPreserveOnFailure) {
                     mRewardedAd = null
                 }
             }
@@ -55,9 +63,9 @@ class MetaRewardedAd(
             }
 
             override fun rewardedVideoAdDidClose(rewardedVideoAd: FBRewardedVideoAd) {
+                clean()
                 adStateManager.onAdDismissed()
                 adScreenContentCallback?.onAdDismissed()
-                clean()
             }
 
             override fun rewardedVideoAdWillLogImpression(rewardedVideoAd: FBRewardedVideoAd) {
@@ -77,6 +85,7 @@ class MetaRewardedAd(
     }
 
     override fun clean() {
+        isShowingAd = false
         mRewardedAd = null
         adDelegate = null
     }
@@ -95,6 +104,7 @@ class MetaRewardedAd(
     override fun showAd(owner: UIViewController, onUserRewarded: () -> Unit) {
         if (isAdAvailable) {
             userRewardedCallback = onUserRewarded
+            isShowingAd = true
             mRewardedAd?.showAdFromRootViewController(owner)
         }
     }

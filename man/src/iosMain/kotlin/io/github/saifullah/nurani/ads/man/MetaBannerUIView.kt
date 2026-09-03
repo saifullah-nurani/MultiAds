@@ -86,7 +86,7 @@ class MetaBannerUIView : UIView(frame = CGRectZero.readValue()) {
             checkNotNull(placementId) { "placementId must be set." }
             require(placementId!!.isNotEmpty()) { "placementId must not be empty." }
         }
-        destroy()
+        destroyBanner(resetStateManager = false)
         if (bannerView == null) {
             val finalPlacementId = if (isTestModeEnabled) testAdUnitId else placementId ?: ""
             bannerView = FBAdView(
@@ -105,8 +105,11 @@ class MetaBannerUIView : UIView(frame = CGRectZero.readValue()) {
 
                 override fun adView(adView: FBAdView, didFailWithError: NSError) {
                     log("Load failed ${didFailWithError.localizedDescription}")
-                    adStateManager?.onAdFailedToLoad(AdError(0, didFailWithError.toString()))
-                    adListener?.onAdFailedToLoad(AdError(0, didFailWithError.toString()))
+                    val error = AdError(0, didFailWithError.toString())
+                    adStateManager?.onAdFailedToLoad(error)
+                    if (adStateManager?.isRetryingAdFailedLoad != true) {
+                        adListener?.onAdFailedToLoad(error)
+                    }
                     if (!keepAdSlot) hidden = true
                 }
 
@@ -156,12 +159,26 @@ class MetaBannerUIView : UIView(frame = CGRectZero.readValue()) {
         }
     }
 
+    fun resume() {
+        adStateManager?.onStart()
+    }
+
+    fun pause() {
+        adStateManager?.onStop()
+    }
+
     fun destroy() {
+        destroyBanner(resetStateManager = true)
+    }
+
+    private fun destroyBanner(resetStateManager: Boolean) {
         bannerView?.removeFromSuperview()
         bannerView = null
         adDelegate = null
-        adStateManager?.onDestroy()
-        adStateManager = null
+        if (resetStateManager) {
+            adStateManager?.onDestroy()
+            adStateManager = null
+        }
     }
 
     private fun log(msg: String) {

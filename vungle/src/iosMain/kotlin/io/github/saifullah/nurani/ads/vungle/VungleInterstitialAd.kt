@@ -24,7 +24,7 @@ class VungleInterstitialAd(
     override val isAdAvailable: Boolean get() = mInterstitialAd?.canPlayAd() ?: false
 
     override fun loadAd() {
-        if (mInterstitialAd != null) return
+        if (isAdAvailable) return
         reloadAd()
     }
 
@@ -53,7 +53,7 @@ class VungleInterstitialAd(
             override fun interstitialAdDidFailToLoad(interstitial: VungleInterstitial, withError: NSError) {
                 adStateManager.onAdFailedToLoad(AdError(0, withError.localizedDescription ?: "Unknown error"))
                 adLoadListener?.onAdFailedToLoad(AdError(0, withError.localizedDescription ?: "Unknown error"))
-                if (adStateManager.shouldPreserveOnFailure) {
+            if (!adStateManager.shouldPreserveOnFailure) {
                     mInterstitialAd = null
                 }
             }
@@ -68,6 +68,7 @@ class VungleInterstitialAd(
 
             override fun interstitialAdDidFailToPresent(interstitial: VungleInterstitial, withError: NSError) {
                 val adError = AdError(0, withError.localizedDescription ?: "Unknown error")
+                clean()
                 adStateManager.onAdFailedToShow(adError)
                 adScreenContentCallback?.onAdFailedToShow(adError)
             }
@@ -78,9 +79,9 @@ class VungleInterstitialAd(
             }
 
             override fun interstitialAdDidClose(interstitial: VungleInterstitial) {
+                clean()
                 adStateManager.onAdDismissed()
                 adScreenContentCallback?.onAdDismissed()
-                clean()
             }
             
             override fun interstitialAdDidTrackImpression(interstitial: VungleInterstitial) {}

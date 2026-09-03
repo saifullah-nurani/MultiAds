@@ -21,6 +21,7 @@ class MetaInterstitialAd(
     handler: Handler?
 ) : MetaFullScreenAdState(context, Scheduler(handler), adConfig, TAG) {
     private var mInterstitialAd: InterstitialAd? = null
+    private var isShowingAd = false
 
     private val interstitialAdListener = object : InterstitialAdListener {
         override fun onInterstitialDisplayed(ad: Ad?) {
@@ -40,9 +41,15 @@ class MetaInterstitialAd(
                     -1,
                     "Unknown error"
                 )
+            if (isShowingAd) {
+                clean()
+                adStateManager.onAdFailedToShow(error)
+                adScreenContentCallback?.onAdFailedToShow(error)
+                return
+            }
             adStateManager.onAdFailedToLoad(error)
             adLoadListener?.onAdFailedToLoad(error)
-            if (adStateManager.shouldPreserveOnFailure) {
+            if (!adStateManager.shouldPreserveOnFailure) {
                 mInterstitialAd = null
             }
         }
@@ -88,12 +95,14 @@ class MetaInterstitialAd(
     }
 
     override fun clean() {
+        isShowingAd = false
         mInterstitialAd?.destroy()
         mInterstitialAd = null
     }
 
     override fun showAd(owner: Activity) {
         if (isAdAvailable) {
+            isShowingAd = true
             mInterstitialAd!!.show()
         }
     }
@@ -120,7 +129,7 @@ class MetaInterstitialAd(
     }
 
     override fun addLifecycleOwner(owner: LifecycleOwner) {
-        owner.lifecycle.addObserver(adStateManager)
+        adStateManager.addLifecycleOwner(owner)
     }
 
     companion object {

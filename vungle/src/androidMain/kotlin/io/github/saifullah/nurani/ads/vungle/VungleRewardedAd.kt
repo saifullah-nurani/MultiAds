@@ -46,7 +46,7 @@ class VungleRewardedAd(
             val adError = VungleUtils.adErrorFrom(adError)
             adStateManager.onAdFailedToLoad(adError)
             adLoadListener?.onAdFailedToLoad(adError)
-            if (adStateManager.shouldPreserveOnFailure) {
+            if (!adStateManager.shouldPreserveOnFailure) {
                 mRewarded = null
             }
         }
@@ -56,8 +56,9 @@ class VungleRewardedAd(
             adError: VungleError
         ) {
             val adError = VungleUtils.adErrorFrom(adError)
-            adScreenContentCallback?.onAdFailedToShow(adError)
             clean()
+            adStateManager.onAdFailedToShow(adError)
+            adScreenContentCallback?.onAdFailedToShow(adError)
         }
 
         override fun onAdImpression(baseAd: BaseAd) {
@@ -175,7 +176,7 @@ class VungleRewardedAd(
     }
 
     override fun addLifecycleOwner(owner: LifecycleOwner) {
-        owner.lifecycle.addObserver(adStateManager)
+        adStateManager.addLifecycleOwner(owner)
     }
 
     companion object {

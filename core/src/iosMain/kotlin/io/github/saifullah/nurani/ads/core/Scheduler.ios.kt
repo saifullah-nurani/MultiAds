@@ -1,8 +1,5 @@
 package io.github.saifullah.nurani.ads.core
 import androidx.compose.runtime.Stable
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
 import platform.darwin.*
 import kotlin.collections.MutableMap
 import kotlin.collections.mutableMapOf
@@ -38,19 +35,18 @@ actual class Scheduler {
      * @param task The task to execute.
      */
     actual fun schedule(delayMillis: Long, task: () -> Unit) {
-        val item = WorkItem(
+        lateinit var item: WorkItem
+        item = WorkItem(
             block = dispatch_block_create(0u) {
-                val entry = workItemMap[task]
-
-                if (entry?.cancelled == true) return@dispatch_block_create
-
+                if (item.cancelled) return@dispatch_block_create
+                if (workItemMap[task] === item) {
+                    workItemMap.remove(task)
+                }
                 task()
-
-                workItemMap.remove(task)
             }
         )
 
-        workItemMap[task] = item
+        workItemMap.put(task, item)?.cancelled = true
 
         dispatch_after(
             dispatch_time(DISPATCH_TIME_NOW, delayMillis * 1_000_000),

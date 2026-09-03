@@ -16,6 +16,7 @@ import io.github.saifullah.nurani.ads.core.AdSize
 import io.github.saifullah.nurani.ads.core.BannerAd
 import io.github.saifullah.nurani.ads.core.BannerAdListener
 import io.github.saifullah.nurani.ads.core.rememberBannerHeightController
+import io.github.saifullah.nurani.ads.core.rememberBannerLifecycleBinding
 
 @Composable
 actual fun IronSourceBannerAd(
@@ -29,7 +30,7 @@ actual fun IronSourceBannerAd(
     adListener: BannerAdListener?
 ) {
     IronSourceBannerAd(
-        placementName = properties.androidPlacementName,
+        adUnitId = properties.androidAdUnitId,
         tag = properties.tag,
         testModeEnabled = testModeEnabled,
         expandWhenReady = expandWhenReady,
@@ -46,7 +47,7 @@ actual fun IronSourceBannerAd(
  */
 @Composable
 fun IronSourceBannerAd(
-    placementName: String? = null,
+    adUnitId: String? = null,
     tag: String? = null,
     testModeEnabled: Boolean = false,
     expandWhenReady: Boolean = true,
@@ -61,10 +62,14 @@ fun IronSourceBannerAd(
         expandWhenReady = expandWhenReady,
         animateExpansion = animateExpansion
     )
-    val placementNameState by rememberSaveable(placementName) {
-        mutableStateOf(placementName)
+    val adUnitIdState by rememberSaveable(adUnitId) {
+        mutableStateOf(adUnitId)
     }
     val initialLoadRequested = remember { booleanArrayOf(false) }
+    val lifecycleBinding = rememberBannerLifecycleBinding<IronSourceBannerView>(
+        onStart = { it.resume() },
+        onStop = { it.pause() }
+    )
     AndroidView(
         modifier = Modifier
             .fillMaxWidth()
@@ -73,12 +78,12 @@ fun IronSourceBannerAd(
         factory = { ctx ->
             IronSourceBannerView(ctx).apply {
                 setAdLogger(adLogger)
-                placementNameState?.let { setPlacementId(it) }
+                adUnitIdState?.let { setAdUnitId(it) }
                 setRequestTag(tag)
                 this.retryRule = adFailedAdRetryRule
                 setKeepAdSlot(expandWhenReady)
                 setTestModeEnabled(testModeEnabled)
-            }
+            }.also(lifecycleBinding::attach)
         },
 
         update = { view ->
@@ -101,16 +106,19 @@ fun IronSourceBannerAd(
             }
         },
 
-        onRelease = { it.destroy() }
+        onRelease = {
+            lifecycleBinding.detach(it)
+            it.destroy()
+        }
     )
 }
 
 /**
- * Creates IronSource ad properties for Android placement names.
+ * Creates IronSource ad properties for Android LevelPlay ad unit IDs.
  */
 fun ironSourceAdProperties(
-    placementName: String? = null,
+    adUnitId: String? = null,
     tag: String? = null
 ): IronSourceAdProperties {
-    return IronSourceAdProperties(placementName, null, tag)
+    return IronSourceAdProperties(adUnitId, null, tag)
 }

@@ -27,7 +27,7 @@ class PangleRewardedAd(
     override val isAdAvailable: Boolean get() = mRewardedAd != null
 
     override fun loadAd() {
-        if (mRewardedAd != null) return
+        if (isAdAvailable) return
         reloadAd()
     }
 
@@ -49,7 +49,7 @@ class PangleRewardedAd(
             if (error != null || rewardedAd == null) {
                 adStateManager.onAdFailedToLoad(AdError(0, error?.localizedDescription ?: "Unknown error"))
                 adLoadListener?.onAdFailedToLoad(AdError(0, error?.localizedDescription ?: "Unknown error"))
-                if (adStateManager.shouldPreserveOnFailure) {
+                if (!adStateManager.shouldPreserveOnFailure) {
                     mRewardedAd = null
                 }
             } else {
@@ -65,9 +65,9 @@ class PangleRewardedAd(
                         adScreenContentCallback?.onAdClicked()
                     }
                     override fun adDidDismiss(ad: PAGAdProtocolProtocol) {
+                        clean()
                         adStateManager.onAdDismissed()
                         adScreenContentCallback?.onAdDismissed()
-                        clean()
                     }
                     override fun rewardedAd(rewardedAd: PAGRewardedAd, userDidEarnReward: PAGRewardModel) {
                         println("PangleRewardedAd [iOS]: rewardedAd delegate method called. userRewardedCallback is $userRewardedCallback")
@@ -125,7 +125,7 @@ class PangleRewardedAd(
             return PangleRewardedAd(adUnitId, null, adConfig)
         }
 
-        const val TEST_AD_UNIT_ID: String = "980088192"
+        const val TEST_AD_UNIT_ID: String = "983586223"
         const val TAG: String = "PangleRewardedAd"
     }
 }

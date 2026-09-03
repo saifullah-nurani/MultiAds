@@ -95,7 +95,7 @@ class AppLovinBannerUIView : UIView(frame = CGRectZero.readValue()) {
             checkNotNull(adUnitId) { "adUnitId must be set." }
             require(adUnitId!!.isNotEmpty()) { "adUnitId must not be empty." }
         }
-        destroy()
+        destroyBanner(resetStateManager = false)
         if (bannerView == null) {
             val format = bannerAd?.getSize() ?: MAAdFormat.banner
             val finalAdUnitId = if (isTestModeEnabled) testAdUnitId else adUnitId!!
@@ -111,8 +111,11 @@ class AppLovinBannerUIView : UIView(frame = CGRectZero.readValue()) {
 
                 override fun didFailToLoadAdForAdUnitIdentifier(adUnitIdentifier: String, withError: MAError) {
                     log("Load failed ${withError.toString()}")
-                    adStateManager?.onAdFailedToLoad(AdError(0, withError.toString()))
-                    adListener?.onAdFailedToLoad(AdError(0, withError.toString()))
+                    val error = AdError(0, withError.toString())
+                    adStateManager?.onAdFailedToLoad(error)
+                    if (adStateManager?.isRetryingAdFailedLoad != true) {
+                        adListener?.onAdFailedToLoad(error)
+                    }
                     if (!keepAdSlot) hidden = true
                 }
 
@@ -173,12 +176,26 @@ class AppLovinBannerUIView : UIView(frame = CGRectZero.readValue()) {
         }
     }
 
+    fun resume() {
+        adStateManager?.onStart()
+    }
+
+    fun pause() {
+        adStateManager?.onStop()
+    }
+
     fun destroy() {
+        destroyBanner(resetStateManager = true)
+    }
+
+    private fun destroyBanner(resetStateManager: Boolean) {
         bannerView?.removeFromSuperview()
         bannerView = null
         adDelegate = null
-        adStateManager?.onDestroy()
-        adStateManager = null
+        if (resetStateManager) {
+            adStateManager?.onDestroy()
+            adStateManager = null
+        }
     }
 
     private fun log(msg: String) {

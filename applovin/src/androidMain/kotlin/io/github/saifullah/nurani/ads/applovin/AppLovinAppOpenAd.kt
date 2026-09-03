@@ -32,7 +32,7 @@ class AppLovinAppOpenAd(
             val adError = AppLovinUtils.adErrorFrom(error)
             adStateManager.onAdFailedToLoad(adError)
             adLoadListener?.onAdFailedToLoad(adError)
-            if (adStateManager.shouldPreserveOnFailure) {
+            if (!adStateManager.shouldPreserveOnFailure) {
                 mAppOpenAd = null
             }
         }
@@ -55,8 +55,9 @@ class AppLovinAppOpenAd(
 
         override fun onAdDisplayFailed(ad: MaxAd, error: MaxError) {
             val adError = AppLovinUtils.adErrorFrom(error)
-            adScreenContentCallback?.onAdFailedToShow(adError)
             clean()
+            adStateManager.onAdFailedToShow(adError)
+            adScreenContentCallback?.onAdFailedToShow(adError)
         }
     }
 
@@ -112,7 +113,7 @@ class AppLovinAppOpenAd(
     }
 
     override fun addLifecycleOwner(owner: LifecycleOwner) {
-        owner.lifecycle.addObserver(adStateManager)
+        adStateManager.addLifecycleOwner(owner)
     }
 
     companion object {

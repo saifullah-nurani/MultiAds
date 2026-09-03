@@ -18,16 +18,19 @@ lifecycleRuntimeKtx = "2.10.0"
 composeBom = "2026.02.01"
 kotlinStdlib = "2.3.10"
 materialIconsExtended = "1.7.3"
+playServicesAppset = "16.1.0"
+playServicesBasement = "18.11.0"
 runner = "1.7.0"
 core = "1.7.0"
-playServicesAds = "25.0.0"
+playServicesAds = "25.4.0"
 runtime = "1.10.4"
-audienceNetworkSdk = "6.21.0"
-appLovinSdk = "13.0.1"
-inMobiSdk = "11.3.0"
-vungleSdk = "7.7.4"
-pangleSdk = "6.4.0.6"
-ironSourceSdk = "8.1.0"
+audienceNetworkSdk = "6.22.0"
+appLovinSdk = "13.6.4"
+inMobiSdk = "11.4.1"
+vungleSdk = "7.7.8"
+pangleSdk = "8.1.0.3"
+ironSourceSdk = "9.6.0"
+ads-identifier = "18.3.0"
 
 [libraries]
 androidx-lifecycle-runtime = { module = "androidx.lifecycle:lifecycle-runtime", version.ref = "lifecycleRuntimeKtx" }
@@ -66,9 +69,12 @@ play-services-ads = { module = "com.google.android.gms:play-services-ads", versi
 audience-network-sdk = { module = "com.facebook.android:audience-network-sdk", version.ref = "audienceNetworkSdk" }
 applovin-sdk = { module = "com.applovin:applovin-sdk", version.ref = "appLovinSdk" }
 inmobi-sdk = { module = "com.inmobi.monetization:inmobi-ads-kotlin", version.ref = "inMobiSdk" }
+play-services-appset = { module = "com.google.android.gms:play-services-appset", version.ref = "playServicesAppset" }
+play-services-basement = { module = "com.google.android.gms:play-services-basement", version.ref = "playServicesBasement" }
 vungle-sdk = { module = "com.vungle:vungle-ads", version.ref = "vungleSdk" }
-pangle-sdk = { module = "com.pangle.global:ads-sdk", version.ref = "pangleSdk" }
-ironSource-sdk = { module = "com.ironsource.sdk:mediationsdk", version.ref = "ironSourceSdk" }
+pangle-sdk = { module = "com.pangle.global:pag-sdk", version.ref = "pangleSdk" }
+ironSource-sdk = { module = "com.unity3d.ads-mediation:mediation-sdk", version.ref = "ironSourceSdk" }
+ads-identifier ={module="com.google.android.gms:play-services-ads-identifier",version.ref="ads-identifier"}
 
 [plugins]
 androidApplication = { id = "com.android.application", version.ref = "agp" }

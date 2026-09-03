@@ -16,6 +16,7 @@ import io.github.saifullah.nurani.ads.core.AdSize
 import io.github.saifullah.nurani.ads.core.BannerAd
 import io.github.saifullah.nurani.ads.core.BannerAdListener
 import io.github.saifullah.nurani.ads.core.rememberBannerHeightController
+import io.github.saifullah.nurani.ads.core.rememberBannerLifecycleBinding
 import kotlinx.cinterop.ExperimentalForeignApi
 
 @OptIn(ExperimentalForeignApi::class)
@@ -35,10 +36,14 @@ actual fun IronSourceBannerAd(
         expandWhenReady = expandWhenReady,
         animateExpansion = animateExpansion
     )
-    val placementName by rememberSaveable(properties.iosPlacementName) {
-        mutableStateOf(properties.iosPlacementName ?: "")
+    val adUnitId by rememberSaveable(properties.iosAdUnitId) {
+        mutableStateOf(properties.iosAdUnitId ?: "")
     }
     val initialLoadRequested = remember { booleanArrayOf(false) }
+    val lifecycleBinding = rememberBannerLifecycleBinding<IronSourceBannerUIView>(
+        onStart = { it.resume() },
+        onStop = { it.pause() }
+    )
     UIKitView(
         modifier = Modifier
             .fillMaxWidth()
@@ -50,8 +55,8 @@ actual fun IronSourceBannerAd(
                 this.retryRule = adFailedAdRetryRule
                 this.keepAdSlot = expandWhenReady
                 setRequestTag(properties.tag)
-                setPlacementId(placementName)
-            }
+                setPlacementId(adUnitId)
+            }.also(lifecycleBinding::attach)
         },
 
         update = { view ->
@@ -77,6 +82,9 @@ actual fun IronSourceBannerAd(
             }
         },
 
-        onRelease = { it.destroy() }
+        onRelease = {
+            lifecycleBinding.detach(it)
+            it.destroy()
+        }
     )
 }

@@ -129,8 +129,11 @@ class IronSourceBannerUIView : UIView(frame = CGRectZero.readValue()) {
 
                 override fun didFailToLoadAdWithAdUnitId(adUnitId: String, error: NSError) {
                     log("Load failed ${error.localizedDescription}")
-                    adStateManager?.onAdFailedToLoad(AdError(0, error.localizedDescription ?: "Unknown error"))
-                    adListener?.onAdFailedToLoad(AdError(0, error.localizedDescription ?: "Unknown error"))
+                    val adError = AdError(0, error.localizedDescription ?: "Unknown error")
+                    adStateManager?.onAdFailedToLoad(adError)
+                    if (adStateManager?.isRetryingAdFailedLoad != true) {
+                        adListener?.onAdFailedToLoad(adError)
+                    }
                     if (!keepAdSlot) hidden = true
                 }
 
@@ -197,6 +200,14 @@ class IronSourceBannerUIView : UIView(frame = CGRectZero.readValue()) {
                 animations = { this.alpha = 1.0 }
             )
         }
+    }
+
+    fun resume() {
+        adStateManager?.onStart()
+    }
+
+    fun pause() {
+        adStateManager?.onStop()
     }
 
     fun destroy() {

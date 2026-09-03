@@ -4,6 +4,7 @@ package io.github.saifullah.nurani.ads.core
 
 import platform.Foundation.NSNotificationCenter
 import platform.UIKit.UIApplicationDidBecomeActiveNotification
+import platform.UIKit.UIApplicationDidEnterBackgroundNotification
 import platform.UIKit.UIApplicationWillEnterForegroundNotification
 import platform.UIKit.UIViewController
 import kotlin.reflect.KClass
@@ -91,9 +92,12 @@ class IosAppOpenAutoShowHandle internal constructor(
         observerTokens.forEach { token ->
             NSNotificationCenter.defaultCenter.removeObserver(token)
         }
+        ad.onStop()
+        ad.onDestroy()
     }
 
     private fun showOrLoad(viewController: UIViewController?) {
+        ad.onStart()
         if (ad.isAdAvailable && viewController != null) {
             ad.showAd(viewController)
         } else {
@@ -117,6 +121,12 @@ fun <T : AppOpenAd> T.bindToIosAppOpenAutoShow(
         viewControllerRules = builder.viewControllerRules.toList(),
         observerTokens = tokens
     )
+
+    tokens += center.addObserverForName(
+        name = UIApplicationDidEnterBackgroundNotification,
+        `object` = null,
+        queue = null
+    ) { this.onStop() }
 
     if (IosAppOpenLifecycleState.DID_BECOME_ACTIVE in builder.appStates) {
         tokens += center.addObserverForName(

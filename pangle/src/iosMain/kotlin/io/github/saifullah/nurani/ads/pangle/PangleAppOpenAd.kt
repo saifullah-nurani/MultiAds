@@ -27,7 +27,7 @@ class PangleAppOpenAd(
     override val isAdAvailable: Boolean get() = mAppOpenAd != null
 
     override fun loadAd() {
-        if (mAppOpenAd != null) return
+        if (isAdAvailable) return
         reloadAd()
     }
 
@@ -49,7 +49,7 @@ class PangleAppOpenAd(
             if (error != null || appOpenAd == null) {
                 adStateManager.onAdFailedToLoad(AdError(0, error?.localizedDescription ?: "Unknown error"))
                 adLoadListener?.onAdFailedToLoad(AdError(0, error?.localizedDescription ?: "Unknown error"))
-                if (adStateManager.shouldPreserveOnFailure) {
+                if (!adStateManager.shouldPreserveOnFailure) {
                     mAppOpenAd = null
                 }
             } else {
@@ -65,9 +65,9 @@ class PangleAppOpenAd(
                         adScreenContentCallback?.onAdClicked()
                     }
                     override fun adDidDismiss(ad: PAGAdProtocolProtocol) {
+                        clean()
                         adStateManager.onAdDismissed()
                         adScreenContentCallback?.onAdDismissed()
-                        clean()
                     }
                 }
                 adDelegate = delegate
@@ -90,7 +90,10 @@ class PangleAppOpenAd(
     }
 
     override fun tryShowAd(): Boolean {
-        return false
+        val root = platform.UIKit.UIApplication.sharedApplication.keyWindow?.rootViewController
+        if (root == null || !isAdAvailable) return false
+        showAd(root)
+        return true
     }
 
     companion object {
@@ -103,7 +106,7 @@ class PangleAppOpenAd(
             return PangleAppOpenAd(adUnitId, null, adConfig)
         }
 
-        const val TEST_AD_UNIT_ID: String = "980088188"
+        const val TEST_AD_UNIT_ID: String = "983581648"
         const val TAG: String = "PangleAppOpenAd"
     }
 }
